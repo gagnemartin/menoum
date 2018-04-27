@@ -24,7 +24,6 @@ export default class Search extends Component {
             params: data
         })
             .then(function (response) {
-                console.log(response.data)
                 self.setState({
                     recipes: response.data,
                     loading: false
@@ -39,17 +38,17 @@ export default class Search extends Component {
     {
         return (
             <div className="container">
-                <h1 className="text-center">Menoum</h1>
+                <h1 className="text-center my-5">Menoum</h1>
                 <SearchInput
                     getRecipes={ this.getRecipes.bind(this) }
                 />
 
                 { this.state.recipes !== null &&
-                <div className="row">
+                <div className="row mt-5">
                     <div className="col-12 grid-4">
                         { this.state.recipes.map((recipe, index) => (
-                            <Card>
-                                <CardImg top width="100%" src="https://placeholdit.imgix.net/~text?txtsize=33&txt=318%C3%97180&w=318&h=180" alt="Card image cap" />
+                            <Card key={ index }>
+                                <CardImg top width="100%" src={"http://lorempicsum.com/futurama/627/350/" + (Math.floor(Math.random() * Math.floor(3)) + 1)} alt="Card image cap" />
                                 <CardBody>
                                     <CardTitle>{ recipe.name }</CardTitle>
                                     <ul>

@@ -12,8 +12,8 @@ class IngredientController extends Controller
         $data = Ingredient::
             where('name', 'like', $value . '%')
             ->where('approved', true)
-            ->limit(10)
-            ->orderBy('name', 'asc')
+            ->limit(5)
+            ->orderBy('recipe_count', 'desc')
             ->get();
         return $data;
     }
