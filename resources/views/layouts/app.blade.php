@@ -19,6 +19,33 @@
 
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+        <ul class="nav navbar-nav">
+            <a class="navbar-brand" href="{{ url('/') }}">{{ config('app.name', 'Laravel') }}</a>
+        </ul>
+        <ul class="nav navbar-nav ml-auto">
+            @guest
+                <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+            @else
+                <li class="nav-item">
+                    <form action="{{ route('logout') }}" method="POST">
+                        {!! csrf_field() !!}
+                        <button type="submit" role='button' class="btn btn-link nav-item nav-link">
+                            Logout
+                        </button>
+                    </form>
+                </li>
+            @endif
+        </ul>
+    </div>
+</nav>
 
     <div class="container">
         @yield('content')
