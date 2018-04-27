@@ -23,17 +23,16 @@ export default class SearchResult extends Component
      */
     render()
     {
-        console.log(this.props.className)
         let split = this.props.value.name.split(this.props.inputValue)
 
         return (
             <li
-                onClick={ this.handleClick.bind(this) }
+                onMouseDown={ this.handleClick.bind(this) }
                 data-name={ this.props.value.name }
                 className={ this.props.className }
             >
                 {split.length > 1 &&
-                    <b onClick={ this.handleClick.bind(this) } data-name={ this.props.value.name }>{ this.props.inputValue }</b>
+                    <b onMouseDown={ this.handleClick.bind(this) } data-name={ this.props.value.name }>{ this.props.inputValue }</b>
                 }
 
                 {split.length > 1 ? (

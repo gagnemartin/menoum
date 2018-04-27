@@ -5,10 +5,73 @@
 // Variables
 @import "variables";
 
+* {
+  box-sizing: border-box;
+}
+
+*:focus {
+  outline: none;
+}
 
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-column-gap: 20px;
   grid-row-gap: 20px;
+}
+
+.search-wrap {
+  border: solid 1px #D3D3D3;
+  height: 50px;
+
+  .badge:not(:last-child) {
+    margin-right: 10px;
+  }
+}
+
+.input-search {
+  width: 100%;
+  border: none;
+  padding: 10px;
+}
+
+.result-wrap {
+  position: absolute;
+  z-index: 99;
+  top: 50px;
+  width: 100%;
+
+  ul {
+    border: solid 1px #D3D3D3;
+    border-top: none;
+    background-color: #FFF;
+  }
+}
+
+.list-ul {
+  margin: 0;
+  padding: 0;
+}
+
+.list-item {
+  list-style: none;
+  cursor: pointer;
+
+  padding: 2px 15px;
+
+  &.hover, &:hover {
+    background-color: #efefef;
+  }
+}
+
+@media (max-width: 991px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
 }

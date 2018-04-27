@@ -3,10 +3,8 @@ import { Button, Input, Form, FormGroup, Label } from 'reactstrap'
 import SearchResult from './SearchResult'
 import _ from 'lodash'
 
-export default class SearchInput extends Component
-{
-    constructor(props)
-    {
+export default class SearchInput extends Component {
+    constructor(props) {
         super(props)
 
         this.state = {
@@ -17,6 +15,7 @@ export default class SearchInput extends Component
             selected: null
         }
 
+        this.search = React.createRef()
         this.updateInput = _.debounce(this.updateInput, 100);
     }
 
@@ -25,9 +24,7 @@ export default class SearchInput extends Component
      *
      * @param {object} e Event object
      */
-    handleKeyUp(e)
-    {
-        let keyCode = e.keyCode
+    handleKeyUp(e) {
         let value = e.target.value.trim()
 
         // Set value to null if input is empty
@@ -45,14 +42,18 @@ export default class SearchInput extends Component
      *
      * @param {object} e Event object
      */
-    handleKeyDown(e)
-    {
+    handleKeyDown(e) {
         let keyCode = e.keyCode
         let carretPosition = e.target.selectionStart
 
         // Prevent submit on Enter key
         if (keyCode === 13) {
             e.preventDefault()
+
+            // User pressed Enter key when navigating in the results with the keyboard
+            if (this.state.selected !== null) {
+                this.resultClick(this.state.results[this.state.selected].name)
+            }
         }
 
         // Navigate the results with the keyboard
@@ -63,9 +64,52 @@ export default class SearchInput extends Component
         // Remove added ingredients on Backspace key
         if (keyCode === 8 && carretPosition === 0 && this.state.ingredients !== null) {
             this.state.ingredients.splice((this.state.ingredients.length - 1))
+
+            if (this.state.ingredients.length === 0) {
+                this.setState({
+                    ingredients: null
+                })
+            }
         }
     }
 
+    handleChange(e)
+    {
+        let value = e.target.value.trim()
+
+        // Set value to null if input is empty
+        if (value === '') {
+            value = null
+        }
+
+        this.setState({
+            inputValue: value
+        })
+    }
+
+    /*
+     * Listens when the user loses the focus of the input
+     */
+    handleBlur()
+    {
+        this.emptyResults()
+    }
+
+    /*
+     * Empties the results in the state
+     */
+    emptyResults()
+    {
+        this.setState({
+            results: null
+        })
+    }
+
+    /*
+     * Nagivate through the result box with the keyboard
+     *
+     * @param {int} keyCode
+     */
     navigateResults(keyCode)
     {
         if (this.state.results !== null) {
@@ -117,9 +161,7 @@ export default class SearchInput extends Component
                 let split = this.state.results[i].name.split(this.state.inputValue)
 
                 if (split.length <= 1) {
-                    this.setState({
-                        results: null
-                    })
+                    this.emptyResults()
 
                     break;
                 }
@@ -176,10 +218,12 @@ export default class SearchInput extends Component
             }
         }
 
+        this.search.current.focus()
+
         this.setState({
             ingredients: ingredients,
             results: null,
-            inputValue: null,
+            inputValue: '',
             selected: null
         }, this.getRecipes)
     }
@@ -202,40 +246,39 @@ export default class SearchInput extends Component
     render()
     {
         return (
-            <div className="row">
+            <div className="row position-relative">
                 <div className="col-12">
-                    <div className="d-flex flex-row flex-wrap">
+                    <div className="search-wrap d-flex flex-row flex-wrap align-items-center px-3">
                         { this.state.ingredients !== null &&
-                            <div className="col-auto">
-                                <p>
-                                    { this.state.ingredients.map((ingredient, index) =>
-                                        <span
-                                            key={ index }
-                                            className="badge badge-info"
-                                        >
-                                            { ingredient }
-                                        </span>
-                                    ) }
-                                </p>
+                            <div className="mr-3">
+                                { this.state.ingredients.map((ingredient, index) =>
+                                    <span
+                                        key={ index }
+                                        className="badge badge-info"
+                                    >
+                                        { ingredient }
+                                    </span>
+                                ) }
                             </div>
                         }
-                        <div className="col">
-                            <Form>
-                                <FormGroup>
-                                    <Input
-                                        autoFocus
-                                        placeholder="Tappez un ingrédient.."
-                                        onKeyDown={ this.handleKeyDown.bind(this) }
-                                        onKeyUp={ this.handleKeyUp.bind(this) }
-                                    />
-                                </FormGroup>
-                            </Form>
+                        <div className="col p-0">
+                            <input
+                                autoFocus
+                                ref={ this.search }
+                                placeholder="Search for an ingredient..."
+                                onKeyDown={ this.handleKeyDown.bind(this) }
+                                onKeyUp={ this.handleKeyUp.bind(this) }
+                                onChange={ this.handleChange.bind(this) }
+                                onBlur={ this.handleBlur.bind(this) }
+                                className="input-search p-0"
+                                value={ this.state.inputValue !== null ? this.state.inputValue : ''}
+                            />
                         </div>
                     </div>
                 </div>
                 { this.state.results !== null &&
-                    <div className="col-12">
-                        <ul>
+                    <div className="result-wrap px-3">
+                        <ul className="list-ul">
                             {this.state.results.map((result, index) => (
                                 <SearchResult
                                     key={ index }
