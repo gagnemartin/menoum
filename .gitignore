@@ -12,4 +12,4 @@ npm-debug.log
 yarn-error.log
 .env
 stuff/*
-__pychache__/*
+*.pyc
