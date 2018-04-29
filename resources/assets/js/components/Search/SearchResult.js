@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Highlighter from '../Tools/Highlighter'
 
 export default class SearchResult extends Component
 {
@@ -14,8 +15,7 @@ export default class SearchResult extends Component
      */
     handleClick(e)
     {
-        e.stopPropagation()
-        this.props.onClick(e.target.dataset.name)
+        this.props.onClick(this.props.value.name)
     }
 
     /*
@@ -23,23 +23,17 @@ export default class SearchResult extends Component
      */
     render()
     {
-        let split = this.props.value.name.split(this.props.inputValue)
-
         return (
             <li
                 onMouseDown={ this.handleClick.bind(this) }
-                data-name={ this.props.value.name }
                 className={ this.props.className }
             >
-                {split.length > 1 &&
-                    <b onMouseDown={ this.handleClick.bind(this) } data-name={ this.props.value.name }>{ this.props.inputValue }</b>
+                { this.props.inputValue !== null &&
+                <Highlighter
+                    text={ this.props.value.name }
+                    highlight={ this.props.inputValue }
+                />
                 }
-
-                {split.length > 1 ? (
-                    split[1]
-                ) : (
-                    this.props.value.name
-                )}
             </li>
         )
     }

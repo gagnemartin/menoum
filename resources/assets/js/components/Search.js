@@ -15,23 +15,29 @@ export default class Search extends Component {
 
     getRecipes(data)
     {
-        this.setState({
-            loading: true
-        })
-
-        let self = this
-        const $request = axios.get('/recipe', {
-            params: data
-        })
-            .then(function (response) {
-                self.setState({
-                    recipes: response.data,
-                    loading: false
-                })
+        if (data.ingredients !== null) {
+            this.setState({
+                loading: true
             })
-            .catch(function (error) {
-                console.error(error);
-            });
+
+            let self = this
+            const $request = axios.get('/recipe', {
+                params: data
+            })
+                .then(function (response) {
+                    self.setState({
+                        recipes: response.data,
+                        loading: false
+                    })
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+        } else {
+            this.setState({
+                recipes: null,
+            })
+        }
     }
 
     render()
@@ -48,7 +54,7 @@ export default class Search extends Component {
                     <div className="col-12 grid-4">
                         { this.state.recipes.map((recipe, index) => (
                             <Card key={ index }>
-                                <CardImg top width="100%" src={"http://lorempicsum.com/futurama/627/350/" + (Math.floor(Math.random() * Math.floor(3)) + 1)} alt="Card image cap" />
+                                <CardImg top width="100%" src={ recipe.media[0].url } alt={ recipe.media[0].name } />
                                 <CardBody>
                                     <CardTitle>{ recipe.name }</CardTitle>
                                     <ul>
