@@ -4,12 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Ingredient extends Model
+class Media extends Model
 {
-    protected $collection = 'ingredients';
-
     protected $fillable = [
         'name',
-        'slug'
+        'url'
     ];
+
+    public function mediaable()
+    {
+        return $this->morphTo();
+    }
 }

@@ -10,11 +10,19 @@ class IngredientController extends Controller
     public function Search(string $value)
     {
         $data = Ingredient::
-            where('name', 'like', $value . '%')
+            where(function ($query) use ($value) {
+                if (strlen($value) >= 2) {
+                    $query->where('name', 'like', $value . '%')
+                        ->orWhere('name', 'like', '%' . $value . '%');
+                } else {
+                    $query->where('name', 'like', $value . '%');
+                }
+        })
             ->where('approved', true)
             ->limit(5)
             ->orderBy('recipe_count', 'desc')
             ->get();
+
         return $data;
     }
 }

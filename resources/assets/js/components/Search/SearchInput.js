@@ -25,6 +25,7 @@ export default class SearchInput extends Component {
      * @param {object} e Event object
      */
     handleKeyUp(e) {
+        let keyCode = e.keyCode
         let value = e.target.value.trim()
 
         // Set value to null if input is empty
@@ -34,7 +35,12 @@ export default class SearchInput extends Component {
 
         this.setState({
             inputValue: value
-        }, this.update)
+        }, () => {
+            // Don't fetch new results on arrow keys
+            if (![37, 38, 39, 40].includes(keyCode)) {
+                this.update()
+            }
+        })
     }
 
     /*
@@ -63,13 +69,7 @@ export default class SearchInput extends Component {
 
         // Remove added ingredients on Backspace key
         if (keyCode === 8 && carretPosition === 0 && this.state.ingredients !== null) {
-            this.state.ingredients.splice((this.state.ingredients.length - 1))
-
-            if (this.state.ingredients.length === 0) {
-                this.setState({
-                    ingredients: null
-                })
-            }
+            this.updateResults()
         }
     }
 
@@ -149,6 +149,22 @@ export default class SearchInput extends Component {
     {
         this.updateInput()
         this.updateDropdown()
+    }
+
+    updateResults()
+    {
+        let ingredients = this.state.ingredients
+        ingredients.splice(ingredients.length - 1)
+        let newState = {
+            ingredients: ingredients
+        }
+
+
+        if (newState.ingredients.length === 0) {
+            newState.ingredients = null
+        }
+
+        this.setState(newState, this.getRecipes)
     }
 
     /*
