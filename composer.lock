@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "848c3d5fe628002d7cc93dba24c3b7de",
+    "content-hash": "e5ff28b8a6b988a4dff46619cc0dfd10",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1177,6 +1177,39 @@
                 "shell"
             ],
             "time": "2017-12-28T16:14:16+00:00"
+        },
+        {
+            "name": "quankim/laravel-counter-cache",
+            "version": "1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/quanvhframgia/laravel-counter-cache.git",
+                "reference": "2851b2a889cdf5e75da2b79dc2f12f38657a386a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/quanvhframgia/laravel-counter-cache/zipball/2851b2a889cdf5e75da2b79dc2f12f38657a386a",
+                "reference": "2851b2a889cdf5e75da2b79dc2f12f38657a386a",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "QuanKim\\LaravelCounterCache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vo Hong Quan",
+                    "email": "quankim277@gmail.com"
+                }
+            ],
+            "description": "Counter Cache for Laravel 5",
+            "time": "2017-12-13T16:45:44+00:00"
         },
         {
             "name": "ramsey/uuid",
