@@ -11,7 +11,7 @@ def recipes_spider(crawling, max_pages = 1, max_cat = 1):
 	# This is the crawling code of Ricardo's website.
 	if crawling is 'ricardo':
 		cat = 1 # Max number of categories to crawl.
-		url = 'https://www.ricardocuisine.com/en/recipes/7700-colombian-style-empanadas' # URL of all the recipes categories.
+		url = 'https://www.ricardocuisine.com/en/recipes/7781-family-style-bibimbap' # URL of all the recipes categories.
 		source_code = requests.get(url)
 		plain_text = source_code.text
 		soup = BeautifulSoup(plain_text, 'html.parser')
@@ -53,7 +53,7 @@ def recipes_spider(crawling, max_pages = 1, max_cat = 1):
 
 			for ingredientString in ingredientsWrap.findAll(text=re.compile(ingredient, flags=re.IGNORECASE)):
 				# print(ingredientString)
-				regex = "(\([\w\s ]+\)|[0-9]+ tbsp|[0-9]+ tsp|[0-9]+ " + ingredient + ")"
+				regex = "(\([\w\s ]+\)|[0-9]+ tbsp|[0-9]+ tsp|[0-9]+ slices?|[0-9]+ sprigs?|[0-9]+ " + ingredient + ")"
 				quantity = re.search(regex, ingredientString, flags=re.IGNORECASE)
 				#print(quantity)
 				if quantity:

@@ -16,5 +16,6 @@ Route::view('/', 'search')->name('index');
 Route::get('/ingredient/{ingredient}', 'IngredientController@search')->name('ingredient.search');
 Route::get('/recipe', 'RecipeController@search')->name('recipe.search');
 Route::get('/crawl', 'RecipeController@crawl')->name('recipe.crawl');
+Route::get('/destroy/{recipeId}', 'RecipeController@destroy')->name('recipe.destroy');
 
 Auth::routes();
