@@ -30,6 +30,7 @@ export default class SearchResult extends Component
             >
                 { this.props.inputValue !== null &&
                 <Highlighter
+                    data={ this.props.value }
                     text={ this.props.value.name }
                     highlight={ this.props.inputValue }
                 />

@@ -61162,6 +61162,7 @@ var SearchResult = function (_Component) {
                     className: this.props.className
                 },
                 this.props.inputValue !== null && __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__Tools_Highlighter__["a" /* default */], {
+                    data: this.props.value,
                     text: this.props.value.name,
                     highlight: this.props.inputValue
                 })
@@ -61216,7 +61217,15 @@ var Highlighter = function (_Component) {
                         { key: i, style: part.toLowerCase() === _this2.props.highlight.toLowerCase() ? { fontWeight: 'bold' } : {} },
                         part
                     );
-                })
+                }),
+                ' ',
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'small',
+                    { className: 'text-muted' },
+                    '(',
+                    this.props.data.recipe_count,
+                    ')'
+                )
             );
         }
     }]);

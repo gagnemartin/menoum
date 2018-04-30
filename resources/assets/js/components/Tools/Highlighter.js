@@ -17,6 +17,7 @@ export default class Highlighter extends Component
                     <span key={i} style={part.toLowerCase() === this.props.highlight.toLowerCase() ? { fontWeight: 'bold' } : {} }>
                     { part }
                     </span>) }
+                    {' '}<small className="text-muted">({ this.props.data.recipe_count })</small>
             </span>
         )
     }
