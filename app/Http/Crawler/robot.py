@@ -7,6 +7,8 @@ import json
 import isodate
 import sys
 from datetime import timedelta
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 # def get_urls(url, tags):
 # 	urls = set()
@@ -75,7 +77,8 @@ def get_recipe_urls(category_url, max_pages):
 def get_recipes(urls):
 	recipes = list()
 	for url in urls:
-		url = 'https://www.ricardocuisine.com/' + url # URL of all the recipes categories.
+		#url = 'https://www.ricardocuisine.com/' + url # URL of all the recipes categories.
+		url = 'https://www.ricardocuisine.com/en/recipes/7674-quick-and-easy-shawarma-style-chicken' # URL of all the recipes categories.
 		#print(url)
 		source_code = requests.get(url)
 		plain_text = source_code.text
@@ -110,8 +113,13 @@ def get_recipes(urls):
 
 		}
 
+		# Make ingredients unique in the list
+		structuredData['ingredients'] = list(set(filter(None, structuredData['ingredients'])))
+
 		i = 0
+		print(structuredData['ingredients'])
 		# Ingredients
+		# https://stackoverflow.com/questions/12413705/parsing-natural-language-ingredient-quantities-for-recipes
 		for ingredient in structuredData['ingredients']:
 			data['ingredients'].insert(i, {
 				'name': ingredient,
@@ -122,12 +130,53 @@ def get_recipes(urls):
 				}
 			})
 
-			for ingredientString in ingredientsWrap.findAll(text=re.compile(ingredient, flags=re.IGNORECASE)):
+			regexExclude = ''
+
+			for index, ingredientTest in enumerate(structuredData['ingredients']):
+				if ingredientTest is not ingredient:
+					split = ingredient.split(ingredientTest)
+					if len(split) > 1:
+						# ((?!\s?fresh\s?)mozzarella(?!\s?di bufala\s?))
+						regexExclude = "((?!\s?" + split[0] + "\s?)" + ingredient + "(?!\s?" + split[1] + "\s?))"
+						break
+
+			if ingredient.endswith('s'):
+				ingredient = ingredient + '?'
+			ingredientNoStopWords = removeStopWord(ingredient)
+			ingredientNoStopWords = ingredientNoStopWords.replace(' ', '.*') + '.*'
+			ingredient = ingredient.replace(' ', '.*') + '.*'
+
+
+			ingredientRegex = ingredient + '|' + ingredientNoStopWords
+
+			if regexExclude:
+				ingredientRegex = regexExclude
+
+			#print(ingredientRegex)
+			for ingredientString in ingredientsWrap.findAll(text=re.compile(ingredientRegex, flags=re.IGNORECASE)):
 				# print(ingredientString)
-				regex = "(\([\w\s ]+\)|[0-9]+ tbsp|[0-9]+ tsp|[0-9]+ " + ingredient + ")"
-				quantity = re.search(regex, ingredientString, flags=re.IGNORECASE)
-				#print(quantity)
+				# <amount> <unit> [of <ingredient>]
+				regexAmount1 = "(?P<amountMetric>[(][0-9]+)"
+				regexAmount2 = "(?P<amount>[0-9\s]*[0-9]*/?[0-9]*\s*¼*½*¾*)"
+
+				regexUnit1 = "(?P<unitMetric>m?l[)]?|\\btb?sp\\b|\\bk?g\\b|\\bcups?\\b|\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b|(?P<wholeMetric>" + ingredientRegex + ")).*"
+				regexUnit2 = "(?P<unit>m?l[)]?|\\btb?sp\\b|\\bk?g\\b|\\bcups?\\b|\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b|(?P<whole>" + ingredientRegex + ")).*"
+				regexBuild = '(' + regexAmount1 + "(.?|.*)" + regexUnit1 + regexExclude + ')|(' + regexAmount2 + "(.?|.*)" + regexUnit2 + regexExclude + ')'
+				#print(regexBuild)
+				#regex = "(\([\w\s ]+\)|[0-9]+ tbsp|[0-9]+ tsp|[0-9]+ " + ingredient + ")"
+				quantity = re.search(regexBuild, ingredientString, flags=re.IGNORECASE)
+				#quantity = re.search(regex, '1 tsp	dried mustard', flags=re.IGNORECASE)
 				if quantity:
+					unit = quantity.group('unit').strip()
+					if (quantity.group('whole')):
+						unit = 'whole'
+
+					if (quantity.group('amountMetric')):
+						amount = quantity.group('amountMetric')
+					else:
+						amount = quantity.group('amount')
+
+					print(amount.strip(), unit, ingredient)
 					quantity = quantity.group(0)
 					quantity = quantity.strip('(').strip(')')
 					quantity = re.split('([0-9]+)', quantity)
@@ -149,6 +198,8 @@ def get_recipes(urls):
 						'quantity': volume,
 						'unit': unit
 					}
+				else:
+					print(ingredient)
 			i = i + 1
 
 		data['ingredient_count'] = len(data['ingredients'])
@@ -162,13 +213,31 @@ def get_recipes(urls):
 				instructionMatch = re.search('([1-9]+ - )', instruction)
 
 				if instructionMatch is None and instruction:
-					data['instructions'].append(instructions[i].strip())
+					data['instructions'].append(instructions[i].strip().replace('\\s', ' '))
 
 				i = i + 1
 
 		data['instructions'] = '||'.join(data['instructions'])
 		recipes.append(data)
+		break
 	return recipes
+
+def removeStopWord(sentence):
+	stateWords = {
+		'fresh', 'sprigs', 'shelled', 'leaves', 'freshly', 'grated', '(', ')'
+	}
+	stopWords = set(stopwords.words('english'))
+	stopWords = stopWords|stateWords
+
+	wordTokens = word_tokenize(sentence)
+	 
+	filtered_sentence = []
+	 
+	for w in wordTokens:
+		if w not in stopWords:
+			filtered_sentence.append(w)
+
+	return ' '.join(filtered_sentence)
 
 def recipes_spider(crawling, max_pages = 1, max_cat = 1):
 	# This is the crawling code of Ricardo's website.
