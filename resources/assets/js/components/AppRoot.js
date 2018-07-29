@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import Search from "./Search"
+import Search from "./Search/Search"
 
 if (document.getElementById('app-search')) {
     class AppRoot extends Component {

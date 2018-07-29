@@ -15,7 +15,7 @@ export default class SearchResult extends Component
      */
     handleClick(e)
     {
-        this.props.onClick(this.props.value.name)
+        this.props.resultClick(this.props.result)
     }
 
     /*
@@ -30,8 +30,8 @@ export default class SearchResult extends Component
             >
                 { this.props.inputValue !== null &&
                 <Highlighter
-                    data={ this.props.value }
-                    text={ this.props.value.name }
+                    data={ this.props.result }
+                    text={ this.props.result.name }
                     highlight={ this.props.inputValue }
                 />
                 }

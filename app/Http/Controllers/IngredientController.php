@@ -25,4 +25,13 @@ class IngredientController extends Controller
 
         return $data;
     }
+
+    public function Index()
+    {
+        $data = Ingredient::where('approved', true)
+            ->orderBy('recipe_count', 'desc')
+            ->get();
+
+        return $data;
+    }
 }
