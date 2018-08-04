@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Recipe;
 use App\Ingredient;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class RecipeController extends Controller
 {
@@ -19,9 +21,20 @@ class RecipeController extends Controller
 
     public function crawl()
     {
-        $command = escapeshellcmd('C:\wamp\www\menoum\app\Http\Crawler\crawler.py');
-        $output = shell_exec($command);
-        $output = json_decode($output, true);
+//        $command = escapeshellcmd('E:\Wamp\www\menoum\app\Http\Crawler\crawler.py');
+//        $output = shell_exec($command);
+
+        $process = new Process('py -3.7 E:\Wamp\www\menoum\app\Http\Crawler\crawler.py');
+        $process->run();
+
+// executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output = $process->getOutput();
+        //$output = json_decode($output, true);
+        dd($output);
         $output['user_id'] = 11;
         $output['ingredients'] = array_unique($output['ingredients'], SORT_REGULAR);
         $output['ingredient_count'] = count($output['ingredients']);
@@ -54,7 +67,7 @@ class RecipeController extends Controller
 
         }
 
-        //dd($output);
+        dd($output);
         $recipe = Recipe::create($output);
         $recipe->ingredients()->sync($ingredientsIds);
         $recipe->media()->create($output['media']);

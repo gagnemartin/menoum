@@ -75,6 +75,7 @@ def get_recipe_urls(category_url, max_pages):
 	return list(urls)
 
 def get_recipes(urls):
+	#print(urls)
 	recipes = list()
 	for url in urls:
 		#url = 'https://www.ricardocuisine.com/' + url # URL of all the recipes categories.
@@ -113,11 +114,15 @@ def get_recipes(urls):
 
 		}
 
+		if 'ingredients' not in structuredData:
+			structuredData['ingredients'] = structuredData['recipeIngredient']
+
 		# Make ingredients unique in the list
 		structuredData['ingredients'] = list(set(filter(None, structuredData['ingredients'])))
+		#print(structuredData['ingredients'])
 
 		i = 0
-		print(structuredData['ingredients'])
+		
 		# Ingredients
 		# https://stackoverflow.com/questions/12413705/parsing-natural-language-ingredient-quantities-for-recipes
 		for ingredient in structuredData['ingredients']:
@@ -176,7 +181,7 @@ def get_recipes(urls):
 					else:
 						amount = quantity.group('amount')
 
-					print(amount.strip(), unit, ingredient)
+					#print(amount.strip(), unit, ingredient)
 					quantity = quantity.group(0)
 					quantity = quantity.strip('(').strip(')')
 					quantity = re.split('([0-9]+)', quantity)
@@ -206,19 +211,29 @@ def get_recipes(urls):
 
 		# Instructions
 		i = 0
-		instructions = re.split('([1-9]+ - )', structuredData['recipeInstructions'])
+		#instructions = re.split('([1-9]+ - )', structuredData['recipeInstructions'])
+		instructions = structuredData['recipeInstructions']
 
 		if instructions:
 			for instruction in instructions:
-				instructionMatch = re.search('([1-9]+ - )', instruction)
+				section = {
+					'section': instruction['name'],
+					'steps': []
+				}
+				for itemListElement in instruction['itemListElement']:
+					section['steps'].append(itemListElement['text'])
 
-				if instructionMatch is None and instruction:
-					data['instructions'].append(instructions[i].strip().replace('\\s', ' '))
+				data['instructions'].append(section)
+				#instructionMatch = re.search('([1-9]+ - )', instruction)
+
+				#if instructionMatch is None and instruction:
+					#data['instructions'].append(instructions[i].strip().replace('\\s', ' '))
 
 				i = i + 1
 
-		data['instructions'] = '||'.join(data['instructions'])
+		#data['instructions'] = '||'.join(data['instructions'])
 		recipes.append(data)
+		#print(recipes)
 		break
 	return recipes
 
