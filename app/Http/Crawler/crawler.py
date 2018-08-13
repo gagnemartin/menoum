@@ -1,6 +1,6 @@
 import random
 import urllib.request
-import mysql.connector
+#import mysql.connector
 import robot
 import sys
 import json
@@ -13,7 +13,6 @@ def download_web_img(url):
 def insert_data(data):
     query = "INSERT INTO ingredients(name, slug)" \
         "VALUES(%s, %s)"
-
 
     try:
         db = mysql.connector.connect(

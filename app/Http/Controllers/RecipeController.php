@@ -21,10 +21,11 @@ class RecipeController extends Controller
 
     public function crawl()
     {
+
 //        $command = escapeshellcmd('E:\Wamp\www\menoum\app\Http\Crawler\crawler.py');
 //        $output = shell_exec($command);
 
-        $process = new Process('py -3.7 E:\Wamp\www\menoum\app\Http\Crawler\crawler.py');
+        $process = new Process('python3 ' . app_path('Http/Crawler/crawler.py'));
         $process->run();
 
 // executes after the command finishes
@@ -33,11 +34,34 @@ class RecipeController extends Controller
         }
 
         $output = $process->getOutput();
-        //$output = json_decode($output, true);
-        dd($output);
+        $output = json_decode($output, true);
+        dump($output);
+
+        foreach ($output as $recipe) {
+            echo '<h2>' . $recipe['name'] . '</h2>';
+            echo '<img width="400px" src="' . $recipe['media']['url'] . '"' . '/>';
+
+            echo '<ul>';
+            foreach ($recipe['ingredients'] as $ingredient) {
+                //dump($ingredient);
+                echo '<li>';
+                if (isset($ingredient['quantity']['amount'])) {
+                    echo $ingredient['quantity']['amount'] . ' ' . $ingredient['quantity']['unit'] .' of <b>' . $ingredient['name'] . '</b>';
+                } else {
+                    dump($ingredient);
+                }
+                echo '</li>';
+            }
+            echo '</ul>';
+        }
+
+        die();
+
+
         $output['user_id'] = 11;
         $output['ingredients'] = array_unique($output['ingredients'], SORT_REGULAR);
         $output['ingredient_count'] = count($output['ingredients']);
+
 
         $ingredientsIds = [];
         $newIngredients = [];
@@ -55,6 +79,7 @@ class RecipeController extends Controller
             }
         }
 
+        dd($output['ingredients']);
         if (count($newIngredients) > 0) {
             Ingredient::insert($newIngredients);
 
