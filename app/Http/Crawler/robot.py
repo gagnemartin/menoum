@@ -35,6 +35,18 @@ from nltk.tokenize import word_tokenize
 # 	return urls
 
 
+def ingredientAliases(ingredient):
+    aliases = {
+        'tumeric': 'turmeric',
+        'bread crumb': 'breadcrum',
+        'kirsh': 'kirsch',
+    }
+
+    if ingredient in aliases:
+        return aliases[ingredient]
+    else:
+        return ingredient
+
 def get_category_urls():
     urls = set()
     url = 'https://www.ricardocuisine.com/en/recipes/main-dishes/'
@@ -84,7 +96,7 @@ def get_recipes(urls):
 
     for url in urls:
         url = 'https://www.ricardocuisine.com/' + url  # URL of all the recipes categories.
-        #url = 'https://www.ricardocuisine.com/en/recipes/7682-sweet-potato-and-tofu-patties'   # URL of all the recipes categories.
+        #url = 'https://www.ricardocuisine.com/en/recipes/5436-swiss-cheese-fondue-the-best'   # URL of all the recipes categories.
 
         source_code = requests.get(url)
         plain_text = source_code.text
@@ -116,6 +128,7 @@ def get_recipes(urls):
             'ingredients': [],
             'instructions': [],
             'source': url,
+            'servings': structuredData['recipeYield'],
             'ingredient_count': None,
 
         }
@@ -132,16 +145,22 @@ def get_recipes(urls):
         # Ingredients
         # https://stackoverflow.com/questions/12413705/parsing-natural-language-ingredient-quantities-for-recipes
         for ingredient in structuredData['ingredients']:
+            # Replace ingredients with correct alias (tumeric => turmeric)
+            ingredient = ingredientAliases(ingredient)
+
             data['ingredients'].insert(i, {
                 'name': ingredient,
                 'slug': slugify(ingredient),
+                'optional': False,
+                'main': False,
                 'quantity': {
                     'amount': None,
-                    'unit': None
+                    'unit': None,
                 }
             })
 
             regexExclude = ''
+            regexSplitSpaces = ''
 
             for index, ingredientTest in enumerate(structuredData['ingredients']):
                 if ingredientTest is not ingredient:
@@ -151,20 +170,47 @@ def get_recipes(urls):
                         regexExclude = "((?!\s?" + split[0] + "\s?)" + ingredient + "(?!\s?" + split[1] + "\s?))"
                         break
 
+            # Split spaces and loop iterate to add optional word
+            # (ex: sharp cheddar chesse in structured data but shredded cheddar cheese in the source code)
+            splitSpaceNoStopWords = removeStopWord(ingredient)
+            splitSpaces = splitSpaceNoStopWords.split(' ')
+            if len(splitSpaces) > 1:
+                for index, splitIngredient in enumerate(splitSpaces):
+                    for index2, splitIngredient2 in enumerate(splitSpaces):
+                        # Make the plural optional
+                        if splitIngredient2.endswith('s'):
+                            splitIngredient2 = splitIngredient2 + '?'
+
+                        if index is index2:
+                            regexSplitSpaces = regexSplitSpaces + '.*(' + splitIngredient2 + ')?.*'
+                        else:
+                            regexSplitSpaces = regexSplitSpaces + '.*' + splitIngredient2
+                    if (index + 1) < len(splitSpaces):
+                        regexSplitSpaces = regexSplitSpaces + '|'
+
+            # Make the plural optional
             if ingredient.endswith('s'):
                 ingredient = ingredient + '?'
+
             ingredientNoStopWords = removeStopWord(ingredient)
             ingredientNoStopWords = ingredientNoStopWords.replace(' ', '.*') + '.*'
             ingredient = ingredient.replace(' ', '.*') + '.*'
 
             ingredientRegex = ingredient + '|' + ingredientNoStopWords
+            findIngredients = ingredient + '|' + ingredientNoStopWords
+
+            if len(regexSplitSpaces) > 0:
+                findIngredients = findIngredients + '|' + regexSplitSpaces
 
             if regexExclude:
+                #ingredientRegex = findIngredients
                 ingredientRegex = regexExclude
 
+            ingredientRegex = findIngredients
 
-            # print(ingredientRegex)
-            for ingredientString in ingredientsWrap.findAll(text=re.compile(ingredientRegex, flags=re.IGNORECASE)):
+
+            #print(findIngredients)
+            for ingredientString in ingredientsWrap.findAll(text=re.compile(findIngredients, flags=re.IGNORECASE)):
                 ingredientString = ingredientString.replace(',', '')
                 # print(ingredientString)
                 # <amount> <unit> [of <ingredient>]
@@ -175,22 +221,23 @@ def get_recipes(urls):
                              "\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b|" \
                              "(?P<wholeMetric>" + ingredientRegex + ")).*"
                 regexUnit2 = "(?P<unit>\\bm?l\)?\\b|\\bk?g\)?\\b|\\btb?sp\\b|\\bk?g\\b|\\bcups?\\b|" \
-                             "\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b|" \
+                             "\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b|\\bslices?\\b|\\bpieces?\\b|" \
                              "(?P<whole>" + ingredientRegex + ")).*"
                 regexBuild = '(' + regexAmount2 + "(.?|.*)" + regexUnit2 + regexExclude + ')'
 
                 # TODO Build one regex to match everything to include the group "whole"
 
-                regex = "(?P<amount>\([0-9]+)\s(?P<unit>m?l\)?|k?g\)|" \
+                regex = "(?P<amount>\(?[0-9]+)\s(?P<unit>m?l\)??|k?g\)?|" \
                         "\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b|" \
                         "(?P<whole>" + ingredientRegex + ")).*"
+
+                # print(regex)
                 # First regex qui try to find for metric units in parenthesis or not (250 ml, 250 g)
                 quantity = re.search(regex, ingredientString, flags=re.IGNORECASE)
 
                 # No metric amount found, look for imperial units (2 tbs, 1 cup)
                 if quantity is None:
                     quantity = re.search(regexBuild, ingredientString, flags=re.IGNORECASE)
-                    #print(ingredient, regexBuild)
 
                 # if quantity:
                 #     print(test.group('amountMetric'), test.group('unitMetric'))
@@ -230,11 +277,18 @@ def get_recipes(urls):
                     if unit is ingredient:
                         unit = 'whole'
 
+
+                    # Optional ingredients
+                    optional = re.search('(optional)', ingredientString, flags=re.IGNORECASE)
+
+                    if (optional):
+                        data['ingredients'][i]['optional'] = True
+
                     data['ingredients'][i]['quantity'] = {
                         'amount': amount,
                         'unit': unit
                     }
-                    #print(data['ingredients'][i]['quantity'])
+                    #print(data['ingredients'][i])
                 #else:
                     #print('BUGGGGGGGGGGGGGGGGG', ingredient)
             i = i + 1
