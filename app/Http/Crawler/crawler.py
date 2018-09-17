@@ -36,7 +36,8 @@ def insert_data(data):
         db.close()
         print('Insertion done.')
 
-data = robot.recipes_spider('ricardo', 1, 1)
+
+data = robot.recipes_spider('ricardo', 10, 2)
 #data = robot.recipes_spider('ingredients', 1, 26)
 data = json.dumps(data)
 print(data)

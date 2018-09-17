@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Recipe;
 use App\Ingredient;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -26,9 +27,10 @@ class RecipeController extends Controller
 //        $output = shell_exec($command);
 
         $process = new Process('python3 ' . app_path('Http/Crawler/crawler.py'));
+        $process->setTimeout(null);
         $process->run();
 
-// executes after the command finishes
+        // executes after the command finishes
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
@@ -38,11 +40,32 @@ class RecipeController extends Controller
         dump($output);
 
         foreach ($output as $recipe) {
+            $recipe['user_id'] = 11;
+            $recipe['ingredients'] = array_unique($recipe['ingredients'], SORT_REGULAR);
+            $recipe['ingredient_count'] = count($recipe['ingredients']);
+
+
+            $ingredientsIds = [];
+            $newIngredients = [];
+
             echo '<h2>' . $recipe['name'] . '</h2>';
             echo '<img width="400px" src="' . $recipe['media']['url'] . '"' . '/>';
 
             echo '<ul>';
             foreach ($recipe['ingredients'] as $ingredient) {
+                // Find if the ingredient already exists in the table
+                $query = Ingredient::select('id')->where('name', 'like', '%' . str_singular($ingredient['name']) . '%')
+                    ->first();
+
+                if ($query === null) {
+                    $newIngredients[] = [
+                        'name' => strtolower($ingredient['name']),
+                        'slug' => strtolower($ingredient['slug'])
+                    ];
+                } else {
+                    $ingredientsIds[$query['id']] = $ingredient['quantity'];
+                }
+
                 //dump($ingredient);
                 echo '<li>';
                 if (isset($ingredient['quantity']['amount'])) {
@@ -53,7 +76,10 @@ class RecipeController extends Controller
                 echo '</li>';
             }
             echo '</ul>';
+
+            //dump($ingredientsIds, $newIngredients);
         }
+
 
         die();
 
