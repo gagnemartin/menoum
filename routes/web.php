@@ -26,7 +26,7 @@ Route::prefix('admin')->middleware('auth', 'can:view,create,update,delete')->gro
     Route::get('ingredients/list', 'IngredientController@list')->name('admin.ingredients.list');
     Route::post('ingredients/{ingredient}/visibility', 'IngredientController@visibility')->name('admin.ingredients.list');
 
-    Route::get('crawl', 'RecipeController@crawl')->name('admin.recipe.crawl');
+    Route::get('crawl', 'CrawlerController@crawl')->name('admin.recipe.crawl');
     Route::get('urls', 'CrawlerController@getUrls')->name('admin.recipe.urls');
     Route::get('destroy/{recipeId}', 'RecipeController@destroy')->name('admin.recipe.destroy');
 });

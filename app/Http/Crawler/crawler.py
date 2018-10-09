@@ -4,6 +4,7 @@ import urllib.request
 import robot
 import sys
 import json
+import os
 
 def download_web_img(url):
     name = random.randrange(1, 1000)
@@ -36,9 +37,9 @@ def insert_data(data):
         db.close()
         print('Insertion done.')
 
-
-data = robot.recipes_spider('ricardo', 10, 2)
+data = robot.recipes_spider('ricardo', 50, 50)
 #data = robot.recipes_spider('ingredients', 1, 26)
+#print(data[0]['ingredients'])
 data = json.dumps(data)
 print(data)
 #sys.exit()
