@@ -9,95 +9,20 @@ import sys
 from datetime import timedelta
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import database
-
-
-# def get_urls(url, tags):
-# 	urls = set()
-# 	source_code = requests.get(url)
-# 	plain_text = source_code.text
-# 	soup = BeautifulSoup(plain_text, 'html.parser')
-
-# 	elements = soup.findAll('ul', {'class': 'item-list'})
-
-# 	for tag in tags:
-# 		elements = soup.findAll(tag['name'], {tag['selectorType']: tag['selectorName']})
-# 		for element in elements
-# 		soup = elements
-
-# 	print(soup)
-# 	sys.exit()
-
-# 	for el2 in el1('h2'):
-# 		for el3 in el2('a'):
-# 			linkHref = link.get('href')
-# 			urls.add(linkHref)
-
-# 	return urls
+from Connection import Connection
 
 
 def recipes_spider(crawling, max_pages=1, max_cat=1):
     # This is the crawling code of Ricardo's website.
     if crawling is 'ricardo':
-        # category_urls = get_category_urls()
-        # recipe_urls = list()
-        recipe_urls = database.all()
-
-        # for x in range(0, max_cat):
-        #     recipe_urls = recipe_urls + get_recipe_urls(category_urls[x], max_pages)
+        recipe_urls = Connection('urls').select('url').where([
+            ['crawled', None],
+        ]).max(20).all()
 
         recipes = get_recipes(recipe_urls)
+
         return recipes
-        sys.exit()
 
-        cat = 1  # Max number of categories to crawl.
-
-        return data
-    # cat = 1 # Max number of categories to crawl.
-    # url = 'http://www.ricardocuisine.com/recipes/' # URL of all the recipes categories.
-    # source_code = requests.get(url)
-    # plain_text = source_code.text
-    # soup = BeautifulSoup(plain_text)
-    # itemList = soup.find('div', {'class': 'itemList'})
-    #
-    # print(soup)
-    # # For every h2 found in the recipes categories.
-    # for h2 in itemList.findAll('h2', {'class': 'title'}):
-    #     # For every link found in the recipes categories.
-    #     for link in h2.findAll('a'):
-    #         page = 1
-    #         href_cat = link.get('href')
-    #
-    #         if href_cat is not None:
-    #             # Now go to all the recipes of one category.
-    #             while page <= max_pages:
-    #                 url = 'http://www.ricardocuisine.com/' + href_cat + 'page/' + str(page)
-    #                 source_code = requests.get(url)
-    #                 plain_text = source_code.text
-    #                 soup = BeautifulSoup(plain_text)
-    #                 itemList = soup.find('div', {'class': 'itemList'})
-    #
-    #                 iA = 0
-    #                 data = {}
-    #
-    #                 for h2 in itemList.findAll('h2', {'class': 'title'}):
-    #                     for link in h2.findAll('a'):
-    #                         href = link.get('href')
-    #                         if href is not None:
-    #                             cooking = go_to('http://www.ricardocuisine.com/' + href + '/full')
-    #                             data[iA] = cooking
-    #                             iA += 1
-    #
-    #                 page += 1
-    #
-    #     cat += 1
-    #     return data
-    #
-    #     # Break the For loop if the max number of category is exceeded.
-    #     if cat > max_cat:
-    #         break
-
-    # return data
     # This is the crawling code of food.com's website (for ingredients).
     elif crawling is 'ingredients':
         data = []
@@ -125,8 +50,6 @@ def recipes_spider(crawling, max_pages=1, max_cat=1):
                 break
 
         return data
-    #else:
-        #print('Nothing to crawl')
 
 
 def ingredientAliases(ingredient):
@@ -199,6 +122,7 @@ def get_recipes(urls):
         plain_text = source_code.text
         soup = BeautifulSoup(plain_text, 'html.parser')
         ingredientsWrap = soup.find('form', {'id': 'formIngredients'})
+        ingredientsSections = ingredientsWrap.findAll('h3')
         itemList = soup.find('script', {'type': 'application/ld+json'})
 
         if itemList is not None:
@@ -236,6 +160,7 @@ def get_recipes(urls):
             if 'ingredients' not in structuredData:
                 structuredData['ingredients'] = structuredData['recipeIngredient']
 
+            # TODO allow the same ingredient multiple times for different sections
             # Make ingredients unique in the list
             structuredData['ingredients'] = list(set(filter(None, structuredData['ingredients'])))
             # print(structuredData['ingredients'])
@@ -257,6 +182,7 @@ def get_recipes(urls):
                         'amount': None,
                         'unit': None,
                     },
+                    'section': None
                 })
 
                 # regexExclude = ''
@@ -368,6 +294,7 @@ def get_recipes(urls):
                     saltAndPepper = re.findall('^salt and pepper$|^salt$|^pepper$', ingredientString,
                                                flags=re.IGNORECASE)
 
+                    # Found Salt and Pepper
                     if len(saltAndPepper) > 0:
                         saltAndPepper = [k.lower() for k in saltAndPepper]
 
