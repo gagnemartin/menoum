@@ -1,22 +1,49 @@
 import React, { Component } from 'react'
-import { Button, Input, Form, FormGroup, Label } from 'reactstrap'
-import SearchResult from './SearchResult'
-import _ from 'lodash'
+import SearchResults from "./SearchResults";
+//import _ from 'lodash'
 
 export default class SearchInput extends Component {
-    constructor(props) {
+    constructor(props)
+    {
         super(props)
 
         this.state = {
             loading: false,
-            ingredients: null,
+            ingredients: [],
+            allIngredients: [],
             inputValue: null,
-            results: null,
+            results: [],
             selected: null
         }
 
         this.search = React.createRef()
-        this.updateInput = _.debounce(this.updateInput, 100);
+        //this.updateInput = _.debounce(this.updateInput, 100);
+    }
+
+    componentDidMount()
+    {
+        this.getIngredients()
+    }
+
+    /*
+     * Get all the ingredients in an array
+     */
+    getIngredients()
+    {
+        this.setState({
+            loading: true
+        })
+
+        const $request = axios.get('/ingredients')
+            .then((response) => {
+                this.setState({
+                    allIngredients: response.data,
+                    loading: false
+                })
+            })
+            .catch((error) => {
+                console.error(error)
+            })
     }
 
     /*
@@ -24,7 +51,8 @@ export default class SearchInput extends Component {
      *
      * @param {object} e Event object
      */
-    handleKeyUp(e) {
+    handleKeyUp(e)
+    {
         let keyCode = e.keyCode
         let value = e.target.value.trim()
 
@@ -48,7 +76,8 @@ export default class SearchInput extends Component {
      *
      * @param {object} e Event object
      */
-    handleKeyDown(e) {
+    handleKeyDown(e)
+    {
         let keyCode = e.keyCode
         let carretPosition = e.target.selectionStart
 
@@ -58,7 +87,7 @@ export default class SearchInput extends Component {
 
             // User pressed Enter key when navigating in the results with the keyboard
             if (this.state.selected !== null) {
-                this.resultClick(this.state.results[this.state.selected].name)
+                this.resultClick(this.state.results[this.state.selected])
             }
         }
 
@@ -68,13 +97,14 @@ export default class SearchInput extends Component {
         }
 
         // Remove added ingredients on Backspace key
-        if (keyCode === 8 && carretPosition === 0 && this.state.ingredients !== null) {
+        if (keyCode === 8 && carretPosition === 0 && this.state.ingredients.length > 0) {
             this.updateResults()
         }
     }
 
     handleChange(e)
     {
+        let keyCode = e.keyCode
         let value = e.target.value.trim()
 
         // Set value to null if input is empty
@@ -84,6 +114,11 @@ export default class SearchInput extends Component {
 
         this.setState({
             inputValue: value
+        }, () => {
+            // Don't fetch new results on arrow keys
+            if (![37, 38, 39, 40].includes(keyCode)) {
+                this.update()
+            }
         })
     }
 
@@ -101,7 +136,7 @@ export default class SearchInput extends Component {
     emptyResults()
     {
         this.setState({
-            results: null
+            results: []
         })
     }
 
@@ -112,9 +147,10 @@ export default class SearchInput extends Component {
      */
     navigateResults(keyCode)
     {
-        if (this.state.results !== null) {
+        if (this.state.results.length > 0) {
             let selected
-            if (keyCode == 38) {
+
+            if (keyCode === 38) {
                 if (this.state.selected === null) {
                     selected = this.state.results.length - 1
                 } else {
@@ -147,68 +183,87 @@ export default class SearchInput extends Component {
      */
     update()
     {
+       let t0 = performance.now();
+
         this.updateInput()
-        this.updateDropdown()
+
+        let t1 = performance.now();
+        console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
     }
 
     updateResults()
     {
         let ingredients = this.state.ingredients
         ingredients.splice(ingredients.length - 1)
+
         let newState = {
             ingredients: ingredients
         }
 
 
         if (newState.ingredients.length === 0) {
-            newState.ingredients = null
+            newState.ingredients = []
         }
 
         this.setState(newState, this.getRecipes)
     }
 
     /*
-     * Updates the dropdown with new data
+     * Search the ingredients array to retrieve data from the input
      */
-    updateDropdown()
+    updateInput()
     {
-        if (this.state.results != null) {
-            for (let i = this.state.results.length; i--;) {
-                let split = this.state.results[i].name.split(this.state.inputValue)
+        if (this.state.inputValue !== null) {
+            let query = this.state.inputValue.replace(/[^a-zA-Z0-9_\- ]/g, "")
+            let queries = [
+                '^' + query,
+                query
 
-                if (split.length <= 1) {
-                    this.emptyResults()
+            ]
+            let results = []
 
-                    break;
+            for (let i = 0; i < queries.length; i++) {
+                let query = queries[i]
+                let regex = new RegExp((query), 'i')
+                let search = this.state.allIngredients
+
+                for (let i = 0; i < search.length; i++) {
+                    let ingredient = search[i]
+                    let matches = ingredient.name.match(regex)
+                    if (matches !== null) {
+                        let isAlreadyActive = this.state.ingredients.find(activeIngredient => {
+                            return activeIngredient.name === matches.input
+                        })
+
+                        let isAlreadyInResults = results.find(activeIngredient => {
+                            return activeIngredient.name === matches.input
+                        })
+
+                        if (typeof isAlreadyActive === 'undefined' && typeof isAlreadyInResults === 'undefined') {
+                            results.push(ingredient)
+                        }
+                    }
+
+                    if (results.length >= 10) break
                 }
+
+                if (results.length >= 10) break
             }
+
+            this.setState({
+                results: results,
+            })
+        } else {
+            this.emptyResults()
         }
     }
 
     /*
-     * Requests the server to retrieve data from the input
+     * Find a specific ingredient in the array from a complete name
      */
-    updateInput()
+    findIngredient(data)
     {
-        let self = this
-        let data = this.state.inputValue
-
-        this.setState({
-            loading: true
-        })
-
-        if (data !== null) {
-            const $request = axios.get('/ingredient/' + data)
-                .then(function (response) {
-                    self.setState({
-                        results: response.data,
-                        loading: false
-                    }, self.updateDropdown)
-                })
-                .catch(function (error) {
-                    console.error(error);
-                });
-        }
+        return this.state.allIngredients.find(ingredient => ingredient.id === data.id)
     }
 
     /*
@@ -218,30 +273,16 @@ export default class SearchInput extends Component {
      */
     resultClick(data)
     {
-        let ingredients = this.state.ingredients
-
-        if (ingredients === null) {
-            ingredients = [data]
-        } else {
-            let isNotThere = true
-            ingredients.map((ingredient) => {
-                if (ingredient == data) {
-                    isNotThere = false
-                }
-            })
-            if (isNotThere) {
-                ingredients.push(data)
-            }
-        }
+        let ingredient = this.findIngredient(data)
 
         this.search.current.focus()
 
-        this.setState({
-            ingredients: ingredients,
-            results: null,
+        this.setState(prevState => ({
+            ingredients: [...prevState.ingredients, ingredient],
+            results: [],
             inputValue: '',
             selected: null
-        }, this.getRecipes)
+        }), this.getRecipes)
     }
 
     /*
@@ -265,14 +306,14 @@ export default class SearchInput extends Component {
             <div className="row position-relative">
                 <div className="col-12">
                     <div className="search-wrap d-flex flex-row flex-wrap align-items-center px-3">
-                        { this.state.ingredients !== null &&
+                        { this.state.ingredients.length > 0 &&
                             <div className="mr-3">
                                 { this.state.ingredients.map((ingredient, index) =>
                                     <span
                                         key={ index }
                                         className="badge badge-info"
                                     >
-                                        { ingredient }
+                                        { ingredient.name }
                                     </span>
                                 ) }
                             </div>
@@ -283,7 +324,7 @@ export default class SearchInput extends Component {
                                 ref={ this.search }
                                 placeholder="Search for an ingredient..."
                                 onKeyDown={ this.handleKeyDown.bind(this) }
-                                onKeyUp={ this.handleKeyUp.bind(this) }
+                                //onKeyUp={ this.handleKeyUp.bind(this) }
                                 onChange={ this.handleChange.bind(this) }
                                 onBlur={ this.handleBlur.bind(this) }
                                 className="input-search p-0"
@@ -292,22 +333,12 @@ export default class SearchInput extends Component {
                         </div>
                     </div>
                 </div>
-                { this.state.results !== null &&
-                    <div className="result-wrap px-3">
-                        <ul className="list-ul">
-                            {this.state.results.map((result, index) => (
-                                <SearchResult
-                                    key={ index }
-                                    value={ result }
-                                    inputValue={ this.state.inputValue }
-                                    onClick={ this.resultClick.bind(this) }
-                                    selected={ this.state.selected }
-                                    className={ 'list-item' + (this.state.selected === index ? ' hover' : '') }
-                                />
-                            ))}
-                        </ul>
-                    </div>
-                }
+                <SearchResults
+                    results={ this.state.results }
+                    inputValue={ this.state.inputValue }
+                    resultClick={ this.resultClick.bind(this) }
+                    selected={ this.state.selected }
+                />
             </div>
         )
     }

@@ -1,9 +1,10 @@
 import random
 import urllib.request
-import mysql.connector
+#import mysql.connector
 import robot
 import sys
 import json
+import os
 
 def download_web_img(url):
     name = random.randrange(1, 1000)
@@ -13,7 +14,6 @@ def download_web_img(url):
 def insert_data(data):
     query = "INSERT INTO ingredients(name, slug)" \
         "VALUES(%s, %s)"
-
 
     try:
         db = mysql.connector.connect(
@@ -37,8 +37,9 @@ def insert_data(data):
         db.close()
         print('Insertion done.')
 
-data = robot.recipes_spider('ricardo', 1, 1)
+data = robot.recipes_spider('ricardo', 50, 50)
 #data = robot.recipes_spider('ingredients', 1, 26)
+#print(data[0]['ingredients'])
 data = json.dumps(data)
 print(data)
 #sys.exit()

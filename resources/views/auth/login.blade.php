@@ -29,7 +29,8 @@
                 </label>
             </div>
 
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            <button class="btn btn-lg btn-primary btn-block mb-2" type="submit">Sign in</button>
+            <a href="{{ route('register') }}" class="btn btn-lg btn-primary btn-block">Register</a>
             <a class="btn btn-link" href="{{ route('password.request') }}">
                 Forgot Your Password?
             </a>

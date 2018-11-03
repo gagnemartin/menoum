@@ -13,3 +13,4 @@ yarn-error.log
 .env
 stuff/*
 *.pyc
+app/Http/Crawler/\.idea/
