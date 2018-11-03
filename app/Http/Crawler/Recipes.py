@@ -27,6 +27,7 @@ class Recipes:
 
         :return: List of dictionaries
         """
+        i = 0
 
         for url in self.urls:
             url = url['url']
@@ -44,7 +45,7 @@ class Recipes:
                 total_prep = self.get_total_prep()
                 total_cook = self.get_total_cook()
 
-                return {
+                self.recipes.append({
                     'name': self.structured_data['name'],
                     'slug': slugify(self.structured_data['name']),
                     'media': {
@@ -61,7 +62,11 @@ class Recipes:
                     'servings': self.structured_data['recipeYield'],
                     'ingredient_count': None,
                     'raw': []
-                }
+                })
+
+                i += 1
+
+        return self.recipes
 
     def get_ingredients(self):
         """
@@ -81,32 +86,96 @@ class Recipes:
         self.structured_data['ingredients'] = list(set(filter(None, self.structured_data['ingredients'])))
         # print(structuredData['ingredients'])
 
-        i = 0
-
         # Ingredients
         # https://stackoverflow.com/questions/12413705/parsing-natural-language-ingredient-quantities-for-recipes
         for ingredient in self.structured_data['ingredients']:
             # Replace ingredients with correct alias (tumeric => turmeric)
             ingredient = self.ingredient_aliases(ingredient)
 
-            data.insert(i, {
-                'name': ingredient,
-                'slug': slugify(ingredient),
+            ingredient_regex = self.build_ingredient_regex(ingredient)
+            regex_exclude = self.build_exclude_regex(ingredient)
+
+            ingredients = self.ingredients_wrap.findAll(text=re.compile(ingredient_regex, flags=re.IGNORECASE))
+
+            for ingredient_string in ingredients:
+                ingredient_string = ingredient_string.replace(',', '')
+
+                salt_and_pepper = self.get_salt_and_pepper(ingredient_string)
+
+                if len(salt_and_pepper) > 0:
+                    # Insert salt and pepper separately in the raw list
+                    # data['raw'].extend(['Salt', 'Pepper'])
+                    data.extend(salt_and_pepper)
+
+                data.append(self.get_ingredient_data(ingredient, ingredient_string))
+
+        return data
+
+    def get_salt_and_pepper(self, ingredient_string):
+        """
+        Find if the ingredient_string is salt and pepper.
+        If yes, add them both separately
+
+        :param ingredient_string: String ingredient in the source code
+        :return: List
+        """
+        data = []
+        salt_and_pepper = re.findall('^salt and pepper$|^salt$|^pepper$', ingredient_string, flags=re.IGNORECASE)
+
+        # Found Salt and Pepper
+        if len(salt_and_pepper) > 0:
+            salt_and_pepper = [k.lower() for k in salt_and_pepper]
+
+            salt = {
+                'name': 'Salt',
+                'slug': 'salt',
                 'optional': False,
                 'main': False,
                 'quantity': {
                     'amount': None,
-                    'unit': None,
-                },
-                'section': None
-            })
+                    'unit': 'taste',
+                }
+            }
 
-            ingredient_regex = self.build_ingredient_regex(ingredient)
-            regex_exclude = self.build_exclude_regex(ingredient)
+            pepper = {
+                'name': 'Pepper',
+                'slug': 'pepper',
+                'optional': False,
+                'main': False,
+                'quantity': {
+                    'amount': None,
+                    'unit': 'taste',
+                }
+            }
 
-            print(ingredient_regex)
+            if 'salt and pepper' in salt_and_pepper:
+                data.extend([salt, pepper])
+
+            elif 'salt' in salt_and_pepper:
+                data.append(salt)
+
+                # data['raw'].append('Salt')
+            elif 'pepper' in salt_and_pepper:
+                data.append(pepper)
+
+                # data['raw'].append('Pepper')
 
         return data
+
+    def get_ingredient_data(self, ingredient, ingredient_string):
+        ingredient_data = {
+            'name': ingredient,
+            'slug': slugify(ingredient),
+            'optional': False,
+            'main': False,
+            'quantity': {
+                'amount': None,
+                'unit': None,
+            },
+            'section': None
+        }
+
+        return ingredient_data
 
     def build_ingredient_regex(self, ingredient):
         """
