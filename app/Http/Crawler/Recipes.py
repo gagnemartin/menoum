@@ -22,6 +22,7 @@ class Recipes:
             ['crawled', None],
         ]).max(20).all()
 
+    #####################################################################################
     def get_recipes(self):
         """
         Fetch the recipes from the urls.
@@ -67,6 +68,7 @@ class Recipes:
 
         return self.recipes
 
+    #####################################################################################
     def get_ingredients(self):
         """
         Get the ingredients from the structured data.
@@ -116,6 +118,7 @@ class Recipes:
 
         return data
 
+    #####################################################################################
     def get_salt_and_pepper(self, ingredient_string):
         """
         Find if the ingredient_string is salt and pepper.
@@ -175,6 +178,7 @@ class Recipes:
 
         return data
 
+    #####################################################################################
     def get_ingredient_data(self, ingredient, ingredient_string):
         """
         Get the ingredient's data in a dictionary
@@ -195,6 +199,7 @@ class Recipes:
 
         return ingredient_data
 
+    #####################################################################################
     def get_ingredient_quantity(self, ingredient, ingredient_string):
         """
         Get the ingredient amount and unit
@@ -204,16 +209,17 @@ class Recipes:
         :return: dictionary of the amount and unit
         """
 
-        ingredient_string = ingredient_string.replace(' / ', '/')
+        ingredient_string = self.clean_ingredient_string(ingredient_string)
         ingredient_tokentize = nltk.word_tokenize(ingredient_string)
         ingredient_tags = nltk.pos_tag(ingredient_tokentize)
-        grammar = 'Quantity: {<CD>+<NN|NNS>}'
+        grammar = 'Quantity: {<CD>+<NN|NNS|NNP>}'
         parser = nltk.RegexpParser(grammar)
         quantity = [tree.leaves() for tree in parser.parse(ingredient_tags).subtrees() if
                     tree.label() == 'Quantity']
-        if len(quantity) > 1:
+        if len(quantity) >= 1:
             print(quantity[0][0][0] + ' ' + quantity[0][1][0])
-
+        else:
+            print('NOOOOOOOOOOOOOOOOOOOOOOOO:', ingredient_string, quantity)
 
         # Search for the metric quantities first
         quantity = self.get_quantity_metric(ingredient, ingredient_string)
@@ -227,6 +233,39 @@ class Recipes:
 
         return quantity
 
+    #####################################################################################
+    def clean_ingredient_string(self, ingredient_string):
+        """
+        Clean the ingredient string and convert the fractional symbols to fractional strings
+
+        :param ingredient_string:
+        :return: string
+        """
+
+        return ingredient_string\
+            .replace(' / ', '/')\
+            .replace('¼', '1/4')\
+            .replace('½', '1/2')\
+            .replace('¾', '3/4')\
+            .replace('⅐', '1/7')\
+            .replace('⅑', '1/9')\
+            .replace('⅒', '1/10')\
+            .replace('⅓', '1/3')\
+            .replace('⅔', '2/3')\
+            .replace('⅕', '1/5')\
+            .replace('⅖', '2/5')\
+            .replace('⅗', '3/5')\
+            .replace('⅘', '4/5')\
+            .replace('⅙', '1/6')\
+            .replace('⅚', '5/6')\
+            .replace('⅛', '1/8')\
+            .replace('⅜', '3/8')\
+            .replace('⅝', '5/8')\
+            .replace('⅞', '7/8')\
+            .replace('⅟', '1/')\
+            .replace('↉', '0/3')
+
+    #####################################################################################
     def get_quantity_imperial(self, ingredient, ingredient_string):
         """
         Get the ingredient imperial amount and unit
@@ -268,6 +307,7 @@ class Recipes:
 
         return None
 
+    #####################################################################################
     def get_quantity_metric(self, ingredient, ingredient_string):
         """
         Get the ingredient metric amount and unit
@@ -300,6 +340,7 @@ class Recipes:
 
         return None
 
+    #####################################################################################
     def is_ingredient_optional(self, ingredient_string):
         """
         Find the word (optional) in the string and return a boolean
@@ -310,6 +351,7 @@ class Recipes:
 
         return re.search('(optional)', ingredient_string, flags=re.IGNORECASE) is not None
 
+    #####################################################################################
     def build_ingredient_regex(self, ingredient):
         """
         Build the first regex for an ingredient
@@ -355,6 +397,7 @@ class Recipes:
 
         return regex
 
+    #####################################################################################
     def build_exclude_regex(self, ingredient):
         """
         Build a regex to exclude an ingredient if its name is found somewhere else
@@ -373,6 +416,7 @@ class Recipes:
 
         return regex
 
+    #####################################################################################
     def get_total_prep(self):
         """
         Get the total preparation time from the structured data
@@ -385,6 +429,7 @@ class Recipes:
         else:
             return 0
 
+    #####################################################################################
     def get_total_cook(self):
         """
         Get the total cooking time from the structured data
@@ -397,6 +442,7 @@ class Recipes:
         else:
             return 0
 
+    #####################################################################################
     def ingredient_aliases(self, ingredient):
         """
         Change the name of an ingredient to its aliases
@@ -417,6 +463,7 @@ class Recipes:
         else:
             return ingredient
 
+    #####################################################################################
     def remove_stop_words(self, sentence):
         state_words = {
             'fresh', 'sprigs', 'shelled', 'leaves', 'freshly', 'grated', '(', ')'
