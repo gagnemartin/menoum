@@ -146,8 +146,8 @@ class Recipes:
                 'optional': False,
                 'main': False,
                 'quantity': {
-                    'amount': 'taste',
-                    'unit': None,
+                    'amount': None,
+                    'unit': 'taste',
                 }
             }
 
@@ -157,8 +157,8 @@ class Recipes:
                 'optional': False,
                 'main': False,
                 'quantity': {
-                    'amount': 'taste',
-                    'unit': None,
+                    'amount': None,
+                    'unit': 'taste',
                 }
             }
 
