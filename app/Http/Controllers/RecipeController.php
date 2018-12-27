@@ -14,7 +14,7 @@ class RecipeController extends Controller
     public function search(Request $request)
     {
         $data = Recipe::whereHas('ingredients', function ($q) use ($request) {
-            $q->whereIn('name', $request->ingredients);
+            $q->whereIn('ingredients.id', $request->ingredients);
         })->with('media')->get();
 
         return $data;

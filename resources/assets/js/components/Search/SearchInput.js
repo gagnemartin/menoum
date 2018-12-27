@@ -263,7 +263,13 @@ export default class SearchInput extends Component {
      */
     findIngredient(data)
     {
-        return this.state.allIngredients.find(ingredient => ingredient.id === data.id)
+        let ingredient = this.state.allIngredients.find(ingredient => ingredient.id === data.id)
+        let ingredient_id
+
+        if (typeof ingredient !== 'undefined') {
+            ingredient_id = ingredient.id
+        }
+        return ingredient_id
     }
 
     /*

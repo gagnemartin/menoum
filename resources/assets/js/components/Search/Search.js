@@ -20,6 +20,7 @@ export default class Search extends Component {
             })
 
             let self = this
+            console.log(data)
             const $request = axios.get('/recipe', {
                 params: data
             })
