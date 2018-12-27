@@ -20,6 +20,10 @@ class Recipe extends Model
         'source'
     ];
 
+    protected $casts = [
+        'instructions' => 'array'
+    ];
+
     /**
      * Get all of the recipe's ingredients.
      */

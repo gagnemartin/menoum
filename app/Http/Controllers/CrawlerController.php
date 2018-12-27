@@ -107,6 +107,8 @@ class CrawlerController extends Controller
             }
             echo '</ul>';
 
+            dump($recipe['instructions']);
+
             //dump($ingredientsIds, $newIngredients);
         }
 

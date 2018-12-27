@@ -46,6 +46,7 @@ class Recipes:
                 total_prep = self.get_total_prep()
                 total_cook = self.get_total_cook()
                 ingredients_list_and_raw = self.get_ingredients()
+                instructions = self.get_instructions()
 
                 self.recipes.append({
                     'name': self.structured_data['name'],
@@ -59,7 +60,7 @@ class Recipes:
                     'cooking': total_cook,
                     'total_time': total_prep + total_cook,
                     'ingredients': ingredients_list_and_raw['ingredients'],
-                    'instructions': [],
+                    'instructions': instructions,
                     'source': url,
                     'servings': self.structured_data['recipeYield'],
                     'ingredient_count': None,
@@ -483,6 +484,31 @@ class Recipes:
             return int(isodate.parse_duration(self.structured_data['cookTime']).total_seconds())
         else:
             return 0
+
+    #####################################################################################
+    def get_instructions(self):
+        """
+        Get the instructions from the structured data
+
+        :return: List
+        """
+
+        instructions = []
+        sd_instructions = self.structured_data['recipeInstructions']
+
+        if sd_instructions:
+            for instruction in sd_instructions:
+                section = {
+                    'section': instruction['name'],
+                    'steps': []
+                }
+                for item_list_element in instruction['itemListElement']:
+                    section['steps'].append(item_list_element['text'])
+
+                instructions.append(section)
+
+        # data['instructions'] = '||'.join(data['instructions'])
+        return instructions
 
     #####################################################################################
     def ingredient_aliases(self, ingredient):
