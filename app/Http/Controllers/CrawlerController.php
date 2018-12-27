@@ -67,7 +67,54 @@ class CrawlerController extends Controller
 
         $output = $process->getOutput();
         $output = json_decode($output, true);
-        dump($output);
+//        dump($output);
+//
+//        foreach ($output as $recipe) {
+//            $recipe['user_id'] = 11;
+//            $recipe['ingredients'] = array_unique($recipe['ingredients'], SORT_REGULAR);
+//            $recipe['ingredient_count'] = count($recipe['ingredients']);
+//
+//
+//            $ingredientsIds = [];
+//            $newIngredients = [];
+//
+//            echo '<h2>' . $recipe['name'] . '</h2>';
+//            echo '<a href="' . $recipe['source'] .'" target="_BLANK"><img width="400px" src="' . $recipe['media']['url'] . '"' . '/></a>';
+//
+//            echo '<ul>';
+//            foreach ($recipe['ingredients'] as $ingredient) {
+//                // Find if the ingredient already exists in the table
+//                $query = Ingredient::select('id')->where('name', 'like', '%' . str_singular($ingredient['name']) . '%')
+//                    ->first();
+//
+//                if ($query === null) {
+//                    $newIngredients[] = [
+//                        'name' => strtolower($ingredient['name']),
+//                        'slug' => strtolower($ingredient['slug'])
+//                    ];
+//                } else {
+//                    $ingredientsIds[$query['id']] = $ingredient['quantity'];
+//                }
+//
+//                //dump($ingredient);
+//                echo '<li>';
+//                if (isset($ingredient['quantity']['amount'])) {
+//                    echo $ingredient['quantity']['amount'] . ' ' . $ingredient['quantity']['unit'] .' of <b>' . $ingredient['name'] . '</b>';
+//                } else {
+//                    dump($ingredient);
+//                }
+//                echo '</li>';
+//            }
+//            echo '</ul>';
+//
+//            dump($recipe['instructions']);
+//
+//            //dump($ingredientsIds, $newIngredients);
+//        }
+//
+//
+//        die();
+
 
         foreach ($output as $recipe) {
             $recipe['user_id'] = 11;
@@ -77,88 +124,47 @@ class CrawlerController extends Controller
 
             $ingredientsIds = [];
             $newIngredients = [];
-
-            echo '<h2>' . $recipe['name'] . '</h2>';
-            echo '<a href="' . $recipe['source'] .'" target="_BLANK"><img width="400px" src="' . $recipe['media']['url'] . '"' . '/></a>';
-
-            echo '<ul>';
+            $newIngredientsName = [];
             foreach ($recipe['ingredients'] as $ingredient) {
-                // Find if the ingredient already exists in the table
-                $query = Ingredient::select('id')->where('name', 'like', '%' . str_singular($ingredient['name']) . '%')
+                $ingredientName = str_singular($ingredient['name']);
+                $ingredientSlug = str_singular($ingredient['slug']);
+
+                $query = Ingredient::select('id')->where('name', $ingredientName)
                     ->first();
 
                 if ($query === null) {
-                    $newIngredients[] = [
-                        'name' => strtolower($ingredient['name']),
-                        'slug' => strtolower($ingredient['slug'])
-                    ];
+                    if (!in_array($ingredientName, $newIngredientsName)) {
+                        array_push($newIngredientsName, $ingredientName);
+                        $newIngredients[] = [
+                            'name' => strtolower($ingredientName),
+                            'slug' => strtolower($ingredientSlug)
+                        ];
+                    }
                 } else {
                     $ingredientsIds[$query['id']] = $ingredient['quantity'];
                 }
+            }
 
-                //dump($ingredient);
-                echo '<li>';
-                if (isset($ingredient['quantity']['amount'])) {
-                    echo $ingredient['quantity']['amount'] . ' ' . $ingredient['quantity']['unit'] .' of <b>' . $ingredient['name'] . '</b>';
-                } else {
-                    dump($ingredient);
+            if (count($newIngredients) > 0) {
+                Ingredient::insert($newIngredients);
+
+                foreach ($recipe['ingredients'] as $ingredient) {
+                    $query = Ingredient::select('id')->where('name', str_singular($ingredient['name']))
+                        ->first();
+
+                    $ingredientsIds[$query['id']] = $ingredient['quantity'];
                 }
-                echo '</li>';
-            }
-            echo '</ul>';
 
-            dump($recipe['instructions']);
-
-            //dump($ingredientsIds, $newIngredients);
-        }
-
-
-        die();
-
-
-        $output['user_id'] = 11;
-        $output['ingredients'] = array_unique($output['ingredients'], SORT_REGULAR);
-        $output['ingredient_count'] = count($output['ingredients']);
-
-
-        $ingredientsIds = [];
-        $newIngredients = [];
-        foreach ($output['ingredients'] as $ingredient) {
-            $query = Ingredient::select('id')->where('name', 'like', '%' . str_singular($ingredient['name']) . '%')
-                ->first();
-
-            if ($query === null) {
-                $newIngredients[] = [
-                    'name' => strtolower($ingredient['name']),
-                    'slug' => strtolower($ingredient['slug'])
-                ];
-            } else {
-                $ingredientsIds[$query['id']] = $ingredient['quantity'];
-            }
-        }
-
-        dd($output['ingredients']);
-        if (count($newIngredients) > 0) {
-            Ingredient::insert($newIngredients);
-
-            foreach ($output['ingredients'] as $ingredient) {
-                $query = Ingredient::select('id')->where('name', 'like', '%' . str_singular($ingredient['name']) . '%')
-                    ->first();
-
-                $ingredientsIds[$query['id']] = $ingredient['quantity'];
             }
 
+            $recipe = Recipe::create($recipe);
+            $recipe->ingredients()->sync($ingredientsIds);
+            $recipe->media()->create((array) $recipe['media']);
+
+            $this->updateIngredientCount($ingredientsIds);
+
+            //return response()->json($recipe);
         }
-
-        dd($output);
-        $recipe = Recipe::create($output);
-        $recipe->ingredients()->sync($ingredientsIds);
-        $recipe->media()->create($output['media']);
-
-        $this->updateIngredientCount($ingredientsIds);
-
-        //dd($ingredientsIds);
-        return response()->json($recipe);
     }
 
     public function updateIngredientCount($ingredients, $type = false)

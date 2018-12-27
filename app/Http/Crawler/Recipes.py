@@ -134,7 +134,7 @@ class Recipes:
             'raw': []
         }
 
-        salt_and_pepper = re.findall('^salt and pepper$|^salt$|^pepper$', ingredient_string, flags=re.IGNORECASE)
+        salt_and_pepper = re.findall('salt and pepper|^salt$|^pepper$', ingredient_string, flags=re.IGNORECASE)
 
         # Found Salt and Pepper
         if len(salt_and_pepper) > 0:
