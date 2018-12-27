@@ -20,7 +20,7 @@ class Recipes:
 
         self.urls = Connection('urls').select('url').where([
             ['crawled', None],
-        ]).max(20).all()
+        ]).max(50).all()
 
     #####################################################################################
     def get_recipes(self):
@@ -102,7 +102,8 @@ class Recipes:
             ingredients = self.ingredients_wrap.findAll(text=re.compile(ingredient_regex, flags=re.IGNORECASE))
 
             for ingredient_string in ingredients:
-                ingredient_string = ingredient_string.replace(',', '')
+                ingredient_string = ingredient_string.replace(',', '').replace(' / ', '/')
+                ingredient_string = re.sub(r'(?<=[0-9])(?=[^\s^0-9.\/])', ' ', ingredient_string)
 
                 if ingredient_string is not None:
                     salt_and_pepper = self.get_salt_and_pepper(ingredient_string)
@@ -140,39 +141,39 @@ class Recipes:
             salt_and_pepper = [k.lower() for k in salt_and_pepper]
 
             salt = {
-                'name': 'Salt',
+                'name': 'salt',
                 'slug': 'salt',
                 'optional': False,
                 'main': False,
                 'quantity': {
-                    'amount': None,
-                    'unit': 'taste',
+                    'amount': 'taste',
+                    'unit': None,
                 }
             }
 
             pepper = {
-                'name': 'Pepper',
+                'name': 'pepper',
                 'slug': 'pepper',
                 'optional': False,
                 'main': False,
                 'quantity': {
-                    'amount': None,
-                    'unit': 'taste',
+                    'amount': 'taste',
+                    'unit': None,
                 }
             }
 
             if 'salt and pepper' in salt_and_pepper:
                 data['ingredients'].extend([salt, pepper])
-                data['raw'].extend(['Salt', 'Pepper'])
+                data['raw'].extend(['salt', 'pepper'])
 
             elif 'salt' in salt_and_pepper:
                 data['ingredients'].append(salt)
-                data['raw'].append('Salt')
+                data['raw'].append('salt')
 
                 # data['raw'].append('Salt')
             elif 'pepper' in salt_and_pepper:
                 data['ingredients'].append(pepper)
-                data['raw'].append('Pepper')
+                data['raw'].append('pepper')
 
                 # data['raw'].append('Pepper')
 
@@ -209,17 +210,39 @@ class Recipes:
         :return: dictionary of the amount and unit
         """
 
-        ingredient_string = self.clean_ingredient_string(ingredient_string)
         ingredient_tokentize = nltk.word_tokenize(ingredient_string)
         ingredient_tags = nltk.pos_tag(ingredient_tokentize)
-        grammar = 'Quantity: {<CD>+<NN|NNS|NNP>}'
+
+        tagger = nltk.PerceptronTagger()
+        ingredient_tags = tagger.tag(ingredient_tokentize)
+
+        grammar = 'Quantity: {<CD>+(<JJ>?<NN|NNS>)?}'
         parser = nltk.RegexpParser(grammar)
-        quantity = [tree.leaves() for tree in parser.parse(ingredient_tags).subtrees() if
+        tags = [tree.leaves() for tree in parser.parse(ingredient_tags).subtrees() if
                     tree.label() == 'Quantity']
-        if len(quantity) >= 1:
-            print(quantity[0][0][0] + ' ' + quantity[0][1][0])
-        else:
-            print('NOOOOOOOOOOOOOOOOOOOOOOOO:', ingredient_string, quantity)
+
+        if len(tags) > 1:
+            values = self.get_quantity_metric(tags, ingredient)
+
+            if values is None:
+                values = {
+                    'amount': None,
+                    'unit': None
+                }
+
+            return values
+            # print(ingredient_tags)
+            # if (len(quantity[0]) > 1):
+            #     print(quantity[0][0][0], quantity[0][1][0])
+            # else:
+            #     print(quantity[0][0][0], ingredient)
+            # print('***************')
+
+        return {
+            'amount': None,
+            'unit': None
+        }
+
 
         # Search for the metric quantities first
         quantity = self.get_quantity_metric(ingredient, ingredient_string)
@@ -229,7 +252,9 @@ class Recipes:
             quantity = self.get_quantity_imperial(ingredient, ingredient_string)
 
         if quantity is None:
+            print(ingredient_tags)
             print(ingredient, '***', ingredient_string)
+            print('***************')
 
         return quantity
 
@@ -307,40 +332,76 @@ class Recipes:
 
         return None
 
-    #####################################################################################
-    def get_quantity_metric(self, ingredient, ingredient_string):
+    def get_quantity_metric(self, tags, ingredient):
         """
         Get the ingredient metric amount and unit
 
-        :param ingredient: The ingredient as it is in the structured data
-        :param ingredient_string: The ingredient as is it in the HTML with the quantity
+        :param tags: The ingredient as it is in the structured data
         :return: dictionary of the amount and unit
         """
-        regex = "(?P<amount>\(?[0-9]+.?[0-9]+?)\s" \
-                "(?P<unit>\\bm?l\)?\\b|\\bk?g\)?\\b|" \
-                "\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b).*"
 
-        # First regex qui try to find for metric units in parenthesis or not (250 ml, 250 g)
-        quantity = re.search(regex, ingredient_string, flags=re.IGNORECASE)
-
-        if quantity:
-            unit = quantity.group('unit').strip()
-
-            amount = quantity.group('amount')
-            amount = amount.strip('(').strip(')')
-            unit = unit.strip('(').strip(')')
-
-            if unit is ingredient:
-                unit = 'whole'
-
-            return {
-                'amount': amount,
-                'unit': unit,
+        if type(tags) is not str:
+            values = {
+                'amount': None,
+                'unit': None
             }
 
-        return None
+            if type(tags) is tuple:
+                if tags[1] == 'NN' or tags[1] == 'NNS':
+                    metric = ['l', 'litre', 'litres', 'ml', 'kg', 'g', 'gram', 'grams']
+                    ingredient = ingredient.split(' ')
 
-    #####################################################################################
+                    if any(t in tags for t in metric):
+                        values['unit'] = tags[0]
+                    elif any(t in tags for t in ingredient):
+                        values['unit'] = 'whole'
+                elif tags[1] == 'CD':
+                    values['amount'] = tags[0]
+
+                return values
+
+                # return {
+                #     'amount': index[0][0],
+                #     'unit': index[1][0]
+                # }
+            else:
+                for index in tags:
+                    if len(index) >= 1:
+                        data = self.get_quantity_metric(index, ingredient)
+
+                        if data is not None:
+                            if data['amount'] is not None:
+                                values['amount'] = data['amount']
+                            if data['unit'] is not None:
+                                values['unit'] = data['unit']
+
+                            if values['amount'] is not None and values['unit'] is not None:
+                                return values
+
+        # regex = "(?P<amount>\(?[0-9]+.?[0-9]+?)\s" \
+        #         "(?P<unit>\\bm?l\)?\\b|\\bk?g\)?\\b|" \
+        #         "\\bwhole\\b|\\bpinch\\b|\\btaste\\b|\\bwedges?\\b).*"
+        #
+        # # First regex qui try to find for metric units in parenthesis or not (250 ml, 250 g)
+        # quantity = re.search(regex, ingredient_string, flags=re.IGNORECASE)
+        #
+        # if quantity:
+        #     unit = quantity.group('unit').strip()
+        #
+        #     amount = quantity.group('amount')
+        #     amount = amount.strip('(').strip(')')
+        #     unit = unit.strip('(').strip(')')
+        #
+        #     if unit is ingredient:
+        #         unit = 'whole'
+        #
+        #     return {
+        #         'amount': amount,
+        #         'unit': unit,
+        #     }
+        #
+        # return None
+
     def is_ingredient_optional(self, ingredient_string):
         """
         Find the word (optional) in the string and return a boolean
@@ -482,4 +543,5 @@ class Recipes:
         return ' '.join(filtered_sentence)
 
 
-print(Recipes().get_recipes())
+data = json.dumps(Recipes().get_recipes())
+print(data)
