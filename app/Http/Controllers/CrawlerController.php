@@ -56,7 +56,7 @@ class CrawlerController extends Controller
 //        $command = escapeshellcmd('E:\Wamp\www\menoum\app\Http\Crawler\crawler.py');
 //        $output = shell_exec($command);
 
-        $process = new Process('python3 ' . app_path('Http/Crawler/crawler.py'));
+        $process = new Process('python3 ' . app_path('Http/Crawler/Recipes.py'));
         $process->setTimeout(null);
         $process->run();
 
@@ -79,7 +79,7 @@ class CrawlerController extends Controller
             $newIngredients = [];
 
             echo '<h2>' . $recipe['name'] . '</h2>';
-            echo '<img width="400px" src="' . $recipe['media']['url'] . '"' . '/>';
+            echo '<a href="' . $recipe['source'] .'" target="_BLANK"><img width="400px" src="' . $recipe['media']['url'] . '"' . '/></a>';
 
             echo '<ul>';
             foreach ($recipe['ingredients'] as $ingredient) {
