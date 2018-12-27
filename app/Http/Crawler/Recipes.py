@@ -102,8 +102,7 @@ class Recipes:
             ingredients = self.ingredients_wrap.findAll(text=re.compile(ingredient_regex, flags=re.IGNORECASE))
 
             for ingredient_string in ingredients:
-                ingredient_string = ingredient_string.replace(',', '').replace(' / ', '/')
-                ingredient_string = re.sub(r'(?<=[0-9])(?=[^\s^0-9.\/])', ' ', ingredient_string)
+                ingredient_string = self.clean_ingredient_string(ingredient_string)
 
                 if ingredient_string is not None:
                     salt_and_pepper = self.get_salt_and_pepper(ingredient_string)
@@ -231,32 +230,11 @@ class Recipes:
                 }
 
             return values
-            # print(ingredient_tags)
-            # if (len(quantity[0]) > 1):
-            #     print(quantity[0][0][0], quantity[0][1][0])
-            # else:
-            #     print(quantity[0][0][0], ingredient)
-            # print('***************')
 
         return {
             'amount': None,
             'unit': None
         }
-
-
-        # Search for the metric quantities first
-        quantity = self.get_quantity_metric(ingredient, ingredient_string)
-
-        # Search for imperial quantities if no metric were found
-        if quantity is None:
-            quantity = self.get_quantity_imperial(ingredient, ingredient_string)
-
-        if quantity is None:
-            print(ingredient_tags)
-            print(ingredient, '***', ingredient_string)
-            print('***************')
-
-        return quantity
 
     #####################################################################################
     def clean_ingredient_string(self, ingredient_string):
@@ -267,7 +245,10 @@ class Recipes:
         :return: string
         """
 
+        ingredient_string = re.sub(r'(?<=[0-9])(?=[^\s^0-9.\/])', ' ', ingredient_string)
+
         return ingredient_string\
+            .replace(',', '')\
             .replace(' / ', '/')\
             .replace('¼', '1/4')\
             .replace('½', '1/2')\
