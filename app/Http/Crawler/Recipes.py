@@ -22,6 +22,7 @@ class Recipes:
             ['crawled', None],
         ]).max(50).all()
 
+    #####################################################################################
     def get_recipes(self):
         """
         Fetch the recipes from the urls.
@@ -45,6 +46,7 @@ class Recipes:
                 total_prep = self.get_total_prep()
                 total_cook = self.get_total_cook()
                 ingredients_list_and_raw = self.get_ingredients()
+                instructions = self.get_instructions()
 
                 self.recipes.append({
                     'name': self.structured_data['name'],
@@ -58,7 +60,7 @@ class Recipes:
                     'cooking': total_cook,
                     'total_time': total_prep + total_cook,
                     'ingredients': ingredients_list_and_raw['ingredients'],
-                    'instructions': [],
+                    'instructions': instructions,
                     'source': url,
                     'servings': self.structured_data['recipeYield'],
                     'ingredient_count': None,
@@ -67,6 +69,7 @@ class Recipes:
 
         return self.recipes
 
+    #####################################################################################
     def get_ingredients(self):
         """
         Get the ingredients from the structured data.
@@ -100,8 +103,7 @@ class Recipes:
             ingredients = self.ingredients_wrap.findAll(text=re.compile(ingredient_regex, flags=re.IGNORECASE))
 
             for ingredient_string in ingredients:
-                ingredient_string = ingredient_string.replace(',', '').replace(' / ', '/')
-                ingredient_string = re.sub(r'(?<=[0-9])(?=[^\s^0-9.\/])', ' ', ingredient_string)
+                ingredient_string = self.clean_ingredient_string(ingredient_string)
 
                 if ingredient_string is not None:
                     salt_and_pepper = self.get_salt_and_pepper(ingredient_string)
@@ -117,6 +119,7 @@ class Recipes:
 
         return data
 
+    #####################################################################################
     def get_salt_and_pepper(self, ingredient_string):
         """
         Find if the ingredient_string is salt and pepper.
@@ -176,6 +179,7 @@ class Recipes:
 
         return data
 
+    #####################################################################################
     def get_ingredient_data(self, ingredient, ingredient_string):
         """
         Get the ingredient's data in a dictionary
@@ -196,6 +200,7 @@ class Recipes:
 
         return ingredient_data
 
+    #####################################################################################
     def get_ingredient_quantity(self, ingredient, ingredient_string):
         """
         Get the ingredient amount and unit
@@ -226,33 +231,48 @@ class Recipes:
                 }
 
             return values
-            # print(ingredient_tags)
-            # if (len(quantity[0]) > 1):
-            #     print(quantity[0][0][0], quantity[0][1][0])
-            # else:
-            #     print(quantity[0][0][0], ingredient)
-            # print('***************')
 
         return {
             'amount': None,
             'unit': None
         }
 
+    #####################################################################################
+    def clean_ingredient_string(self, ingredient_string):
+        """
+        Clean the ingredient string and convert the fractional symbols to fractional strings
 
-        # Search for the metric quantities first
-        quantity = self.get_quantity_metric(ingredient, ingredient_string)
+        :param ingredient_string:
+        :return: string
+        """
 
-        # Search for imperial quantities if no metric were found
-        if quantity is None:
-            quantity = self.get_quantity_imperial(ingredient, ingredient_string)
+        ingredient_string = re.sub(r'(?<=[0-9])(?=[^\s^0-9.\/])', ' ', ingredient_string)
 
-        if quantity is None:
-            print(ingredient_tags)
-            print(ingredient, '***', ingredient_string)
-            print('***************')
+        return ingredient_string\
+            .replace(',', '')\
+            .replace(' / ', '/')\
+            .replace('¼', '1/4')\
+            .replace('½', '1/2')\
+            .replace('¾', '3/4')\
+            .replace('⅐', '1/7')\
+            .replace('⅑', '1/9')\
+            .replace('⅒', '1/10')\
+            .replace('⅓', '1/3')\
+            .replace('⅔', '2/3')\
+            .replace('⅕', '1/5')\
+            .replace('⅖', '2/5')\
+            .replace('⅗', '3/5')\
+            .replace('⅘', '4/5')\
+            .replace('⅙', '1/6')\
+            .replace('⅚', '5/6')\
+            .replace('⅛', '1/8')\
+            .replace('⅜', '3/8')\
+            .replace('⅝', '5/8')\
+            .replace('⅞', '7/8')\
+            .replace('⅟', '1/')\
+            .replace('↉', '0/3')
 
-        return quantity
-
+    #####################################################################################
     def get_quantity_imperial(self, ingredient, ingredient_string):
         """
         Get the ingredient imperial amount and unit
@@ -374,6 +394,7 @@ class Recipes:
 
         return re.search('(optional)', ingredient_string, flags=re.IGNORECASE) is not None
 
+    #####################################################################################
     def build_ingredient_regex(self, ingredient):
         """
         Build the first regex for an ingredient
@@ -419,6 +440,7 @@ class Recipes:
 
         return regex
 
+    #####################################################################################
     def build_exclude_regex(self, ingredient):
         """
         Build a regex to exclude an ingredient if its name is found somewhere else
@@ -437,6 +459,7 @@ class Recipes:
 
         return regex
 
+    #####################################################################################
     def get_total_prep(self):
         """
         Get the total preparation time from the structured data
@@ -449,6 +472,7 @@ class Recipes:
         else:
             return 0
 
+    #####################################################################################
     def get_total_cook(self):
         """
         Get the total cooking time from the structured data
@@ -461,6 +485,32 @@ class Recipes:
         else:
             return 0
 
+    #####################################################################################
+    def get_instructions(self):
+        """
+        Get the instructions from the structured data
+
+        :return: List
+        """
+
+        instructions = []
+        sd_instructions = self.structured_data['recipeInstructions']
+
+        if sd_instructions:
+            for instruction in sd_instructions:
+                section = {
+                    'section': instruction['name'],
+                    'steps': []
+                }
+                for item_list_element in instruction['itemListElement']:
+                    section['steps'].append(item_list_element['text'])
+
+                instructions.append(section)
+
+        # data['instructions'] = '||'.join(data['instructions'])
+        return instructions
+
+    #####################################################################################
     def ingredient_aliases(self, ingredient):
         """
         Change the name of an ingredient to its aliases
@@ -481,6 +531,7 @@ class Recipes:
         else:
             return ingredient
 
+    #####################################################################################
     def remove_stop_words(self, sentence):
         state_words = {
             'fresh', 'sprigs', 'shelled', 'leaves', 'freshly', 'grated', '(', ')'
