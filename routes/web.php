@@ -13,9 +13,9 @@
 
 Route::view('/', 'search')->name('index');
 
-Route::get('/ingredients/{ingredient}', 'IngredientController@search')->name('ingredient.search');
-Route::get('/ingredients', 'IngredientController@index')->name('ingredient.index');
-Route::get('/recipe', 'RecipeController@search')->name('recipe.search');
+//Route::get('/ingredients/{ingredient}', 'IngredientController@search')->name('ingredient.search');
+//Route::get('/ingredients', 'IngredientController@index')->name('ingredient.index');
+//Route::get('/recipe', 'RecipeController@search')->name('recipe.search');
 
 /**
  * Admin Routes

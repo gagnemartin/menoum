@@ -16,3 +16,7 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/ingredients/{ingredient}', 'IngredientController@search')->name('ingredient.search');
+Route::get('/ingredients', 'IngredientController@index')->name('ingredient.index');
+Route::get('/recipe', 'RecipeController@search')->name('recipe.search');

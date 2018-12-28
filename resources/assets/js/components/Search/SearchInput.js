@@ -34,7 +34,7 @@ export default class SearchInput extends Component {
             loading: true
         })
 
-        const $request = axios.get('/ingredients')
+        const $request = axios.get('/api/ingredients')
             .then((response) => {
                 this.setState({
                     allIngredients: response.data,
