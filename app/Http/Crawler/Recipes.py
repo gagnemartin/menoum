@@ -98,7 +98,7 @@ class Recipes:
             ingredient = self.ingredient_aliases(ingredient)
 
             ingredient_regex = self.build_ingredient_regex(ingredient)
-            regex_exclude = self.build_exclude_regex(ingredient)
+            # regex_exclude = self.build_exclude_regex(ingredient)
 
             ingredients = self.ingredients_wrap.findAll(text=re.compile(ingredient_regex, flags=re.IGNORECASE))
 
