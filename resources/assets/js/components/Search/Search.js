@@ -8,7 +8,8 @@ export default class Search extends Component {
         super(props)
         this.state = {
             ingredients: [],
-            recipes: []
+            recipes: [],
+            requestTime: 0
         }
     }
 
@@ -16,18 +17,23 @@ export default class Search extends Component {
     {
         if (data.ingredients.length > 0) {
             this.setState({
-                loading: true
+                loading: true,
+                requestTime: 0
             })
 
-            let self = this
+            const timeStart = performance.now();
+
             console.log(data)
             const $request = axios.get('/api/recipe', {
                 params: data
             })
                 .then(response => {
-                    self.setState({
+                    const timeEnd = performance.now();
+
+                    this.setState({
                         recipes: response.data,
-                        loading: false
+                        loading: false,
+                        requestTime: Math.floor(timeEnd - timeStart)
                     })
                 })
                 .catch(error => {
@@ -42,6 +48,9 @@ export default class Search extends Component {
 
     render()
     {
+        const recipesLength = this.state.recipes.length
+        const requestTime = this.state.requestTime
+
         return (
             <div className="container">
                 <h1 className="text-center my-5">Menoum</h1>
@@ -49,8 +58,12 @@ export default class Search extends Component {
                     getRecipes={ this.getRecipes.bind(this) }
                 />
 
+                { requestTime > 0 &&
+                    <p className="small text-right mt-1">{ recipesLength } recipe{ recipesLength >= 2 ? 's' : '' } found in { requestTime } milliseconds.</p>
+                }
+
                 <Recipes
-                    recipes={ this.state.recipes}
+                    recipes={ this.state.recipes }
                 />
             </div>
         );

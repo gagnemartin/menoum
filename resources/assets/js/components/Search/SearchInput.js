@@ -183,12 +183,12 @@ export default class SearchInput extends Component {
      */
     update()
     {
-       let t0 = performance.now();
+        const t0 = performance.now();
 
         this.updateInput()
 
-        let t1 = performance.now();
-        console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+        const t1 = performance.now();
+        console.log("Call to updateInput took " + (t1 - t0) + " milliseconds.")
     }
 
     updateResults()
