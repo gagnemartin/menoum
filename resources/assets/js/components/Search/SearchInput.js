@@ -263,13 +263,7 @@ export default class SearchInput extends Component {
      */
     findIngredient(data)
     {
-        let ingredient = this.state.allIngredients.find(ingredient => ingredient.id === data.id)
-        let ingredient_id
-
-        if (typeof ingredient !== 'undefined') {
-            ingredient_id = ingredient.id
-        }
-        return ingredient_id
+        return this.state.allIngredients.find(ingredient => ingredient.id === data.id)
     }
 
     /*
@@ -279,7 +273,7 @@ export default class SearchInput extends Component {
      */
     resultClick(data)
     {
-        let ingredient = this.findIngredient(data)
+        const ingredient = this.findIngredient(data)
 
         this.search.current.focus()
 
@@ -296,8 +290,11 @@ export default class SearchInput extends Component {
      */
     getRecipes()
     {
-        let data = {
-            ingredients: this.state.ingredients
+        const ingredient_ids = this.state.ingredients.map(ingredient => {
+            return ingredient.id
+        })
+        const data = {
+            ingredients: ingredient_ids
         }
 
         this.props.getRecipes(data)
