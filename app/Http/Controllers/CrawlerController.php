@@ -149,7 +149,9 @@ class CrawlerController extends Controller
                 Ingredient::insert($newIngredients);
 
                 foreach ($recipe['ingredients'] as $ingredient) {
-                    $query = Ingredient::select('id')->where('name', str_singular($ingredient['name']))
+                    $ingredientName = str_singular($ingredient['name']);
+
+                    $query = Ingredient::select('id')->where('name', $ingredientName)
                         ->first();
 
                     $ingredientsIds[$query['id']] = $ingredient['quantity'];
@@ -157,11 +159,17 @@ class CrawlerController extends Controller
 
             }
 
-            $recipe = Recipe::create($recipe);
-            $recipe->ingredients()->sync($ingredientsIds);
-            $recipe->media()->create((array) $recipe['media']);
+            try {
+                $savedRecipe = Recipe::create($recipe);
+                $savedRecipe->ingredients()->sync($ingredientsIds);
+                $savedRecipe->media()->create($recipe['media']);
 
-            $this->updateIngredientCount($ingredientsIds);
+                $this->updateIngredientCount($ingredientsIds);
+            } catch (\Illuminate\Database\QueryException $e) {
+                dd($e);
+            } catch (\Exception $e) {
+                dd($e);
+            }
 
             //return response()->json($recipe);
         }
