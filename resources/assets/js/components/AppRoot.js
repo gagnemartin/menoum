@@ -30,11 +30,13 @@ class AppRoot extends Component
     componentDidMount()
     {
         // TODO Login the user on page refresh
-        // Auth.getUser().then(response => {
-        //     const user = response.id
-        //
-        //     console.log(response, user)
-        // })
+        Auth.getUser().then(response => {
+            if (response.status !== 401 && 'id' in response) {
+                this.setUser(response)
+            }
+        }).catch(thrown => {
+            console.log(thrown.response)
+        })
     }
 
     onLogin(data)
@@ -42,11 +44,20 @@ class AppRoot extends Component
         Auth.login(data)
             .then(response => {
                 if (response.status !== 401 && 'id' in response) {
-                    this.setState(prevState => ({
-                        auth: { ...prevState.auth, user: response, isAuthenticated: true }
-                    }))
+                    this.setUser(response)
                 }
             })
+    }
+
+    setUser(user)
+    {
+        this.setState(prevState => ({
+            auth: {
+                ...prevState.auth,
+                user: user,
+                isAuthenticated: true
+            }
+        }))
     }
 
     onLogout()
@@ -76,7 +87,6 @@ class AppRoot extends Component
     render()
     {
         const auth = this.state.auth
-        console.log(auth)
 
         return (
             <BrowserRouter>

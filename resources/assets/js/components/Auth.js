@@ -33,14 +33,39 @@ const isAuthenticated = () =>
     return this.isAuthenticated
 }
 
-const authenticate = () => {
+const authenticate = (token) => {
     this.isAuthenticated = true
+
+    setAccessToken(token)
+    setAxiosHeader(token)
 }
 
 const deAuthenticate = () => {
     this.isAuthenticated = false
     this.user = {}
     this.accessToken = null
+
+    removeAccessToken()
+}
+
+const setAccessToken = (token) => {
+    localStorage.setItem('access_token', token)
+}
+
+const getAccessToken = () => {
+    return localStorage.getItem('access_token')
+}
+
+const removeAccessToken = () => {
+    localStorage.removeItem('access_token')
+}
+
+const setAxiosHeader = (token) =>
+{
+    axios.defaults.headers.common = {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/json'
+    }
 }
 
 const login = async (data) => {
@@ -50,12 +75,8 @@ const login = async (data) => {
                 const token = response.data.token
 
                 if (typeof token !== 'undefined') {
-                    axios.defaults.headers.common = {
-                        'Authorization': 'Bearer ' + token,
-                        'Accept': 'application/json'
-                    }
 
-                    authenticate()
+                    authenticate(token)
 
                     return setUser().then((response) => {
                         return response
@@ -80,7 +101,7 @@ const logout = async () =>
                 return { success: true, message: response.data }
             })
             .catch(thrown => {
-                console.log(thrown.response)
+                return thrown.response
             })
     }
 
@@ -99,12 +120,27 @@ const setUser = async () =>
                 return this.user
             })
             .catch(thrown => {
-                console.log(thrown.response)
+                deAuthenticate()
+                return thrown
             })
     }
 }
 
-const getUser = () =>
+const getUser = async () =>
 {
+    if (!isAuthenticated()) {
+        const token = getAccessToken()
+
+        if (token) {
+            authenticate(token)
+
+            return setUser().then((response) => {
+                return response
+            }).catch(thrown => {
+                return thrown
+            })
+        }
+    }
+
     return this.user
 }
