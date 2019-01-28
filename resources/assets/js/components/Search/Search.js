@@ -49,7 +49,7 @@ export default class Search extends Component {
     render()
     {
         const recipesLength = this.state.recipes.length
-        const requestTime = this.state.requestTime
+        const requestTime = this.state.requestTime / 1000
 
         return (
             <div className="container">
@@ -59,7 +59,7 @@ export default class Search extends Component {
                 />
 
                 { requestTime > 0 &&
-                    <p className="small text-right mt-1">{ recipesLength } recipe{ recipesLength >= 2 ? 's' : '' } found in { requestTime } milliseconds.</p>
+                    <p className="small text-right mt-1 text-secondary">{ recipesLength } recipe{ recipesLength >= 2 ? 's' : '' } found in { requestTime } seconds.</p>
                 }
 
                 <Recipes
