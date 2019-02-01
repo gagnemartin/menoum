@@ -96,7 +96,7 @@ class AppRoot extends Component
                     <Switch>
                         <Route exact path="/" component={ Search } />
                         <Route path="/login" render={ () => <Login onSubmit={ this.onLogin } auth={ auth } /> } />
-                        <PrivateRoute accessible={ this.isAccessible('admin') } path="/ingredients" component={ Ingredients } auth={ auth } />
+                        <PrivateRoute accessible={ this.isAccessible('admin') } path="/admin/ingredients" component={ Ingredients } auth={ auth } />
                     </Switch>
                 </div>
             </BrowserRouter>

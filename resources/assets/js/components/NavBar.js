@@ -46,7 +46,7 @@ export default class NavBar extends Component
                             </DropdownToggle>
                             <DropdownMenu right>
                                 <DropdownItem>
-                                    <Link to="/ingredients" className="nav-link">Ingredients</Link>
+                                    <Link to="/admin/ingredients" className="nav-link">Ingredients</Link>
                                 </DropdownItem>
                             </DropdownMenu>
                         </UncontrolledDropdown>
