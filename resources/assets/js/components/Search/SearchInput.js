@@ -248,24 +248,8 @@ export default class SearchInput extends Component {
 
     updateResults()
     {
-        let ingredients = [...this.state.ingredients]
-        ingredients.splice(ingredients.length - 1)
-
-        let newState = {
-            ingredients: ingredients
-        }
-
-
-        if (newState.ingredients.length === 0) {
-            newState.ingredients = []
-        }
-
-        this.setState(prevState => ({
-            ingredients: prevState.ingredients.slice(0, -1)
-        }), () => {
-            this.updateQueryString()
-            this.getRecipes()
-        })
+        const ingredients = [...this.state.ingredients]
+        this.removeIngredient(ingredients.pop().id)
     }
 
     /*
