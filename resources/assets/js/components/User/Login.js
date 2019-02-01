@@ -11,6 +11,7 @@ export default class Login extends Component {
         this.state = {
             username: null,
             password: null,
+            remember: false,
             isAuthenticated: false
         }
 
@@ -23,7 +24,7 @@ export default class Login extends Component {
         const key = e.target.name
         const value = e.target.value
 
-        if (['username', 'password'].includes(key)) {
+        if (['username', 'password', 'remember'].includes(key)) {
             this.setState({
                 [key]: value
             })
@@ -37,7 +38,8 @@ export default class Login extends Component {
 
         const data = {
             username: this.state.username,
-            password: this.state.password
+            password: this.state.password,
+            remember: this.state.remember
         }
 
         this.props.onSubmit(data)
@@ -79,7 +81,7 @@ export default class Login extends Component {
 
                         <div className="checkbox mb-3">
                             <label>
-                                <input type="checkbox" name="remember" /> Remember Me
+                                <input type="checkbox" name="remember" onChange={ this.handleChange } /> Remember Me
                             </label>
                         </div>
 

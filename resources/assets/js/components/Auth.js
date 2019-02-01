@@ -33,10 +33,10 @@ const isAuthenticated = () =>
     return this.isAuthenticated
 }
 
-const authenticate = (token) => {
+const authenticate = (token, remember) => {
     this.isAuthenticated = true
 
-    setAccessToken(token)
+    setAccessToken(token, remember)
     setAxiosHeader(token)
 }
 
@@ -48,16 +48,33 @@ const deAuthenticate = () => {
     removeAccessToken()
 }
 
-const setAccessToken = (token) => {
-    localStorage.setItem('access_token', token)
+const setAccessToken = (token, remember) => {
+    localStorage.removeItem('access_token')
+    sessionStorage.removeItem('access_token')
+
+    let storage = sessionStorage
+
+
+    console.log(remember)
+
+    if (remember) {
+        storage = localStorage
+    }
+
+    storage.setItem('access_token', token)
 }
 
 const getAccessToken = () => {
-    return localStorage.getItem('access_token')
+    const token = localStorage.getItem('access_token')
+
+    if (token) return token
+
+    return sessionStorage.getItem(('access_token'))
 }
 
 const removeAccessToken = () => {
     localStorage.removeItem('access_token')
+    sessionStorage.removeItem('access_token')
 }
 
 const setAxiosHeader = (token) =>
@@ -76,7 +93,7 @@ const login = async (data) => {
 
                 if (typeof token !== 'undefined') {
 
-                    authenticate(token)
+                    authenticate(token, data.remember)
 
                     return setUser().then((response) => {
                         return response
