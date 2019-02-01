@@ -54,9 +54,6 @@ const setAccessToken = (token, remember) => {
 
     let storage = sessionStorage
 
-
-    console.log(remember)
-
     if (remember) {
         storage = localStorage
     }
