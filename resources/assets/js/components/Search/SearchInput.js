@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import SearchResults from "./SearchResults";
+import SearchResults from './SearchResults'
+import UrlManager from '../UrlManager'
 //import _ from 'lodash'
 
 export default class SearchInput extends Component {
@@ -17,33 +18,87 @@ export default class SearchInput extends Component {
         }
 
         this.search = React.createRef()
+        this.addUrlIngredients = this.addUrlIngredients.bind(this)
         //this.updateInput = _.debounce(this.updateInput, 100);
     }
 
     componentDidMount()
     {
-        this.getIngredients()
+        this.getIngredients(this.addUrlIngredients)
     }
 
     /*
      * Get all the ingredients in an array
      */
-    getIngredients()
+    getIngredients(callback = false)
     {
         this.setState({
             loading: true
         })
 
-        const $request = axios.get('/api/ingredients')
+        axios.get('/api/ingredients')
             .then((response) => {
                 this.setState({
                     allIngredients: response.data,
                     loading: false
+                }, () => {
+                    if (typeof callback === 'function') {
+                        callback()
+                    }
                 })
             })
             .catch((error) => {
                 console.error(error)
             })
+    }
+
+    /**
+     * Get the ingredients in the url
+     */
+    addUrlIngredients()
+    {
+        const query = UrlManager.getUrlParams()
+
+        if ('search' in query) {
+            const ingredientsQuery = query.search.split(',')
+            const ingredientsList = this.state.allIngredients
+            let ingredients = []
+
+            ingredientsQuery.map(ingredient => {
+                const findIngredient = ingredientsList.find(ingredientList => ingredientList.slug === ingredient)
+
+                if (typeof findIngredient !== 'undefined') {
+                    ingredients.push(findIngredient)
+                }
+            })
+
+            if (ingredients.length > 0) {
+                this.setState({
+                    ingredients: ingredients
+                }, () => {
+                    this.updateQueryString()
+                    this.getRecipes()
+                })
+            }
+        }
+    }
+
+    /**
+     * Update the url parameters with the selected ingredients
+     */
+    updateQueryString(ingredient = false)
+    {
+        const ingredients = this.state.ingredients.map(ingredient => ingredient.slug)
+        let array = [...ingredients]
+
+        if (ingredient) {
+            array = [...ingredients, ingredient.slug]
+        }
+        const query = array.join(',')
+
+        UrlManager.pushToUrl({
+            search: query
+        })
     }
 
     /*
@@ -53,7 +108,7 @@ export default class SearchInput extends Component {
      */
     handleKeyUp(e)
     {
-        let keyCode = e.keyCode
+        const keyCode = e.keyCode
         let value = e.target.value.trim()
 
         // Set value to null if input is empty
@@ -205,7 +260,10 @@ export default class SearchInput extends Component {
             newState.ingredients = []
         }
 
-        this.setState(newState, this.getRecipes)
+        this.setState(newState, () => {
+            this.updateQueryString()
+            this.getRecipes()
+        })
     }
 
     /*
@@ -274,6 +332,7 @@ export default class SearchInput extends Component {
     resultClick(data)
     {
         const ingredient = this.findIngredient(data)
+        this.updateQueryString(ingredient)
 
         this.search.current.focus()
 
