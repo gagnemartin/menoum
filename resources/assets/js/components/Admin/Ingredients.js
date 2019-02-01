@@ -2,8 +2,10 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import { Button } from 'reactstrap'
 
-export default class Ingredients extends Component {
-    constructor(props) {
+export default class Ingredients extends Component
+{
+    constructor(props)
+    {
         super(props)
 
         this.state = {
@@ -51,7 +53,7 @@ export default class Ingredients extends Component {
             ingredients: ingredients,
         })
 
-        const $request = axios.post('/admin/ingredients/' + ingredient.id + '/visibility', { approved: approved })
+        axios.post('/admin/ingredients/' + ingredient.id + '/visibility', { approved: approved })
             .then((response) => {
                 let index = this.state.ingredients.findIndex(ingredient => ingredient.id === response.data.data.id)
 
@@ -71,7 +73,8 @@ export default class Ingredients extends Component {
             })
     }
 
-    render() {
+    render()
+    {
         return (
             <div className="row">
                 <div className="col-12">
