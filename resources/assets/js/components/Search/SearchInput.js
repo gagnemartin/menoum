@@ -248,7 +248,7 @@ export default class SearchInput extends Component {
 
     updateResults()
     {
-        let ingredients = this.state.ingredients
+        let ingredients = [...this.state.ingredients]
         ingredients.splice(ingredients.length - 1)
 
         let newState = {
@@ -260,7 +260,9 @@ export default class SearchInput extends Component {
             newState.ingredients = []
         }
 
-        this.setState(newState, () => {
+        this.setState(prevState => ({
+            ingredients: prevState.ingredients.slice(0, -1)
+        }), () => {
             this.updateQueryString()
             this.getRecipes()
         })
@@ -359,6 +361,20 @@ export default class SearchInput extends Component {
         this.props.getRecipes(data)
     }
 
+    removeIngredient(id)
+    {
+        const ingredient = this.state.allIngredients.find(ingredient => ingredient.id === id)
+
+        if (typeof ingredient !== 'undefined') {
+            this.setState(prevState => ({
+                ingredients: prevState.ingredients.filter(ingredient => ingredient.id !== id)
+            }), () => {
+                this.updateQueryString()
+                this.getRecipes()
+            })
+        }
+    }
+
     /*
      * Render it all, baby!
      */
@@ -373,9 +389,13 @@ export default class SearchInput extends Component {
                                 { this.state.ingredients.map((ingredient, index) =>
                                     <span
                                         key={ index }
-                                        className="badge badge-info"
+                                        className="badge badge-info mr-1"
                                     >
                                         { ingredient.name }
+                                        <buttun
+                                            className="btn btn-sm btn-info ml-2 font-weight-bold"
+                                            onClick={ this.removeIngredient.bind(this, ingredient.id) }
+                                        >x</buttun>
                                     </span>
                                 ) }
                             </div>
