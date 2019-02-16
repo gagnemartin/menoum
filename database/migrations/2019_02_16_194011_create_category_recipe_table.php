@@ -19,8 +19,8 @@ class CreateCategoryRecipeTable extends Migration
             $table->unsignedInteger('recipe_id');
             $table->timestamps();
 
-            $table->foreign('recipe_id')->references('id')->on('recipes');
-            $table->foreign('category_id')->references('id')->on('categories');
+//            $table->foreign('recipe_id')->references('id')->on('recipes');
+//            $table->foreign('category_id')->references('id')->on('categories');
         });
     }
 

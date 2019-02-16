@@ -22,7 +22,7 @@ class CreateIngredientsTable extends Migration
             $table->string('food_group', 45)->nullable();
             $table->timestamps();
 
-            $table->foreign('id')->references('ingredient_id')->on('ingredient_recipe');
+            //$table->foreign('id')->references('ingredient_id')->on('ingredient_recipe');
         });
     }
 

@@ -20,7 +20,7 @@ class CreateRecipesTable extends Migration
             $table->unsignedInteger('cooking')->default(0);
             $table->unsignedInteger('total_time')->default(0);
             $table->text('instructions');
-            $table->string('source', 255)->nullable();
+            $table->string('source', 191)->nullable();
             $table->string('slug', 100);
             $table->unsignedInteger('views')->default(0);
             $table->unsignedInteger('user_id');
@@ -29,10 +29,10 @@ class CreateRecipesTable extends Migration
             $table->unsignedTinyInteger('visible')->default(0);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('id')->references('recipe_id')->on('urls');
-            $table->foreign('id')->references('recipe_id')->on('ingredient_recipe');
-            $table->foreign('id')->references('recipe_id')->on('category_recipe');
+//            $table->foreign('user_id')->references('id')->on('users');
+//            $table->foreign('id')->references('recipe_id')->on('urls');
+//            $table->foreign('id')->references('recipe_id')->on('ingredient_recipe');
+//            $table->foreign('id')->references('recipe_id')->on('category_recipe');
         });
     }
 

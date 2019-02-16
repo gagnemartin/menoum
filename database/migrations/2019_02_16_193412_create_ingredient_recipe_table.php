@@ -22,8 +22,8 @@ class CreateIngredientRecipeTable extends Migration
             $table->string('section', 45);
             $table->timestamps();
 
-            $table->foreign('recipe_id')->references('id')->on('recipes');
-            $table->foreign('ingredient_id')->references('id')->on('ingredients');
+//            $table->foreign('recipe_id')->references('id')->on('recipes');
+//            $table->foreign('ingredient_id')->references('id')->on('ingredients');
         });
     }
 

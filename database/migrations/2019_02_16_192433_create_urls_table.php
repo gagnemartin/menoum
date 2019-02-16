@@ -15,11 +15,11 @@ class CreateUrlsTable extends Migration
     {
         Schema::create('urls', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('url', 255);
+            $table->string('url', 191);
             $table->unsignedInteger('recipe_id');
             $table->timestamps();
 
-            $table->foreign('recipe_id')->references('id')->on('recipes');
+            //$table->foreign('recipe_id')->references('id')->on('recipes');
         });
     }
 
