@@ -14,3 +14,11 @@ yarn-error.log
 stuff/*
 *.pyc
 app/Http/Crawler/\.idea/
+
+public/mix-manifest\.json
+
+public/js/app\.js
+
+package-lock\.json
+
+composer\.lock
