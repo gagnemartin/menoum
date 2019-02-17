@@ -17,7 +17,10 @@ Route::get('/ingredients/{ingredient}', 'IngredientController@search')->name('in
 Route::get('/ingredients', 'IngredientController@index')->name('ingredient.index');
 Route::get('/recipe', 'RecipeController@search')->name('recipe.search');
 
-Route::post('/login', 'UserController@login');
+Route::middleware('guest')->group(function() {
+    Route::post('/login', 'UserController@login')->name('user.login');
+    Route::post('/register', 'UserController@store')->name('user.store');
+});
 
 Route::middleware('auth:api')->group(function() {
     Route::get('/user', function (Request $request) {
