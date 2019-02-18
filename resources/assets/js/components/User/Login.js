@@ -53,7 +53,7 @@ export default class Login extends Component {
             auth.isAuthenticated ? <Redirect to="/" />
             :
             <div className="container">
-                <form className="form-basic" method="POST" action="/login" onSubmit={ this.onSubmit }>
+                <form className="form-basic" method="POST" action="/api/login" onSubmit={ this.onSubmit }>
                     <h1 className="h3 mb-3 font-weight-normal">Login</h1>
 
                     <label htmlFor="username" className="sr-only">Username</label>

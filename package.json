@@ -7,24 +7,34 @@
     "watch-poll": "npm run watch -- --watch-poll",
     "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
     "prod": "npm run production",
-    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "test": "jest"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-react": "^7.0.0",
     "axios": "^0.17",
-    "babel-preset-react": "^6.23.0",
+    "babel-jest": "^24.1.0",
     "cross-env": "^5.2.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.9.1",
+    "jest": "^24.1.0",
     "jquery": "^3.2",
-    "laravel-mix": "^2.1.14",
+    "laravel-mix": "^4.0.14",
     "lodash": "^4.17.11",
     "react": "^16.6.0",
-    "react-dom": "^16.6.0"
+    "react-dom": "^16.6.0",
+    "react-test-renderer": "^16.8.2",
+    "resolve-url-loader": "^2.3.1",
+    "sass": "^1.17.0",
+    "sass-loader": "^7.1.0"
   },
   "dependencies": {
     "ajv": "^6.5.4",
     "ajv-keywords": "^3.2.0",
     "bootstrap-sass": "^3.3.7",
+    "prop-types": "latest",
     "react-router-dom": "^4.3.1",
-    "reactstrap": "^5.0.0",
-    "prop-types": "latest"
+    "reactstrap": "^5.0.0"
   }
 }

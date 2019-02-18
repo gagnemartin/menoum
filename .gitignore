@@ -22,3 +22,5 @@ public/js/app\.js
 package-lock\.json
 
 composer\.lock
+
+public/css/app\.css

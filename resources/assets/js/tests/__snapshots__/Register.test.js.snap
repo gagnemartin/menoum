@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User register Matches the snapshot 1`] = `
+<div
+  className="container"
+>
+  <form
+    action="/api/register"
+    className="form-basic user-register"
+    method="POST"
+    onSubmit={[Function]}
+  >
+    <h1
+      className="h3 mb-3 font-weight-normal"
+    >
+      Login
+    </h1>
+    <label
+      className="sr-only"
+      htmlFor="username"
+    >
+      Username
+    </label>
+    <input
+      autoFocus={true}
+      className="form-control"
+      id="username"
+      name="username"
+      onChange={[Function]}
+      placeholder="Username"
+      required={true}
+      type="text"
+    />
+    <label
+      className="sr-only"
+      htmlFor="email"
+    >
+      Email
+    </label>
+    <input
+      className="form-control"
+      id="email"
+      name="email"
+      onChange={[Function]}
+      placeholder="Email"
+      required={true}
+      type="email"
+    />
+    <label
+      className="sr-only"
+      htmlFor="password"
+    >
+      Password
+    </label>
+    <input
+      className="form-control"
+      id="password"
+      name="password"
+      onChange={[Function]}
+      placeholder="Password"
+      required={true}
+      type="password"
+    />
+    <label
+      className="sr-only"
+      htmlFor="passwordConfirmation"
+    >
+      Confirm your password
+    </label>
+    <input
+      className="form-control"
+      id="passwordConfirmation"
+      name="password_confirmation"
+      onChange={[Function]}
+      placeholder="Confirm your password"
+      required={true}
+      type="password"
+    />
+    <button
+      className="btn btn-lg btn-primary btn-block mb-2"
+      type="submit"
+    >
+      Register
+    </button>
+    <a
+      className="btn btn-lg btn-primary btn-block"
+      href="/login"
+      onClick={[Function]}
+    >
+      Sign in
+    </a>
+    <a
+      className="btn btn-lg btn-primary btn-block"
+      href="/password-reset"
+      onClick={[Function]}
+    >
+      Forgot Your Password?
+    </a>
+  </form>
+</div>
+`;

@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import PrivateRoute from './PrivateRoute'
 import NavBar from './NavBar'
 import Login from './User/Login'
+import Register from './User/Register'
 import Search from "./Search/Search"
 import Ingredients from './Admin/Ingredients'
 import Auth from './Auth'
@@ -29,7 +30,6 @@ class AppRoot extends Component
     }
     componentDidMount()
     {
-        // TODO Login the user on page refresh
         Auth.getUser().then(response => {
             if (response.status !== 401 && 'id' in response) {
                 this.setUser(response)
@@ -96,6 +96,7 @@ class AppRoot extends Component
                     <Switch>
                         <Route exact path="/" component={ Search } />
                         <Route path="/login" render={ () => <Login onSubmit={ this.onLogin } auth={ auth } /> } />
+                        <Route path="/register" render={ () => <Login onSubmit={ this.onLogin } auth={ auth } /> } />
                         <PrivateRoute accessible={ this.isAccessible('admin') } path="/admin/ingredients" component={ Ingredients } auth={ auth } />
                     </Switch>
                 </div>
