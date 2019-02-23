@@ -7,7 +7,7 @@ import Login from './User/Login'
 import Register from './User/Register'
 import Search from "./Search/Search"
 import Ingredients from './Admin/Ingredients'
-import Auth from './Auth'
+import Auth from './Auth/Auth'
 
 class AppRoot extends Component
 {
@@ -18,6 +18,7 @@ class AppRoot extends Component
         this.state = {
             auth: this.resetAuth()
         }
+
         this.roles = [
             'admin',
             'moderator',
@@ -27,7 +28,10 @@ class AppRoot extends Component
 
         this.onLogin = this.onLogin.bind(this)
         this.onLogout = this.onLogout.bind(this)
+        this.setUser = this.setUser.bind(this)
+        this.resetAuth = this.resetAuth.bind(this)
     }
+
     componentDidMount()
     {
         Auth.getUser().then(response => {
@@ -96,7 +100,7 @@ class AppRoot extends Component
                     <Switch>
                         <Route exact path="/" component={ Search } />
                         <Route path="/login" render={ () => <Login onSubmit={ this.onLogin } auth={ auth } /> } />
-                        <Route path="/register" render={ () => <Login onSubmit={ this.onLogin } auth={ auth } /> } />
+                        <Route path="/register" render={ () => <Register onSubmit={ this.onLogin } auth={ auth } /> } />
                         <PrivateRoute accessible={ this.isAccessible('admin') } path="/admin/ingredients" component={ Ingredients } auth={ auth } />
                     </Switch>
                 </div>

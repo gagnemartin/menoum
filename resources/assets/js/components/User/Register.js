@@ -44,7 +44,15 @@ export default class Register extends Component
             password_confirmation: this.state.password_confirmation
         }
 
-        this.props.onSubmit(data)
+        axios.post('/api/register', data)
+            .then(response => {
+                console.log(response)
+
+                this.props.onSubmit(data)
+            })
+            .catch(thrown => {
+                console.error(thrown)
+            })
     }
 
     render()
@@ -56,7 +64,7 @@ export default class Register extends Component
                 :
                 <div className="container">
                     <form className="form-basic user-register" method="POST" action="/api/register" onSubmit={ this.onSubmit }>
-                        <h1 className="h3 mb-3 font-weight-normal">Login</h1>
+                        <h1 className="h3 mb-3 font-weight-normal">Register</h1>
 
                         <label htmlFor="username" className="sr-only">Username</label>
                         <input
@@ -103,7 +111,7 @@ export default class Register extends Component
                             required
                         />
 
-                        <button className="btn btn-lg btn-primary btn-block mb-2" type="submit">Register</button>
+                        <button className="btn btn-lg btn-primary btn-block mb-2" type="submit" onClick={ this.onSubmit }>Register</button>
                         <Link to="/login" className="btn btn-lg btn-primary btn-block">Sign in</Link>
                         <Link to="/password-reset" className="btn btn-lg btn-primary btn-block">Forgot Your Password?</Link>
                     </form>

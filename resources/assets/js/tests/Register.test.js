@@ -10,7 +10,7 @@ configure({ adapter: new Adapter() })
 
 describe('User register', () => {
 
-    it("Can't access when authenticated", () => {
+    it("Redirected when authenticated", () => {
         const auth = {
             isAuthenticated: true
         }

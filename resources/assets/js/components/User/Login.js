@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
-import Auth from '../Auth'
 import PropTypes from 'prop-types'
 
 export default class Login extends Component {

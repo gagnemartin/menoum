@@ -56,10 +56,10 @@ export default class NavBar extends Component
 
                                 <a className="nav-link" href="/logout" onClick={ this.logout }>Logout</a>
                                 :
-                                <React.fragment>
+                                <React.Fragment>
                                     <Link to="/login" className="nav-link">Login</Link>
                                     <Link to="/register" className="nav-link">Register</Link>
-                                </React.fragment>
+                                </React.Fragment>
                             }
                         </li>
                     </ul>
