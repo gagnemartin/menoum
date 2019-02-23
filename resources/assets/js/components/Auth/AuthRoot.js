@@ -13,29 +13,29 @@ export default class AuthRoot extends  PureComponent
 		}
 	}
 
-	static isAuthenticated()
+	isAuthenticated()
 	{
 		return this.auth.isAuthenticated
 	}
 
-	static authenticate(token, remember)
+	authenticate(token, remember)
 	{
 		this.auth.isAuthenticated = true
 
-		AuthRoot.setAccessToken(token, remember)
-		AuthRoot.setAxiosHeader(token)
+		this.setAccessToken(token, remember)
+		this.setAxiosHeader(token)
 	}
 
-	static deAuthenticate()
+	deAuthenticate()
 	{
 		this.auth.isAuthenticated = false
 		this.auth.user = {}
 		this.auth.accessToken = null
 
-		AuthRoot.removeAccessToken()
+		this.removeAccessToken()
 	}
 
-	static setAccessToken(token, remember)
+	setAccessToken(token, remember)
 	{
 		localStorage.removeItem('access_token')
 		sessionStorage.removeItem('access_token')
@@ -49,7 +49,7 @@ export default class AuthRoot extends  PureComponent
 		storage.setItem('access_token', token)
 	}
 
-	static getAccessToken()
+	getAccessToken()
 	{
 		const token = localStorage.getItem('access_token')
 
@@ -58,13 +58,13 @@ export default class AuthRoot extends  PureComponent
 		return sessionStorage.getItem(('access_token'))
 	}
 
-	static removeAccessToken()
+	removeAccessToken()
 	{
 		localStorage.removeItem('access_token')
 		sessionStorage.removeItem('access_token')
 	}
 
-	static setAxiosHeader(token)
+	setAxiosHeader(token)
 	{
 		axios.defaults.headers.common = {
 			'Authorization': 'Bearer ' + token,
@@ -72,18 +72,18 @@ export default class AuthRoot extends  PureComponent
 		}
 	}
 
-	static async login(data)
+	async login(data)
 	{
-		if (!AuthRoot.isAuthenticated() && typeof data !== 'undefined') {
+		if (!this.isAuthenticated() && typeof data !== 'undefined') {
 			return axios.post('/api/login', data)
 				.then(response => {
 					const token = response.data.token
 
 					if (typeof token !== 'undefined') {
 
-						AuthRoot.authenticate(token, data.remember)
+						this.authenticate(token, data.remember)
 
-						return AuthRoot.setUser().then((response) => {
+						return this.setUser().then((response) => {
 							return response
 						})
 					}
@@ -96,12 +96,12 @@ export default class AuthRoot extends  PureComponent
 		return this.user
 	}
 
-	static async logout()
+	async logout()
 	{
-		if (AuthRoot.isAuthenticated()) {
+		if (this.isAuthenticated()) {
 			return axios.get('api/logout')
 				.then(response => {
-					AuthRoot.deAuthenticate()
+					this.deAuthenticate()
 
 					return { success: true, message: response.data }
 				})
@@ -110,14 +110,14 @@ export default class AuthRoot extends  PureComponent
 				})
 		}
 
-		AuthRoot.deAuthenticate()
+		this.deAuthenticate()
 
 		return { success: true, message: 'User logged out!' }
 	}
 
-	static async setUser()
+	async setUser()
 	{
-		if (AuthRoot.isAuthenticated()) {
+		if (this.isAuthenticated()) {
 			return axios.get('api/user')
 				.then(response => {
 					this.user = response.data
@@ -125,21 +125,21 @@ export default class AuthRoot extends  PureComponent
 					return this.user
 				})
 				.catch(thrown => {
-					AuthRoot.deAuthenticate()
+					this.deAuthenticate()
 					return thrown
 				})
 		}
 	}
 
-	static async getUser()
+	async getUser()
 	{
-		if (!AuthRoot.isAuthenticated()) {
-			const token = AuthRoot.getAccessToken()
+		if (!this.isAuthenticated()) {
+			const token = this.getAccessToken()
 
 			if (token) {
-				AuthRoot.authenticate(token)
+				this.authenticate(token)
 
-				return AuthRoot.setUser().then((response) => {
+				return this.setUser().then((response) => {
 					return response
 				}).catch(thrown => {
 					return thrown

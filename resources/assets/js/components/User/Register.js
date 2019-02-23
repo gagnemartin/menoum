@@ -48,7 +48,7 @@ export default class Register extends Component
             .then(response => {
                 console.log(response)
 
-                this.props.onSubmit(data)
+                this.props.onSubmit(response.data)
             })
             .catch(thrown => {
                 console.error(thrown)

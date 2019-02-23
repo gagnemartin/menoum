@@ -1,26 +1,28 @@
 import React  from 'react'
 import AuthRoot from './AuthRoot'
 
+let auth = new AuthRoot()
+
 export default class Auth extends AuthRoot
 {
 
     static login(data)
     {
-        return AuthRoot.login(data)
+        return auth.login(data)
     }
 
     static logout()
     {
-        return AuthRoot.logout()
+        return auth.logout()
     }
 
     static async getUser()
     {
-        return AuthRoot.getUser()
+        return auth.getUser()
     }
 
     static isAuthenticated()
     {
-        return AuthRoot.isAuthenticated()
+        return auth.isAuthenticated()
     }
 }

@@ -27,11 +27,12 @@ class UserController extends Controller
         ]);
 
         if ($user) {
-            $credentials = [
-                'username' => $data['username'],
-                'password' => $data['password']
-            ];
-            return $this->getToken($credentials);
+//            $credentials = [
+//                'username' => $data['username'],
+//                'password' => $data['password']
+//            ];
+            return $user;
+            //return $this->getToken($credentials);
         }
     }
 
