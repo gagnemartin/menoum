@@ -21,10 +21,13 @@ module.exports = {
     migrations: {
       directory: './migrations',
       tableName: 'knex_migrations',
-      extension: 'cjs'
+      loadExtensions: [ '.cjs' ],
+      stub: 'migration.stub.js'
     },
     seeds: {
-      directory: './database/seeds'
+      directory: './seeds',
+      loadExtensions: [ '.cjs' ],
+      stub: 'seed.stub.js'
     },
     useNullAsDefault: true
   }

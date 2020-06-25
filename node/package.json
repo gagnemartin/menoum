@@ -6,12 +6,14 @@
     "start": "node bin/www.js",
     "start:dev": "nodemon bin/www.js",
     "migrate:make": "npm run knexflags migrate:make",
-    "migrate:latest": "npm run knexflags --debug migrate:latest",
+    "migrate:latest": "npm run knexflags migrate:latest",
     "migrate:rollback": "npm run knexflags migrate:rollback",
     "migrate:up": "npm run knexflags migrate:up",
     "migrate:down": "npm run knexflags migrate:down",
     "migrate:list": "npm run knexflags migrate:list",
-    "knexflags": "knex --esm --knexfile ./database/knexfile.cjs"
+    "seed:make": "npm run knexflags seed:make",
+    "seed:run": "npm run knexflags seed:run",
+    "knexflags": "knex --knexfile ./database/knexfile.cjs --esm"
   },
   "type": "module",
   "dependencies": {

@@ -47,3 +47,5 @@ This application uses `"type": "module"` inside its package.json file to enable 
 | `npm run migrate:up (-- <migration_name>)` | Runs the specified (by the parameter), or the next chronological migration that has not yet be run. |
 | `npm run migrate:down (-- <migration_name>)` | Will undo the specified (by the parameter), or the last migration that was run. |
 | `npm run migrate:list` | Will return list of completed and pending migrations |
+| `npm run seed:make -- <seed_name>` | Creates a new seed file with a given name. |
+| `npm run seed:run` | Runs all seed files for the current environment. |
