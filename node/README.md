@@ -1,5 +1,16 @@
 # Menoum
 
+### Technologies
+This repo uses these technologies:
+- [Adminer](https://www.adminer.org/) to view and manage the database
+- [Docker](https://docs.docker.com/compose/) to run the application
+- [Express.js](https://expressjs.com/) as a Node.js framework
+- [Knex.js](http://knexjs.org/) to communicate with the database
+- [Node.js](https://nodejs.org/) as a backend server
+- [PostgreSQL](https://www.postgresql.org/) as a database system
+
+---
+
 ### Development
 **Environment variables**
 
@@ -15,12 +26,19 @@ The data from the database will persist even the container is not running.
 If you ever need to completely erase the database and start over, run `docker-compose down -v` where `-v` tells Docker
 to also delete the volumes. Then run `docker-compose up` to start over.
 
+To view and manage the database, navigate to [http://localhost:8080/](http://localhost:8080/) and login with the database information from the **dev.env** file. Select **PostgreSQL** as the System. The Server input is the database's Docker container name, which is simply **database**.
+
+---
+
 ### List of commands
+
+*To run these commands within the Docker container, add the following before every command: `docker-compose exec api <rest of the command>`*
+
 | Command | Information |
 | -- | --- |
-| `docker-compose exec api npm run migrate:make -- <your_migration_name>` | Creates a migration file located at **/database/migrations/**. |
-| `docker-compose exec api npm run migrate:latest` | Runs all migrations that have not yet been run. |
-| `docker-compose exec api npm run migrate:rollback (-- all)` | Rolls back the latest migration group or all if the parameter got specified. |
-| `docker-compose exec api npm run migrate:up (-- <migration_name>)` | Runs the specified (by the parameter), or the next chronological migration that has not yet be run. |
-| `docker-compose exec api npm run migrate:down (-- <migration_name>)` | Will undo the specified (by the parameter), or the last migration that was run. |
-| `docker-compose exec api npm run migrate:list` | Will return list of completed and pending migrations |
+| `npm run migrate:make -- <your_migration_name>` | Creates a migration file located at **/database/migrations/**. |
+| `npm run migrate:latest` | Runs all migrations that have not yet been run. |
+| `npm run migrate:rollback (-- all)` | Rolls back the latest migration group or all if the parameter got specified. |
+| `npm run migrate:up (-- <migration_name>)` | Runs the specified (by the parameter), or the next chronological migration that has not yet be run. |
+| `npm run migrate:down (-- <migration_name>)` | Will undo the specified (by the parameter), or the last migration that was run. |
+| `npm run migrate:list` | Will return list of completed and pending migrations |
