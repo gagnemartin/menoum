@@ -2,6 +2,8 @@ version: '3.7'
 
 services:
   api:
+    container_name: api
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -12,17 +14,28 @@ services:
       - /usr/src/app/node_modules
     ports:
       - 4000:4000
-    networks: 
+    networks:
       - api
     depends_on:
       - database
 
   database:
-    image: "postgres"
+    image: postgres
+    container_name: database
+    restart: always
     env_file:
       - ./dev.env
     volumes:
       - database-data:/var/lib/postgresql/data/
+    networks:
+      - api
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 8080:8080
     networks:
       - api
 

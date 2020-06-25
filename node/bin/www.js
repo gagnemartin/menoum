@@ -6,6 +6,7 @@
 import debugLib from 'debug'
 import http from 'http'
 import app from '../app.js'
+import Database from '../database/database.js'
 
 const debug = debugLib('your-project-name:server')
 
@@ -89,3 +90,13 @@ function onListening() {
     : 'port ' + addr.port
   debug('Listening on ' + bind)
 }
+
+Database.test()
+
+// DB.authenticate()
+//   .then(() => {
+//     console.log('Connection has been established successfully.')
+//   })
+//   .catch(err => {
+//     console.error('Unable to connect to the database:', err)
+//   })
