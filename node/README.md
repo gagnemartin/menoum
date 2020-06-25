@@ -1,7 +1,7 @@
 # Menoum
 
 ### Technologies
-This repo uses these technologies:
+This application uses these technologies:
 - [Adminer](https://www.adminer.org/) to view and manage the database
 - [Docker](https://docs.docker.com/compose/) to run the application
 - [Express.js](https://expressjs.com/) as a Node.js framework
@@ -12,11 +12,12 @@ This repo uses these technologies:
 ---
 
 ### Development
-**Environment variables**
+
+#### Environment variables
 
 Clone the file `.env.skeleton` to `dev.env` and fill the database information that you want.
 
-**Starting the server with Docker**
+#### Starting the server with Docker
 
 The command `docker-compose up` will start the Node and Postgres servers with Adminer to manage your database data.
 
@@ -27,6 +28,10 @@ If you ever need to completely erase the database and start over, run `docker-co
 to also delete the volumes. Then run `docker-compose up` to start over.
 
 To view and manage the database, navigate to [http://localhost:8080/](http://localhost:8080/) and login with the database information from the **dev.env** file. Select **PostgreSQL** as the System. The Server input is the database's Docker container name, which is simply **database**.
+
+#### .cjs files
+
+This application uses `"type": "module"` inside its package.json file to enable ES6 with Node.js and use import/export statements. However, some modules are importing files using the `require` statement and Node.js does not like that unless the imported Javascript file has a **.cjs** extension.
 
 ---
 
