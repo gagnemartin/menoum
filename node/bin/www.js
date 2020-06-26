@@ -8,13 +8,13 @@ import http from 'http'
 import app from '../app.js'
 import Database from '../database/database.js'
 
-const debug = debugLib('your-project-name:server')
+const debug = debugLib('menoum:server')
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000')
+const port = normalizePort(process.env.PORT || '4000')
 app.set('port', port)
 
 /**
@@ -92,11 +92,3 @@ function onListening() {
 }
 
 Database.test()
-
-// DB.authenticate()
-//   .then(() => {
-//     console.log('Connection has been established successfully.')
-//   })
-//   .catch(err => {
-//     console.error('Unable to connect to the database:', err)
-//   })

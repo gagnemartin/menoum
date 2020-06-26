@@ -1,10 +1,8 @@
 import express from 'express'
+import routesIngredients from './ingredients.js'
 
-const router = express.Router()
+const indexRouter = express.Router()
 
-/* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' })
-})
+indexRouter.use('/ingredients', routesIngredients)
 
-export default router
+export default indexRouter
