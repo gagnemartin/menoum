@@ -39,13 +39,20 @@ This application uses `"type": "module"` inside its package.json file to enable 
 
 *To run these commands within the Docker container, add the following before every command: `docker-compose exec api <rest of the command>`*
 
+**Migrations**
+
 | Command | Information |
-| -- | --- |
+| --- | --- |
 | `npm run migrate:make -- <your_migration_name>` | Creates a migration file located at **/database/migrations/**. |
 | `npm run migrate:latest` | Runs all migrations that have not yet been run. |
 | `npm run migrate:rollback (-- all)` | Rolls back the latest migration group or all if the parameter got specified. |
 | `npm run migrate:up (-- <migration_name>)` | Runs the specified (by the parameter), or the next chronological migration that has not yet be run. |
 | `npm run migrate:down (-- <migration_name>)` | Will undo the specified (by the parameter), or the last migration that was run. |
 | `npm run migrate:list` | Will return list of completed and pending migrations |
-| `npm run seed:make -- <seed_name>` | Creates a new seed file with a given name. |
+
+**Seeders**
+
+| Command | Information |
+| --- | --- |
+| `npm run seed:make -- <seed_name>` | Creates a new seed file located at **/database/seeders/**. |
 | `npm run seed:run` | Runs all seed files for the current environment. |
