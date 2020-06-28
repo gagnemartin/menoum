@@ -7,7 +7,22 @@ module.exports = {
   onUpdateTrigger: ({ table, except_columns = [] }) => {
     let command = `
     CREATE TRIGGER ${table}_updated_at
-    BEFORE UPDATE ON ${table}
+    AFTER UPDATE ON ${table}
+    FOR EACH ROW
+    `
+
+    command = addExceptionColumns(command, table, except_columns)
+
+    command = command + `
+    EXECUTE PROCEDURE on_update_timestamp();
+    `
+
+    return command
+  },
+  updateCounterCache: ({ table, column, target_table, target_column, except_columns = [] }) => {
+    let command = `
+    CREATE TRIGGER ${table}_counter
+    AFTER INSERT OR UPDATE OF ${target_column} OR DELETE ON ${target_table}
     FOR EACH ROW
     `
 
@@ -30,23 +45,25 @@ module.exports = {
  * @returns {string}
  */
 const addExceptionColumns = (command, table, except_columns) => {
+  let modifiedCommand = command
+
   if (except_columns.length > 0) {
     if (except_columns instanceof Array) {
       for (let i = 0; i < except_columns.length; i++) {
         const column = except_columns[i]
 
         if (i === 0) {
-          command = command + `WHEN (OLD.${column} IS NOT DISTINCT FROM NEW.${column}`
+          modifiedCommand = modifiedCommand + `WHEN (OLD.${column} IS NOT DISTINCT FROM NEW.${column}`
         } else {
-          command = `${command} AND OLD.${column} IS NOT DISTINCT FROM NEW.${column}`
+          modifiedCommand = `${modifiedCommand} AND OLD.${column} IS NOT DISTINCT FROM NEW.${column}`
         }
       }
 
-      command = `${command})`
+      modifiedCommand = `${modifiedCommand})`
     } else {
-      command = command + `WHEN (OLD.${except_columns} IS NOT DISTINCT FROM NEW.${except_columns})`
+      modifiedCommand = modifiedCommand + `WHEN (OLD.${except_columns} IS NOT DISTINCT FROM NEW.${except_columns})`
     }
   }
 
-  return command
+  return modifiedCommand
 }

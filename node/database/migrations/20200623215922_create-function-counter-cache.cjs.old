@@ -1,0 +1,27 @@
+const ON_UPDATE_TIMESTAMP_FUNCTION = `
+  CREATE OR REPLACE FUNCTION on_update_timestamp(table VARCHAR, column VARCHAR, target_table VARCHAR, target_column VARCHAR)
+  RETURNS trigger AS $$
+  BEGIN
+    IF TG_OP IN ('UPDATE', 'DELETE') THEN
+      SELECT count(*) AS ingredient_count FROM target_table WHERE target_column = old.id;
+      UPDATE table SET column = ingredient_count WHERE id = old.id;
+    END IF;
+    IF TG_OP IN ('INSERT', 'UPDATE') THEN
+      SELECT count(*) AS ingredient_count FROM target_table WHERE target_column = new.id;
+      UPDATE table SET column = ingredient_count WHERE id = new.id;
+    END IF;
+    RETURN NULL;
+  END;
+$$ language 'plpgsql';
+`
+const DROP_ON_UPDATE_TIMESTAMP_FUNCTION = `DROP FUNCTION on_update_timestamp`
+
+function up(knex) {
+  return knex.raw(ON_UPDATE_TIMESTAMP_FUNCTION)
+}
+
+function down(knex) {
+  return knex.raw(DROP_ON_UPDATE_TIMESTAMP_FUNCTION)
+}
+
+module.exports = { up, down }

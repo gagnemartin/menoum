@@ -1,21 +1,63 @@
 import Database from '../database/database.js'
 
 class Model {
-  constructor(table) {
+  constructor(params) {
+    const { table, relationships } = params
+
     this.table = table
-    this.database = Database.connect().from(this.table)
+    this.relationships = relationships
+
+    this.resetQuery()
   }
 
-  findAll(options = {}) {
-    const query = Database.buildQuery(this.database, options)
-
+  all = () => {
+    const query = this.query.clone()
+    this.resetQuery()
     return query
   }
 
-  async find(options) {
-    const query = Database.buildQuery(this.database, options)
+  first = async () => {
+    const query = this.query.first().clone()
+    this.resetQuery()
+    return query
+  }
 
-    return query.first()
+  limit = limit => {
+    this.query.limit(limit)
+    return this
+  }
+
+  orderBy = (column, direction = null) => {
+    if (direction !== null) {
+      this.query.orderBy(column, direction)
+    } else {
+      this.query.orderBy(column)
+    }
+
+    return this
+  }
+
+  select = columns => {
+    this.query.select(columns)
+    return this
+  }
+
+  /**
+   * Where clause
+   *
+   * @param {string} column
+   * @param {string|number} arg1 Operator or Value
+   * @param {string|number|null} arg2 Value
+   * @returns {Model}
+   */
+  where = (column, arg1, arg2 = null) => {
+    console.log(this.query.toString())
+    this.query = Database.formatConditions(this.query, { column, arg1, arg2 })
+    return this
+  }
+
+  resetQuery = () => {
+    this.query = Database.connect().from(this.table)
   }
 }
 

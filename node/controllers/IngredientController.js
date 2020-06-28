@@ -8,10 +8,11 @@ class IngredientController extends Controller {
 
   all = async (req, res, next) => {
     try {
-      const data = await this.model.findAll({
-        columns: [ 'name', 'uuid', 'recipe_count' ],
-        orderBy: [ 'recipe_count', 'desc' ]
-      })
+      const data = await this.model
+        .select([ 'name', 'uuid', 'recipe_count' ])
+        .limit(2)
+        .orderBy('name', 'desc')
+        .all()
 
       return res.status(200).json(data)
     } catch (e) {
@@ -24,12 +25,10 @@ class IngredientController extends Controller {
 
   get = async (req, res, next) => {
     try {
-      const data = await this.model.find({
-        columns: [ 'name', 'uuid', 'recipe_count' ],
-        where: [
-          [ 'uuid', req.params.uuid ]
-        ]
-      })
+      const data = await Ingredient
+        .select([ 'name', 'uuid', 'recipe_count' ])
+        .where('uuid', req.params.uuid)
+        .first()
 
       return res.status(200).json(data)
     } catch (e) {

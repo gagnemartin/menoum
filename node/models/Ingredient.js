@@ -1,9 +1,19 @@
 import { Model } from './index.js'
 
-class Ingredient extends Model {
-  constructor(table) {
-    super(table)
+const params = {
+  table: 'ingredients',
+  relationships: {
+    recipes: {
+      type: 'many_to_many',
+      pivot_table: 'ingredient_recipe'
+    }
   }
 }
 
-export default new Ingredient('ingredients')
+class Ingredient extends Model {
+  constructor(params) {
+    super(params)
+  }
+}
+
+export default new Ingredient(params)

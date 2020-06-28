@@ -20,33 +20,14 @@ class Database {
     console.log(message)
   }
 
-  buildQuery = (db, options = {}) => {
-    const query = db
-      .select(options.columns || '*')
+  formatConditions = (query, conditions) => {
+    if (conditions instanceof Object) {
+      const { column, arg1, arg2 } = conditions
 
-    if (options.limit) {
-      query.limit(limit)
-    }
-
-    if (options.where instanceof Array) {
-      options.where.map(option => {
-        if (option.length > 2) {
-          query.where(option[0], option[1], option[2])
-        } else {
-          query.where(option[0], option[1])
-        }
-      })
-    }
-
-    if (typeof options.orderBy !== 'undefined') {
-      if (options.orderBy instanceof Array) {
-        if (options.orderBy.length > 1) {
-          query.orderBy(options.orderBy[0], options.orderBy[1])
-        } else {
-          query.orderBy(options.orderBy[0], options.orderBy[1])
-        }
+      if (arg2 !== null) {
+        query.where(column, arg1, arg2)
       } else {
-        query.orderBy(options.orderBy)
+        query.where(column, arg1)
       }
     }
 
