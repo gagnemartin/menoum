@@ -2,21 +2,22 @@ import { Model } from './index.js'
 import Validator from './Validator.js'
 
 const params = {
-  table: 'ingredients',
+  table: 'recipes',
   relationships: {
-    recipes: {
+    ingredients: {
       type: 'many_to_many'
     }
   }
 }
 
-class Ingredient extends Model {
+class Recipe extends Model {
   constructor(params) {
     super(params)
   }
 
-  recipes = () => {
-    this.manyToMany('recipes')
+  ingredients = () => {
+    this.manyToMany('ingredients')
+
     return this
   }
 
@@ -27,7 +28,10 @@ class Ingredient extends Model {
       name: {
         required: [ true, 'Please provide a name.' ],
         type: [ 'string', 'The name must be a string.' ],
-        betweenLength: [ 3, 50, 'The name should between 3 and 255 characters long.' ]
+        betweenLength: [ 3, 255, 'The name should between 3 and 255 characters long.' ]
+      },
+      steps: {
+        type: [ 'array', 'The steps must be of type Array.' ]
       }
     })
   }
@@ -47,4 +51,4 @@ class Ingredient extends Model {
   }
 }
 
-export default new Ingredient(params)
+export default new Recipe(params)

@@ -1,18 +1,17 @@
 import { Controller } from './index.js'
-import { Ingredient } from '../models/index.js'
+import { Recipe } from '../models/index.js'
 
-class IngredientController extends Controller {
+class RecipeController extends Controller {
   constructor(model) {
     super(model)
   }
 
   all = async (req, res, next) => {
     try {
-      const data = await Ingredient
-        .select([ 'ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count' ])
-        .limit(20)
-        .orderBy('ingredients.name', 'desc')
-        .recipes()
+      const data = await Recipe
+        .select([ 'recipes.id', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
+        .orderBy('recipes.name', 'desc')
+        .ingredients()
         .all()
 
       return res.status(200).json(data)
@@ -26,10 +25,10 @@ class IngredientController extends Controller {
 
   get = async (req, res, next) => {
     try {
-      const data = await Ingredient
-        .select([ 'ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count' ])
-        .where('ingredients.uuid', req.params.uuid)
-        .recipes()
+      const data = await Recipe
+        .select([ 'recipes.id', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
+        .where('recipes.uuid', req.params.uuid)
+        .ingredients()
         .first()
 
       return res.status(200).json(data)
@@ -43,13 +42,12 @@ class IngredientController extends Controller {
 
   new = async (req, res, next) => {
     try {
-      const formData = Ingredient.transformData(req.body)
-
-      const [ isValid, validatedData ] = Ingredient.validate(formData)
+      const formData = Recipe.transformData(req.body)
+      const [ isValid, validatedData ] = Recipe.validate(formData)
 
       if (isValid) {
-        const data = await Ingredient
-          .insert(formData, [ 'uuid', 'name', 'created_at', 'recipe_count' ])
+        const data = await Recipe
+          .insert(formData, [ 'uuid', 'name', 'steps', 'created_at', 'ingredient_count' ])
 
         return res.status(201).json(data)
       }
@@ -69,22 +67,19 @@ class IngredientController extends Controller {
 
   update = async (req, res, next) => {
     try {
-      const formData = Ingredient.transformData(req.body)
+      const formData = req.body
       const { uuid } = req.params
 
-      const [ isValid, validatedData ] = Ingredient.validate(formData)
-
-      if (isValid) {
-        const data = await Ingredient
-          .updateByUuid(uuid, formData, [ 'uuid', 'name', 'created_at', 'recipe_count' ])
+      if (Recipe.validate(formData)) {
+        const data = await Recipe
+          .updateByUuid(uuid, formData, [ 'uuid', 'name', 'steps', 'created_at', 'ingredient_count' ])
 
         return res.status(200).json(data)
       }
 
       return res.status(400).json({
         message: 'Invalid data.',
-        status: 400,
-        data: validatedData
+        status: 400
       })
     } catch (e) {
 
@@ -94,13 +89,13 @@ class IngredientController extends Controller {
   delete = async (req, res, next) => {
     try {
       const { uuid } = req.params
-      await Ingredient.deleteByUuid(uuid)
+      await Recipe.deleteByUuid(uuid)
 
-      return res.status(200).json({ message: 'Ingredient successfully deleted.' })
+      return res.status(200).json({ message: 'Recipe successfully deleted.' })
     } catch (e) {
 
     }
   }
 }
 
-export default new IngredientController(Ingredient)
+export default new RecipeController(Recipe)
