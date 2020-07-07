@@ -9,7 +9,7 @@ class RecipeController extends Controller {
   all = async (req, res, next) => {
     try {
       const data = await Recipe
-        .select([ 'recipes.id', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
+        .select([ 'recipes.id', 'recipes.uuid', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
         .orderBy('recipes.name', 'desc')
         .ingredients()
         .all()
@@ -24,30 +24,39 @@ class RecipeController extends Controller {
   }
 
   get = async (req, res, next) => {
-    try {
-      const data = await Recipe
-        .select([ 'recipes.id', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
-        .where('recipes.uuid', req.params.uuid)
-        .ingredients()
-        .first()
-
-      return res.status(200).json(data)
-    } catch (e) {
-      return res.status(404).json({
-        message: e.message.replace(/"/g, ''),
-        status: 404
+    const data = await Recipe
+      .select([ 'recipes.id', 'recipes.uuid', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
+      .where('recipes.uuid', req.params.uuid)
+      .ingredients()
+      .first()
+      .catch(e => {
+        return res.status(404).json({
+          message: e.message.replace(/"/g, ''),
+          status: 404
+        })
       })
-    }
+
+    return res.status(200).json(data)
   }
 
   new = async (req, res, next) => {
     try {
       const formData = Recipe.transformData(req.body)
-      const [ isValid, validatedData ] = Recipe.validate(formData)
+      const ingredientsInsert = formData.ingredients
+      delete formData.ingredients
+      const [ isValid, errors ] = Recipe.validate(formData)
 
       if (isValid) {
+        const newData = await Recipe
+          .insert(formData, [ 'id', 'uuid', 'name', 'steps', 'created_at', 'ingredient_count' ])
+
+        await Recipe.syncIngredients(newData.id, ingredientsInsert)
+
         const data = await Recipe
-          .insert(formData, [ 'uuid', 'name', 'steps', 'created_at', 'ingredient_count' ])
+          .select([ 'recipes.id', 'recipes.uuid', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
+          .where('recipes.uuid', newData.uuid)
+          .ingredients()
+          .first()
 
         return res.status(201).json(data)
       }
@@ -55,7 +64,7 @@ class RecipeController extends Controller {
       return res.status(400).json({
         message: 'Invalid data.',
         status: 400,
-        data: validatedData
+        data: errors
       })
     } catch (e) {
       return res.status(404).json({
@@ -67,22 +76,37 @@ class RecipeController extends Controller {
 
   update = async (req, res, next) => {
     try {
-      const formData = req.body
+      const formData = Recipe.transformData(req.body)
+      const ingredientsInsert = formData.ingredients
+      delete formData.ingredients
       const { uuid } = req.params
+      const [ isValid, errors ] = Recipe.validate(formData)
 
-      if (Recipe.validate(formData)) {
+      if (isValid) {
+        const updateData = await Recipe
+          .updateByUuid(uuid, formData, [ 'id', 'uuid' ])
+
+        await Recipe.syncIngredients(updateData.id, ingredientsInsert)
+
         const data = await Recipe
-          .updateByUuid(uuid, formData, [ 'uuid', 'name', 'steps', 'created_at', 'ingredient_count' ])
+          .select([ 'recipes.id', 'recipes.uuid', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at' ])
+          .where('recipes.uuid', updateData.uuid)
+          .ingredients()
+          .first()
 
         return res.status(200).json(data)
       }
 
       return res.status(400).json({
         message: 'Invalid data.',
-        status: 400
+        status: 400,
+        data: errors
       })
     } catch (e) {
-
+      return res.status(404).json({
+        message: e.message.replace(/"/g, ''),
+        status: 404
+      })
     }
   }
 

@@ -27,7 +27,11 @@ class Database {
       if (arg2 !== null) {
         query.where(column, arg1, arg2)
       } else {
-        query.where(column, arg1)
+        if (arg1 instanceof Array) {
+          query.whereIn(column, arg1)
+        } else {
+          query.where(column, arg1)
+        }
       }
     }
 

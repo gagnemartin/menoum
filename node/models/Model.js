@@ -37,31 +37,76 @@ class Model {
 
     return query.then(data => {
       return this.formatRelationshipsData(data)
+    }).catch(e => {
+      throw new Error(e)
     })
   }
 
   insert = (data, returning = [ '*' ]) => {
     const insertData = this.toJSON(data)
-
     const query = this.queryInsert.insert(insertData, returning).clone()
+
     this.resetQueries()
+
     return query
+      .then(newData => {
+        // Bulk insert
+        if (data instanceof Array) {
+          return newData
+        }
+        
+        return newData[0]
+      })
+      .catch(e => {
+        throw new Error(e)
+      })
   }
 
   updateByUuid = async (uuid, data, returning = [ '*' ]) => {
+    const updateData = this.toJSON(data)
     const query = this.query
       .where('uuid', uuid)
-      .update(data, returning)
+      .update(updateData, returning)
       .clone()
 
     this.resetQueries()
 
+    return query.then(data => {
+      return data[0]
+    })
+  }
+
+  update = async (data, returning = [ '*' ]) => {
+    const updateData = this.toJSON(data)
+    const query = this.query
+      .where('id', data.id)
+      .update(updateData, returning)
+      .clone()
+
+    this.resetQueries()
+
+    return query.then(data => {
+      return data[0]
+    })
+  }
+
+  deleteByUuid = async data => {
+    this.where('uuid', data)
+
+    const query = this.query.del().clone()
+
+    this.resetQueries()
+
     return query
   }
 
-  deleteByUuid = async uuid => {
-    const query = this.query.where('uuid', uuid).del().clone()
+  delete = async data => {
+    this.where('id', data)
+
+    const query = this.query.del().clone()
+
     this.resetQueries()
+
     return query
   }
 
@@ -133,6 +178,7 @@ class Model {
   resetQueries = () => {
     this.query = Database.connect().from(this.table)
     this.queryInsert = Database.connect().into(this.table)
+    this.database = Database.connect()
   }
 
   getRelationshipsInfo = relationships => {
@@ -174,6 +220,10 @@ class Model {
   }
 
   formatRelationshipsData = data => {
+    if (!data) {
+      throw new Error('Not found.')
+    }
+
     const formattedData = { ...data }
 
     if (this.relationships) {
@@ -189,11 +239,11 @@ class Model {
           association_primary_key
         } = relationship
 
-        if (!formattedData[table][0]) {
+        if (!formattedData[table] || !formattedData[table][0]) {
           formattedData[table] = []
         }
 
-        if (!formattedData[pivot_table][0]) {
+        if (!formattedData[pivot_table] || !formattedData[pivot_table][0]) {
           formattedData[pivot_table] = []
         }
 
@@ -220,6 +270,16 @@ class Model {
   }
 
   toJSON = data => {
+    // Bulk insert/update
+    if (data instanceof Array) {
+      return data.map(obj => this._toJSON(obj))
+
+    }
+
+    return this._toJSON(data)
+  }
+
+  _toJSON = data => {
     const castData = { ...data }
     const fields = Object.keys(castData)
 
@@ -230,6 +290,10 @@ class Model {
     })
 
     return castData
+  }
+
+  pluck = (array, key) => {
+    return array.map(o => o[key])
   }
 }
 
