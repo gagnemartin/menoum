@@ -18,6 +18,7 @@ services:
       - api
     depends_on:
       - database
+      - elastic
 
   database:
     container_name: database
@@ -41,9 +42,32 @@ services:
     networks:
       - api
 
+  elastic:
+    image: elasticsearch:7.8.0
+    container_name: elastic
+    environment:
+    - node.name=es01
+    - cluster.name=es-docker-cluster
+    - cluster.initial_master_nodes=es01
+    - bootstrap.memory_lock=true
+    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+    - elastic-data:/usr/share/elasticsearch/data
+    ports:
+    - 9200:9200
+    networks:
+    - api
+
 volumes:
   database-data:
     name: postgres-data
+  elastic-data:
+    name: elastic-data
+    driver: local
 
 networks:
   api:
