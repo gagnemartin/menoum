@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { Client } = require('@elastic/elasticsearch')
 
-const ElasticClient = new Client({ node: 'http://172.20.0.4:9200' })
+const ElasticClient = new Client({ node: 'http://elastic:9200' })
 
 faker.locale = 'fr'
 
@@ -17,7 +17,6 @@ const randomWord = (min, max) => {
 
 const createRecipes = numEntries => {
   const recipes = []
-
 
   for (let i = 0; i < numEntries; i++) {
     const recipe = {
@@ -80,14 +79,22 @@ async function seed(knex) {
   await Ingredients.del()
   await Recipes.del()
   await IngredientsRecipes.del()
+
+  const { body: indexExists } = await ElasticClient.indices.exists({
+    index: 'ingredients'
+  })
+
+  if (indexExists) {
     await ElasticClient.deleteByQuery({
-        index: 'ingredients',
-        body: {
-            query: {
-                "match_all": {}
-            }
+      index: 'ingredients',
+      conflicts: 'proceed',
+      body: {
+        query: {
+          match_all: {}
         }
+      }
     })
+  }
 
   // Insert Ingredients and Recipes
   const [ ingredients, recipes ] = await Promise.all([
@@ -96,9 +103,9 @@ async function seed(knex) {
   ])
 
   // Insert ingredients in Elasticsearch
-    const ingredientsElastic = ingredients.flatMap(doc => [{ index: { _index: 'ingredients' } }, doc])
-    const { body: bulkResponse } = await ElasticClient.bulk({refresh: true, body: ingredientsElastic})
-    console.log(bulkResponse)
+  const ingredientsElastic = ingredients.flatMap(doc => [ { index: { _index: 'ingredients' } }, doc ])
+  const { body: bulkResponse } = await ElasticClient.bulk({ refresh: true, body: ingredientsElastic })
+  console.log(bulkResponse)
 
   const pivotData = []
   const ingredientsLength = ingredients.length

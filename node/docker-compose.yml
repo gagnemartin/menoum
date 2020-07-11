@@ -32,6 +32,8 @@ services:
       - database-data:/var/lib/postgresql/data/
     networks:
       - api
+    depends_on:
+      - elastic
 
   adminer:
     image: adminer
@@ -46,21 +48,32 @@ services:
     image: elasticsearch:7.8.0
     container_name: elastic
     environment:
-    - node.name=es01
-    - cluster.name=es-docker-cluster
-    - cluster.initial_master_nodes=es01
-    - bootstrap.memory_lock=true
-    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - cluster.initial_master_nodes=es01
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
-    - elastic-data:/usr/share/elasticsearch/data
+      - elastic-data:/usr/share/elasticsearch/data
     ports:
-    - 9200:9200
+      - 9200:9200
     networks:
-    - api
+      - api
+
+  kibana:
+    image: kibana:7.8.0
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://elastic:9200
+      ELASTICSEARCH_HOSTS: http://elastic:9200
+    networks:
+      - api
 
 volumes:
   database-data:
