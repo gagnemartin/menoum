@@ -49,7 +49,11 @@ class IngredientController extends Controller {
 
       if (isValid) {
         const data = await Ingredient
-          .insert(formData, [ 'uuid', 'name', 'created_at', 'recipe_count' ])
+          .insert(formData, [ 'id', 'uuid', 'name', 'created_at', 'recipe_count' ])
+
+        await Ingredient.elasticInsert(data)
+
+        delete data.id
 
         return res.status(201).json(data)
       }

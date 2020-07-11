@@ -54,7 +54,7 @@ class Model {
         if (data instanceof Array) {
           return newData
         }
-        
+
         return newData[0]
       })
       .catch(e => {

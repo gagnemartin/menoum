@@ -1,5 +1,6 @@
 import { Model } from './index.js'
 import Validator from './Validator.js'
+import ElasticClient from '../database/ElasticClient.js'
 
 const params = {
   table: 'ingredients',
@@ -13,11 +14,27 @@ const params = {
 class Ingredient extends Model {
   constructor(params) {
     super(params)
+
+    this.elastic = new ElasticClient()
   }
 
   recipes = () => {
     this.manyToMany('recipes')
     return this
+  }
+
+  elasticInsert = async data => {
+    return this.elastic.client.index({
+      index: this.table,
+      body: {
+        name: data.name,
+        id: data.id
+      }
+    })
+      .catch(e => {
+        this.deleteByUuid(data.uuid)
+        throw new Error(e)
+      })
   }
 
   validate = data => {
