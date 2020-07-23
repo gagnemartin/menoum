@@ -41,6 +41,19 @@ class IngredientController extends Controller {
     }
   }
 
+  search = async (req, res, next) => {
+    try {
+      const { q: query } = req.query
+      const data = await Ingredient.searchByName(query)
+      return res.status(200).json(data)
+    } catch (e) {
+      return res.status(e.status).json({
+        ...e,
+        message: e.message.replace(/"/g, '')
+      })
+    }
+  }
+
   new = async (req, res, next) => {
     try {
       const formData = Ingredient.transformData(req.body)
