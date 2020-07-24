@@ -1,12 +1,18 @@
 import Pluralize from 'pluralize'
 import Database from '../database/database.js'
+import ElasticClient from "../database/ElasticClient.js"
 
 class Model {
   constructor(params) {
-    const { table, relationships } = params
+    const { table, relationships, sync } = params
 
     this.table = table
     this.relationships = this.getRelationshipsInfo(relationships)
+    this.sync = sync || {}
+
+    if (typeof this.sync.elasticsearch !== 'undefined') {
+        this.elastic = new ElasticClient()
+    }
 
     this.resetQueries()
   }
@@ -49,18 +55,50 @@ class Model {
     this.resetQueries()
 
     return query
-      .then(newData => {
-        // Bulk insert
-        if (data instanceof Array) {
-          return newData
+      .then(async newData => {
+        const isBulk = data instanceof Array
+        const returningData = isBulk ? newData : newData[0]
+
+        // Sync with ElasticSearch
+        if (typeof this.sync.elasticsearch !== 'undefined') {
+          await this.elasticInsert(returningData)
         }
 
-        return newData[0]
+        return returningData
       })
       .catch(e => {
         throw new Error(e)
       })
   }
+
+    elasticInsert = async data => {
+      if (data instanceof Array)  {
+        const newIndexes = []
+
+        data.map(newData => {
+          const newIndex = {}
+          this.sync.elasticsearch.map(field => newIndex[field] = newData[field])
+          newIndexes.push(newIndex)
+        })
+
+        const elasticData = newIndexes.flatMap(doc => [ { index: { _index: this.table } }, doc ])
+
+        return this.elastic.client.bulk({ refresh: true, body: elasticData })
+      }
+
+      //if (data instanceof Object) {
+        const newIndex = {}
+        this.sync.elasticsearch.map(field => newIndex[field] = data[field])
+        return this.elastic.client.index({
+          index: this.table,
+          body: newIndex
+        })
+          .catch(e => {
+            this.deleteByUuid(data.uuid)
+            throw new Error(e)
+          })
+      //}
+    }
 
   updateByUuid = async (uuid, data, returning = [ '*' ]) => {
     const updateData = this.toJSON(data)

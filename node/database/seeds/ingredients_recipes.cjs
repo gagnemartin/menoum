@@ -85,7 +85,7 @@ async function seed(knex) {
   })
 
   if (indexExists) {
-    const deletees = await ElasticClient.deleteByQuery({
+    await ElasticClient.deleteByQuery({
       index: 'ingredients',
       conflicts: 'proceed',
       body: {
@@ -95,7 +95,7 @@ async function seed(knex) {
       }
     })
 
-    const deleteindex = await ElasticClient.indices.delete({
+    await ElasticClient.indices.delete({
       index: 'ingredients'
     })
   }
@@ -106,22 +106,14 @@ async function seed(knex) {
     Recipes.insert(insertRecipes, [ 'id', 'uuid', 'name' ])
   ])
 
-  // Insert ingredients in Elasticsearch
-  // const ingredientsElastic = ingredients.flatMap(doc => {
-  //   const { id, uuid, name } = doc
-  //   return [ { index: { _index: 'ingredients' } }, { id, uuid, autocomplete: { name } } ]
-  // })
-  //const ingredientsElastic = ingredients.flatMap(doc => [ doc ])
   const ingredientsElastic = ingredients.flatMap(doc => [ { index: { _index: 'ingredients' } }, doc ])
-  //console.log(ingredientsElastic)
 
   await ElasticClient.indices.create({
     index: 'ingredients'
   })
-  console.log(ingredientsElastic, ingredients.length)
+
   await ElasticClient.indices.putMapping({
     index: 'ingredients',
-    //type: 'text',
     body: {
       properties: {
         name: {
@@ -132,8 +124,8 @@ async function seed(knex) {
       }
     }
   })
-  const { body: bulkResponse } = await ElasticClient.bulk({ refresh: true, body: ingredientsElastic })
-  console.log(bulkResponse)
+
+  await ElasticClient.bulk({ refresh: true, body: ingredientsElastic })
 
   const pivotData = []
   const ingredientsLength = ingredients.length

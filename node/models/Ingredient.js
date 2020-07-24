@@ -1,6 +1,6 @@
 import { Model } from './index.js'
 import Validator from './Validator.js'
-import ElasticClient from '../database/ElasticClient.js'
+//import ElasticClient from '../database/ElasticClient.js'
 
 const params = {
   table: 'ingredients',
@@ -8,6 +8,9 @@ const params = {
     recipes: {
       type: 'many_to_many'
     }
+  },
+  sync: {
+    elasticsearch: [ 'id', 'uuid', 'name' ]
   }
 }
 
@@ -15,7 +18,7 @@ class Ingredient extends Model {
   constructor(params) {
     super(params)
 
-    this.elastic = new ElasticClient()
+    //this.elastic = new ElasticClient()
   }
 
   recipes = () => {
@@ -23,37 +26,25 @@ class Ingredient extends Model {
     return this
   }
 
-  elasticInsert = async data => {
-    return this.elastic.client.index({
-      index: this.table,
-      body: {
-        name: data.name,
-        id: data.id
-      }
-    })
-      .catch(e => {
-        this.deleteByUuid(data.uuid)
-        throw new Error(e)
-      })
-  }
+  // elasticInsert = async data => {
+  //   return this.elastic.client.index({
+  //     index: this.table,
+  //     body: {
+  //       name: data.name,
+  //       id: data.id,
+  //       uuid: data.uuid
+  //     }
+  //   })
+  //     .catch(e => {
+  //       this.deleteByUuid(data.uuid)
+  //       throw new Error(e)
+  //     })
+  // }
 
   searchByName = async query => {
-    console.log(query)
     return this.elastic.client.search({
       index: this.table,
-      //type: 'text',
-      // size: 2,
-      // from: 0,
-      //suggest_mode: 'always',
       body: {
-        // 'query': {
-        //   'match_phrase_prefix': {
-        //     'name': {
-        //       'max_expansions': 25,
-        //       'query': query
-        //     }
-        //   }
-        // }
         suggest: {
           nameSuggester: {
             prefix: query,
@@ -70,16 +61,13 @@ class Ingredient extends Model {
     })
       .then(data => {
         const suggestions = data.body.suggest.nameSuggester
-        const formattedSuggs = suggestions.flatMap(doc => {
+        return suggestions.flatMap(doc => {
           const options = doc.options
 
           return options.flatMap(sugg => [ { name: sugg.text, uuid: sugg._source.uuid, score: sugg._score } ])
         })
-        console.log(formattedSuggs)
-        return formattedSuggs
       })
       .catch(e => {
-        console.log(e.meta.body.error.root_cause)
         throw {
           message: e.meta.body.error.reason,
           type: e.meta.body.error.root_cause[0].type,

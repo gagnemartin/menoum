@@ -64,8 +64,6 @@ class IngredientController extends Controller {
         const data = await Ingredient
           .insert(formData, [ 'id', 'uuid', 'name', 'created_at', 'recipe_count' ])
 
-        await Ingredient.elasticInsert(data)
-
         delete data.id
 
         return res.status(201).json(data)
