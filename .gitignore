@@ -5,6 +5,7 @@
 /laravel/vendor
 /.idea
 /.vscode
+/.vs
 /.vagrant
 /laravel/Homestead.json
 /laravel/Homestead.yaml

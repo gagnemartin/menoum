@@ -126,6 +126,30 @@ async function seed(knex) {
   })
 
   await ElasticClient.bulk({ refresh: true, body: ingredientsElastic })
+  const elasticData = await ElasticClient.search({
+    index: 'ingredients',
+    size: 300,
+    body: {
+      'query': {
+        'match_all': {}
+      }
+    }
+  })
+
+  const ingredientsEntries = elasticData.body.hits.hits
+  const ingredientsUpdates = []
+
+  ingredientsEntries.map(ingredient => {
+    const { _id, _source: { uuid } } = ingredient
+
+    ingredientsUpdates.push(
+      knex('ingredients')
+        .where({ uuid })
+        .update({ elastic_id: _id })
+    )
+  })
+
+  await Promise.all(ingredientsUpdates)
 
   const pivotData = []
   const ingredientsLength = ingredients.length
@@ -133,7 +157,7 @@ async function seed(knex) {
     'ml', 'g'
   ]
 
-  // Loop through he recipes to add between 1 and 10 ingredients
+  // Loop through the recipes to add between 1 and 10 ingredients
   recipes.map(recipe => {
     const numIngredients = Math.ceil(Math.random() * 10)
 

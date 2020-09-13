@@ -17,6 +17,10 @@ class Model {
     this.resetQueries()
   }
 
+  hasElasticSync = () => {
+    return typeof this.sync.elasticsearch !== 'undefined'
+  }
+
   all = async () => {
     const query = this.query
       .clone()
@@ -32,6 +36,17 @@ class Model {
 
       return formattedData
     })
+  }
+
+  get = async condition => {
+    const query = this.query
+      .where(condition)
+      .first()
+      .clone()
+
+    this.resetQueries()
+
+    return query
   }
 
   first = async () => {
@@ -60,7 +75,7 @@ class Model {
         const returningData = isBulk ? newData : newData[0]
 
         // Sync with ElasticSearch
-        if (typeof this.sync.elasticsearch !== 'undefined') {
+        if (this.hasElasticSync()) {
           await this.elasticInsert(returningData)
         }
 
@@ -71,34 +86,52 @@ class Model {
       })
   }
 
-    elasticInsert = async data => {
-      if (data instanceof Array)  {
-        const newIndexes = []
+  elasticInsert = async data => {
+    if (data instanceof Array)  {
+      const newIndexes = []
 
-        data.map(newData => {
-          const newIndex = {}
-          this.sync.elasticsearch.map(field => newIndex[field] = newData[field])
-          newIndexes.push(newIndex)
-        })
-
-        const elasticData = newIndexes.flatMap(doc => [ { index: { _index: this.table } }, doc ])
-
-        return this.elastic.client.bulk({ refresh: true, body: elasticData })
-      }
-
-      //if (data instanceof Object) {
+      data.map(newData => {
         const newIndex = {}
-        this.sync.elasticsearch.map(field => newIndex[field] = data[field])
-        return this.elastic.client.index({
-          index: this.table,
-          body: newIndex
-        })
-          .catch(e => {
-            this.deleteByUuid(data.uuid)
-            throw new Error(e)
-          })
-      //}
+        this.sync.elasticsearch.map(field => newIndex[field] = newData[field])
+        newIndexes.push(newIndex)
+      })
+
+      const elasticData = newIndexes.flatMap(doc => [ { index: { _index: this.table } }, doc ])
+
+      return this.elastic.client.bulk({ refresh: true, body: elasticData })
     }
+
+    const newIndex = {}
+    this.sync.elasticsearch.map(field => newIndex[field] = data[field])
+    return this.elastic.client.index({
+      index: this.table,
+      body: newIndex
+    })
+      .then((elasticData) => {
+        // Add the elastic_id to the postgres DB
+        const elastic_id = elasticData.body._id
+        this.updateByUuid(data.elastic_id, { elastic_id })
+      })
+      .catch(e => {
+        this.deleteByUuid(data.uuid)
+        throw new Error(e)
+      })
+  }
+
+  elasticUpdate = async data => {
+    let { elastic_id, name, uuid } = data
+
+    if (typeof elastic_id === 'undefined') {
+      const dataDB = await this.get({ uuid })
+      elastic_id = dataDB.elastic_id
+    }
+
+    return this.elastic.client.update({
+      id: elastic_id,
+      index: this.table,
+      body: { doc: { name } }
+    })
+  }
 
   updateByUuid = async (uuid, data, returning = [ '*' ]) => {
     const updateData = this.toJSON(data)
@@ -109,7 +142,11 @@ class Model {
 
     this.resetQueries()
 
-    return query.then(data => {
+    return query.then(async data => {
+      if (this.hasElasticSync()) {
+        await this.elasticUpdate(data[0])
+      }
+
       return data[0]
     })
   }
