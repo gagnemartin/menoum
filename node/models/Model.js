@@ -110,7 +110,7 @@ class Model {
       .then((elasticData) => {
         // Add the elastic_id to the postgres DB
         const elastic_id = elasticData.body._id
-        this.updateByUuid(data.elastic_id, { elastic_id })
+        this.updateByUuid(data.uuid, { elastic_id })
       })
       .catch(e => {
         this.deleteByUuid(data.uuid)
@@ -165,12 +165,16 @@ class Model {
     })
   }
 
-  deleteByUuid = async data => {
-    this.where('uuid', data)
+  deleteByUuid = async uuid => {
+    this.where('uuid', uuid)
 
     const query = this.query.del().clone()
 
     this.resetQueries()
+
+    if (this.hasElasticSync()) {
+      await this.elasticDelete(uuid)
+    }
 
     return query
   }
@@ -183,6 +187,16 @@ class Model {
     this.resetQueries()
 
     return query
+  }
+
+  elasticDelete = async uuid => {
+    const dataDB = await this.get({ uuid })
+    const elastic_id = dataDB.elastic_id
+
+    return this.elastic.client.delete({
+      id: elastic_id,
+      index: this.table
+    })
   }
 
   limit = limit => {
