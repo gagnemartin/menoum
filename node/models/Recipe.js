@@ -53,14 +53,13 @@ class Recipe extends Model {
       }
     })
       .then(data => {
-        //return data.body
         const suggestions = data.body.hits.hits
-        console.log(suggestions)
+
         return suggestions.flatMap(doc => {
           const { _score: score, _source: source } = doc
           return {
             name: source.name,
-            uuids: source.uuid,
+            uuid: source.uuid,
             score,
             ingredients: source.ingredients,
           }
@@ -167,6 +166,14 @@ class Recipe extends Model {
     } catch (e) {
       console.error(e)
       throw e
+    }
+  }
+
+  formatElasticIngredients = (data) => {
+    return {
+      ingredients: data.map(ingredient => {
+        return { uuid: ingredient.uuid }
+      })
     }
   }
 }

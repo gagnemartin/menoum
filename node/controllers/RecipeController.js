@@ -42,7 +42,14 @@ class RecipeController extends Controller {
   suggest = async (req, res, next) => {
     try {
       const { uuids } = req.query
-      const data = await Recipe.suggestByIngredients(uuids)
+      const elasticData = await Recipe.suggestByIngredients(uuids)
+      const elasticUuids = elasticData.map(recipe => recipe.uuid)
+      const data = await Recipe
+        .select(['recipes.id', 'recipes.uuid', 'recipes.name', 'recipes.steps', 'recipes.created_at', 'recipes.updated_at'])
+        .where('recipes.uuid', elasticUuids)
+        .ingredients()
+        .all()
+
       return res.status(200).json(data)
     } catch (e) {
       return res.status(e.status).json({
@@ -56,12 +63,13 @@ class RecipeController extends Controller {
     try {
       const formData = Recipe.transformData(req.body)
       const ingredientsInsert = formData.ingredients
+      const elasticIngredients = Recipe.formatElasticIngredients(ingredientsInsert)
       delete formData.ingredients
       const [ isValid, errors ] = Recipe.validate(formData)
 
       if (isValid) {
         const newData = await Recipe
-          .insert(formData, [ 'id', 'uuid', 'name', 'steps', 'created_at', 'ingredient_count' ])
+          .insert(formData, ['id', 'uuid', 'name', 'steps', 'created_at', 'ingredient_count'], elasticIngredients)
 
         await Recipe.syncIngredients(newData.id, ingredientsInsert)
 
@@ -91,13 +99,14 @@ class RecipeController extends Controller {
     try {
       const formData = Recipe.transformData(req.body)
       const ingredientsInsert = formData.ingredients
+      const elasticIngredients = Recipe.formatElasticIngredients(ingredientsInsert)
       delete formData.ingredients
       const { uuid } = req.params
       const [ isValid, errors ] = Recipe.validate(formData)
 
       if (isValid) {
         const updateData = await Recipe
-          .updateByUuid(uuid, formData, [ 'id', 'uuid' ])
+          .updateByUuid(uuid, formData, ['id', 'uuid'], elasticIngredients)
 
         await Recipe.syncIngredients(updateData.id, ingredientsInsert)
 

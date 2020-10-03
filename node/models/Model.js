@@ -63,7 +63,7 @@ class Model {
     })
   }
 
-  insert = (data, returning = [ '*' ]) => {
+  insert = (data, returning = ['*'], elasticExtra = {}) => {
     const insertData = this.toJSON(data)
     const query = this.queryInsert.insert(insertData, returning).clone()
 
@@ -72,7 +72,11 @@ class Model {
     return query
       .then(async newData => {
         const isBulk = data instanceof Array
-        const returningData = isBulk ? newData : newData[0]
+        let returningData = isBulk ? newData : newData[0]
+
+        if (!isBulk) {
+          returningData = { ...returningData, ...elasticExtra }
+        }
 
         // Sync with ElasticSearch
         if (this.hasElasticSync()) {
@@ -103,6 +107,7 @@ class Model {
 
     const newIndex = {}
     this.sync.elasticsearch.map(field => newIndex[field] = data[field])
+
     return this.elastic.client.index({
       index: this.table,
       body: newIndex
@@ -119,21 +124,29 @@ class Model {
   }
 
   elasticUpdate = async data => {
-    let { elastic_id, name, uuid } = data
+    let { elastic_id } = data
+    const fields = this.sync.elasticsearch
+    const elasticData = { elastic_id }
 
-    if (typeof elastic_id === 'undefined') {
-      const dataDB = await this.get({ uuid })
-      elastic_id = dataDB.elastic_id
+    fields.map(field => {
+      if (data[field]) {
+        return elasticData[field] = data[field]
+      }
+    })
+
+    if (typeof elasticData.elastic_id === 'undefined') {
+      const dataDB = await this.get({ uuid: data.uuid })
+      elasticData.elastic_id = dataDB.elastic_id
     }
 
     return this.elastic.client.update({
-      id: elastic_id,
+      id: elasticData.elastic_id,
       index: this.table,
-      body: { doc: { name } }
+      body: { doc: elasticData }
     })
   }
 
-  updateByUuid = async (uuid, data, returning = [ '*' ]) => {
+  updateByUuid = async (uuid, data, returning = ['*'], elasticExtra = {}) => {
     const updateData = this.toJSON(data)
     const query = this.query
       .where('uuid', uuid)
@@ -144,7 +157,8 @@ class Model {
 
     return query.then(async data => {
       if (this.hasElasticSync()) {
-        await this.elasticUpdate(data[0])
+        const elasticData = { ...data[0], ...elasticExtra }
+        await this.elasticUpdate(elasticData)
       }
 
       return data[0]
