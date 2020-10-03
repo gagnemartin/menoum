@@ -39,6 +39,19 @@ class RecipeController extends Controller {
     return res.status(200).json(data)
   }
 
+  suggest = async (req, res, next) => {
+    try {
+      const { uuids } = req.query
+      const data = await Recipe.suggestByIngredients(uuids)
+      return res.status(200).json(data)
+    } catch (e) {
+      return res.status(e.status).json({
+        ...e,
+        message: e.message.replace(/"/g, '')
+      })
+    }
+  }
+
   new = async (req, res, next) => {
     try {
       const formData = Recipe.transformData(req.body)

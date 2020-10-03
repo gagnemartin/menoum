@@ -7,6 +7,9 @@ const params = {
     ingredients: {
       type: 'many_to_many'
     }
+  },
+  sync: {
+    elasticsearch: ['id', 'uuid', 'name', 'ingredients']
   }
 }
 
@@ -19,6 +22,57 @@ class Recipe extends Model {
     this.manyToMany('ingredients')
 
     return this
+  }
+
+  suggestByIngredients = async uuids => {
+    const matches = []
+    const numUuids = uuids.length
+
+    // Give a boost from the order of uuids. The lower the bigger the boost
+    uuids.forEach((uuid, i) => {
+      const boost = 1 * (numUuids - i)
+
+      matches.push({
+        match: {
+          "ingredients.uuid": {
+            query: uuid,
+            boost
+          }
+        }
+      })
+    })
+
+    return this.elastic.client.search({
+      index: this.table,
+      body: {
+        query: {
+          bool: {
+            should: matches
+          }
+        }
+      }
+    })
+      .then(data => {
+        //return data.body
+        const suggestions = data.body.hits.hits
+        console.log(suggestions)
+        return suggestions.flatMap(doc => {
+          const { _score: score, _source: source } = doc
+          return {
+            name: source.name,
+            uuids: source.uuid,
+            score,
+            ingredients: source.ingredients,
+          }
+        })
+      })
+      .catch(e => {
+        throw {
+          message: e.meta.body.error.reason,
+          type: e.meta.body.error.root_cause[0].type,
+          status: e.meta.body.status
+        }
+      })
   }
 
   validate = data => {

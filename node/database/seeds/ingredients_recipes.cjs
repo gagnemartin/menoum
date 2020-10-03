@@ -232,7 +232,7 @@ async function seed(knex) {
         ingredientRecipe.ingredient_id = ingredients[ingredientKey].id
       }
 
-      elasticRecipesIngredients.push(ingredients[ingredientKey].uuid)
+      elasticRecipesIngredients.push({ uuid: ingredients[ingredientKey].uuid })
       pivotData.push(ingredientRecipe)
     }
 

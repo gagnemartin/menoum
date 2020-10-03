@@ -5,6 +5,7 @@ const routesRecipes = express.Router()
 
 routesRecipes.get('/all', RecipeController.all)
 routesRecipes.get('/get/:uuid', RecipeController.get)
+routesRecipes.get('/suggest', RecipeController.suggest)
 routesRecipes.post('/new', RecipeController.new)
 routesRecipes.put('/update/:uuid', RecipeController.update)
 routesRecipes.delete('/delete/:uuid', RecipeController.delete)
