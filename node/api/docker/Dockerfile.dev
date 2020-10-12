@@ -13,6 +13,8 @@ COPY . .
 EXPOSE 4000
 
 # TODO Run Migrations and Seeds when building the image the first time
-#CMD ["sh", "./docker/wait-for-elastic.sh", "http://elastic:9200", "npm run migrate:latest"]
+# Need to wait for Elasticsearch cluster to be ready to connect to.
+# https://github.com/elastic/elasticsearch-py/issues/778#issuecomment-384389668
+# CMD ["sh", "./docker/wait-for-elastic.sh", "http://elastic:9200", "npm run migrate:latest"]
 
 CMD ["npm", "run", "start:dev"]

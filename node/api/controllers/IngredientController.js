@@ -45,7 +45,10 @@ class IngredientController extends Controller {
     try {
       const { q: query } = req.query
       const data = await Ingredient.searchByName(query)
-      return res.status(200).json(data)
+      const sortedData = data.sort((a, b) =>
+        a.score < b.score ? 1 : b.score < a.score ? -1 : 0
+      )
+      return res.status(200).json(sortedData)
     } catch (e) {
       return res.status(e.status).json({
         ...e,

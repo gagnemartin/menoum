@@ -61,6 +61,7 @@ class RecipeController extends Controller {
         'recipes.uuid',
         'recipes.name',
         'recipes.steps',
+        'recipes.thumbnail',
         'recipes.created_at',
         'recipes.updated_at',
       ])
@@ -68,13 +69,15 @@ class RecipeController extends Controller {
         .ingredients()
         .all()
 
-      const dataWithScore = data.map((recipe) => {
-        const { score } = elasticData.find(
-          (elasticRecipe) => elasticRecipe.uuid === recipe.uuid
-        )
+      const dataWithScore = data
+        .map((recipe) => {
+          const { score } = elasticData.find(
+            (elasticRecipe) => elasticRecipe.uuid === recipe.uuid
+          )
 
-        return { score, ...recipe }
-      })
+          return { score, ...recipe }
+        })
+        .sort((a, b) => (a.score < b.score ? 1 : b.score < a.score ? -1 : 0))
 
       return res.status(200).json(dataWithScore)
     } catch (e) {
