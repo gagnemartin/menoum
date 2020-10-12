@@ -1,0 +1,18 @@
+FROM node:alpine
+
+WORKDIR /usr/src/app
+COPY package*.json ./
+
+RUN apk add --no-cache curl
+RUN npm install -g nodemon
+RUN npm install -g knex
+RUN npm install
+
+COPY . .
+
+EXPOSE 4000
+
+# TODO Run Migrations and Seeds when building the image the first time
+#CMD ["sh", "./docker/wait-for-elastic.sh", "http://elastic:9200", "npm run migrate:latest"]
+
+CMD ["npm", "run", "start:dev"]

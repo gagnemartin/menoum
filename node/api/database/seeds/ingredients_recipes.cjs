@@ -107,6 +107,11 @@ async function seed(knex) {
   await Recipes.del()
   await IngredientsRecipes.del()
 
+  await ElasticClient.cluster.health({
+    wait_for_status: 'yellow',
+    timeout: '120s',
+  })
+
   // Empty ElasticSearch
   const ingredientsIndex = await ElasticClient.indices.exists({
     index: 'ingredients'
@@ -149,7 +154,7 @@ async function seed(knex) {
   }
 
   // Insert Ingredients and Recipes
-  const [ ingredients, recipes ] = await Promise.all([
+  const [ingredients, recipes] = await Promise.all([
     Ingredients.insert(insertIngredients, ['id', 'uuid', 'name']),
     Recipes.insert(insertRecipes, ['id', 'uuid', 'name', 'ingredient_count'])
   ])

@@ -1,0 +1,32 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node bin/www.js",
+    "start:dev": "nodemon bin/www.js",
+    "migrate:make": "npm run knexflags migrate:make",
+    "migrate:latest": "npm run knexflags migrate:latest",
+    "migrate:rollback": "npm run knexflags migrate:rollback",
+    "migrate:up": "npm run knexflags migrate:up",
+    "migrate:down": "npm run knexflags migrate:down",
+    "migrate:list": "npm run knexflags migrate:list",
+    "seed:make": "npm run knexflags seed:make",
+    "seed:run": "npm run knexflags seed:run",
+    "knexflags": "knex --knexfile ./database/knexfile.cjs --esm"
+  },
+  "type": "module",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.8.0",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "faker": "^4.1.0",
+    "knex": "^0.21.1",
+    "morgan": "~1.9.1",
+    "pg": "^8.2.1",
+    "pluralize": "^8.0.0"
+  }
+}

@@ -1,32 +1,24 @@
 {
-  "name": "node",
-  "version": "0.0.0",
-  "private": true,
+  "name": "menoum",
+  "version": "0.1.0",
+  "description": "### Technologies This application uses these technologies: - [Adminer](https://www.adminer.org/) to view and manage the database - [Docker](https://docs.docker.com/compose/) to run the application - [Elasticsearch](https://www.elastic.co/) as a search engine - [Express.js](https://expressjs.com/) as a Node.js framework - [React](https://reactjs.org/) as a frontend framework - [Kibana](https://www.elastic.co/kibana) to visualize Elasticsearch's data - [Knex.js](http://knexjs.org/) to communicate with the database - [Node.js](https://nodejs.org/) as a backend server - [PostgreSQL](https://www.postgresql.org/) as a database system",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
   "scripts": {
-    "start": "node bin/www.js",
-    "start:dev": "nodemon bin/www.js",
-    "migrate:make": "npm run knexflags migrate:make",
-    "migrate:latest": "npm run knexflags migrate:latest",
-    "migrate:rollback": "npm run knexflags migrate:rollback",
-    "migrate:up": "npm run knexflags migrate:up",
-    "migrate:down": "npm run knexflags migrate:down",
-    "migrate:list": "npm run knexflags migrate:list",
-    "seed:make": "npm run knexflags seed:make",
-    "seed:run": "npm run knexflags seed:run",
-    "knexflags": "knex --knexfile ./database/knexfile.cjs --esm"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "docker-compose up",
+    "init": "docker-compose down -v && docker-compose up -d && npm run migrations && docker-compose stop",
+    "migrations": "cd api && npm run migrate:latest && npm run seed:run"
   },
-  "type": "module",
-  "dependencies": {
-    "@elastic/elasticsearch": "^7.8.0",
-    "cookie-parser": "~1.4.4",
-    "cors": "^2.8.5",
-    "debug": "~2.6.9",
-    "dotenv": "^8.2.0",
-    "express": "~4.16.1",
-    "faker": "^4.1.0",
-    "knex": "^0.21.1",
-    "morgan": "~1.9.1",
-    "pg": "^8.2.1",
-    "pluralize": "^8.0.0"
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gagnemartin/menoum.git"
+  },
+  "author": "Martin Gagné",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gagnemartin/menoum/issues"
+  },
+  "homepage": "https://github.com/gagnemartin/menoum#readme"
 }

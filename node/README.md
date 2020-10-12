@@ -6,6 +6,7 @@ This application uses these technologies:
 - [Docker](https://docs.docker.com/compose/) to run the application
 - [Elasticsearch](https://www.elastic.co/) as a search engine
 - [Express.js](https://expressjs.com/) as a Node.js framework
+- [React](https://reactjs.org/) as a frontend framework
 - [Kibana](https://www.elastic.co/kibana) to visualize Elasticsearch's data
 - [Knex.js](http://knexjs.org/) to communicate with the database
 - [Node.js](https://nodejs.org/) as a backend server
@@ -21,13 +22,15 @@ Clone the file `.env.skeleton` to `dev.env` and fill the database information th
 
 #### Starting the server with Docker
 
-The command `docker-compose up` will start the Node and Postgres servers with Adminer to manage your database data. Elasticsearch will also launch with Kibana to visualize your data.
+The command `docker-compose up` will start the React, Node and Postgres servers with Adminer to manage your database data. Elasticsearch will also launch with Kibana to visualize your data.
 
-In another terminal, run all the migrations: `docker-compose exec api npm run migrate:latest`
+In another terminal, `cd api` and run all the migrations: `docker-compose exec api npm run migrate:latest`. Then run the seeders: `docker-compose exec api npm run seed:run`
 
 The data from the database will persist even the container is not running.
 If you ever need to completely erase the database and start over, run `docker-compose down -v` where `-v` tells Docker
 to also delete the volumes. Then run `docker-compose up` to start over.
+
+The application will be visible at [http://localhost:3000/](http://localhost:3000/).
 
 #### Adminer
 To view and manage the Postgres database, navigate to [http://localhost:8080/](http://localhost:8080/) and login with the database information from the **dev.env** file. Select **PostgreSQL** as the System. The Server input is the database's Docker container name, which is simply **database**.
