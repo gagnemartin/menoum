@@ -5,7 +5,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import { Home } from '../../pages'
+import { Home, NewRecipe } from '../../pages'
 
 function App() {
 
@@ -17,10 +17,17 @@ function App() {
             <li>
               <Link to="/">Home</Link>
             </li>
+            <li>
+              <Link to="/recipe/new">Add a Recipe</Link>
+            </li>
           </ul>
         </nav>
 
         <Switch>
+          <Route path="/recipe/new">
+            <NewRecipe />
+          </Route>
+          
           <Route path="/">
             <Home />
           </Route>

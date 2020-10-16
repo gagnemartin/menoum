@@ -14,10 +14,10 @@ const Autocomplete = props => {
 }
 
 Autocomplete.propTypes = {
-  onChange: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
   items: PropTypes.array,
   onSelect: PropTypes.func,
-  value: PropTypes.func.isRequired
+  value: PropTypes.string.isRequired
 }
 
 Autocomplete.defaultProps = {

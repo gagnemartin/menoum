@@ -1,0 +1,261 @@
+import React, { useState, useEffect } from 'react'
+import IngredientsService from '../../services/ingredientsService'
+import RecipesService from '../../services/recipesService'
+import Autocomplete from '../SearchBar/Autocomplete'
+
+const RecipeForm = () => {
+  const [ingredientValue, setIngredientValue] = useState('')
+  const [suggestedIngredients, setSuggestedIngredients] = useState([])
+  const [selectedIngredients, setSelectedIngredients] = useState([])
+  const [steps, setSteps] = useState({ AjdAi: '' })
+  const [form, setForm] = useState({
+    name: '',
+    prep_time: 0,
+    cook_time: 0,
+    yields: 0,
+    servings: 0
+  })
+
+  const generateId = (length) => {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const charactersLength = characters.length
+    let result = ''
+
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    }
+
+    return result
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value
+    }))
+  }
+
+  const handleChangeIngredientData = (e) => {
+    const {
+      name,
+      value,
+      dataset: { key }
+    } = e.target
+
+    setSelectedIngredients((prevIngredients) => ({
+      ...prevIngredients,
+      [key]: { ...prevIngredients[key], [name]: value }
+    }))
+  }
+
+  const onClickAddStep = (e) => {
+    e.preventDefault()
+
+    setSteps((prevSteps) => ({
+      ...prevSteps,
+      [generateId(5)]: ''
+    }))
+  }
+
+  const handleStep = (e) => {
+    const {
+      dataset: { key },
+      value
+    } = e.target
+
+    setSteps((prevSteps) => ({
+      ...prevSteps,
+      [key]: value
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    const data = {
+      ...form,
+      steps: Object.keys(steps).map((key) => steps[key]),
+      ingredients: Object.keys(selectedIngredients).map((key) => {
+        const ingredient = selectedIngredients[key]
+        const { uuid, unit, amount } = ingredient
+
+        return {
+          uuid,
+          unit,
+          amount
+        }
+      })
+    }
+
+    const response = await RecipesService.add(data)
+    console.log(response)
+  }
+
+  const onChange = (e) => {
+    const value = e.target.value
+    setIngredientValue(value)
+  }
+
+  /**
+   * User selected an ingredient in the dropdown
+   *
+   * @param {object} e
+   */
+  const onSelectIngredient = (e) => {
+    const uuid = e.target.dataset.uuid
+    const ingredient = suggestedIngredients.find((d) => d.uuid === uuid)
+    const ingredientData = {
+      uuid: ingredient.uuid,
+      name: ingredient.name,
+      unit: '',
+      amount: 0
+    }
+
+    if (ingredient) {
+      setSelectedIngredients((prevIngredients) => ({
+        ...prevIngredients,
+        [generateId(5)]: ingredientData
+      }))
+      setSuggestedIngredients([])
+      setIngredientValue('')
+    }
+  }
+
+  /**
+   * Call the API to fetch the suggested ingredients
+   */
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      if (ingredientValue.trim().length > 0) {
+        const ingredients = await IngredientsService.search(ingredientValue)
+        const filtered = ingredients.filter((ingredient) => {
+          return !Object.keys(selectedIngredients).some(
+            (key) => selectedIngredients[key].uuid === ingredient.uuid
+          )
+        })
+
+        setSuggestedIngredients(filtered)
+      } else {
+        setSuggestedIngredients([])
+      }
+    }
+
+    fetchIngredients()
+  }, [ingredientValue])
+
+  return (
+    <form action='#' onSubmit={handleSubmit}>
+      <label htmlFor='name'>
+        Name
+        <input
+          onChange={handleChange}
+          value={form.name}
+          id='name'
+          type='text'
+          name='name'
+          placeholder='Recipe name'
+        />
+      </label>
+
+      <div>
+        <Autocomplete
+          onChange={onChange}
+          items={suggestedIngredients}
+          value={ingredientValue}
+          onSelect={onSelectIngredient}
+        />
+        {Object.keys(selectedIngredients).map((key) => (
+          <div key={key}>
+            <p>{selectedIngredients[key].name}</p>
+            <input
+              onChange={handleChangeIngredientData}
+              data-key={key}
+              type='text'
+              name='unit'
+              value={selectedIngredients[key].unit}
+            />
+            <input
+              onChange={handleChangeIngredientData}
+              data-key={key}
+              type='number'
+              name='amount'
+              value={selectedIngredients[key].amount}
+            />
+          </div>
+        ))}
+      </div>
+
+      <label htmlFor='prep_time'>
+        Preparation Time (minutes)
+        <input
+          onChange={handleChange}
+          value={form.prep_time}
+          id='prep_time'
+          type='number'
+          name='prep_time'
+          placeholder='Preparation time (minutes)'
+        />
+      </label>
+
+      <label htmlFor='cook_time'>
+        Cooking Time (minutes)
+        <input
+          onChange={handleChange}
+          value={form.cook_time}
+          id='cook_time'
+          type='number'
+          name='cook_time'
+          placeholder='Cooking time (minutes)'
+        />
+      </label>
+
+      <label htmlFor='yields'>
+        Yields
+        <input
+          onChange={handleChange}
+          value={form.yields}
+          id='yields'
+          type='number'
+          name='yields'
+          placeholder='Yields'
+        />
+      </label>
+
+      <label htmlFor='servings'>
+        Servings
+        <input
+          onChange={handleChange}
+          value={form.servings}
+          id='servings'
+          type='number'
+          name='servings'
+          placeholder='Servings'
+        />
+      </label>
+
+      <p>Steps</p>
+      {Object.keys(steps).map((key) => (
+        <input
+          data-key={key}
+          onChange={handleStep}
+          value={steps[key].value}
+          type='text'
+          name='steps[]'
+          placeholder='Step'
+        />
+      ))}
+      <div>
+        <button onClick={onClickAddStep}>Add a step</button>
+      </div>
+
+      <div>
+        <button type='submit'>Send</button>
+      </div>
+    </form>
+  )
+}
+
+export default RecipeForm

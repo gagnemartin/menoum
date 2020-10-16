@@ -24,7 +24,7 @@ class Recipe extends Model {
     return this
   }
 
-  suggestByIngredients = async uuids => {
+  suggestByIngredients = async (uuids) => {
     const matches = []
     const numUuids = uuids.length
 
@@ -34,7 +34,7 @@ class Recipe extends Model {
 
       matches.push({
         match: {
-          "ingredients.uuid": {
+          'ingredients.uuid': {
             query: uuid,
             boost
           }
@@ -42,30 +42,31 @@ class Recipe extends Model {
       })
     })
 
-    return this.elastic.client.search({
-      index: this.table,
-      body: {
-        query: {
-          bool: {
-            should: matches
+    return this.elastic.client
+      .search({
+        index: this.table,
+        body: {
+          query: {
+            bool: {
+              should: matches
+            }
           }
         }
-      }
-    })
-      .then(data => {
+      })
+      .then((data) => {
         const suggestions = data.body.hits.hits
 
-        return suggestions.flatMap(doc => {
+        return suggestions.flatMap((doc) => {
           const { _score: score, _source: source } = doc
           return {
             name: source.name,
             uuid: source.uuid,
             score,
-            ingredients: source.ingredients,
+            ingredients: source.ingredients
           }
         })
       })
-      .catch(e => {
+      .catch((e) => {
         throw {
           message: e.meta.body.error.reason,
           type: e.meta.body.error.root_cause[0].type,
@@ -74,22 +75,26 @@ class Recipe extends Model {
       })
   }
 
-  validate = data => {
+  validate = (data) => {
     const validator = new Validator(data)
 
     return validator.validate({
       name: {
-        required: [ true, 'Please provide a name.' ],
-        type: [ 'string', 'The name must be a string.' ],
-        betweenLength: [ 3, 255, 'The name should between 3 and 255 characters long.' ]
+        required: [true, 'Please provide a name.'],
+        type: ['string', 'The name must be a string.'],
+        betweenLength: [
+          3,
+          255,
+          'The name should between 3 and 255 characters long.'
+        ]
       },
       steps: {
-        type: [ 'array', 'The steps must be of type Array.' ]
+        type: ['array', 'The steps must be of type Array.']
       }
     })
   }
 
-  transformData = data => {
+  transformData = (data) => {
     const transformedData = { ...data }
 
     if (typeof transformedData.name === 'string') {
@@ -100,13 +105,40 @@ class Recipe extends Model {
       transformedData.name = transformedData.name.toString()
     }
 
+    if (typeof transformedData.prep_time === 'string') {
+      transformedData.prep_time = parseInt(transformedData.prep_time)
+    }
+
+    if (typeof transformedData.cook_time === 'string') {
+      transformedData.cook_time = parseInt(transformedData.cook_time)
+    }
+
+    if (typeof transformedData.yields === 'string') {
+      transformedData.yields = parseInt(transformedData.yields)
+    }
+
+    if (typeof transformedData.servings === 'string') {
+      transformedData.servings = parseInt(transformedData.servings)
+    }
+
+    if (transformedData.ingredients instanceof Array) {
+      transformedData.ingredients.forEach((ingredient, i) => {
+        if (typeof ingredient.amount === 'string') {
+          transformedData.ingredients[i] = {
+            ...ingredient,
+            amount: parseInt(ingredient.amount)
+          }
+        }
+      })
+    }
+
     return transformedData
   }
 
   syncIngredients = async (recipe_id, ingredients) => {
     try {
       const ingredientUuids = this.pluck(ingredients, 'uuid')
-      const [ ingredientsData, ingredientsRecipesData ] = await Promise.all([
+      const [ingredientsData, ingredientsRecipesData] = await Promise.all([
         Ingredient.where('uuid', ingredientUuids).all(),
         IngredientRecipe.where('recipe_id', recipe_id).all()
       ])
@@ -115,13 +147,19 @@ class Recipe extends Model {
       const toUpdate = []
       const toDelete = []
 
-      ingredients.map(ingredient => {
+      ingredients.map((ingredient) => {
         const { uuid, unit, amount } = ingredient
-        const ingredientData = ingredientsData.find(ingredientObj => ingredientObj.uuid === uuid)
+        const ingredientData = ingredientsData.find(
+          (ingredientObj) => ingredientObj.uuid === uuid
+        )
 
         // Ingredient is valid
         if (ingredientData) {
-          const ingredientRecipeInDb = ingredientsRecipesData.find(ingredientRecipe => ingredientRecipe.ingredient_id === ingredientData.id && ingredientRecipe.recipe_id === recipe_id)
+          const ingredientRecipeInDb = ingredientsRecipesData.find(
+            (ingredientRecipe) =>
+              ingredientRecipe.ingredient_id === ingredientData.id &&
+              ingredientRecipe.recipe_id === recipe_id
+          )
           const newData = {
             recipe_id,
             ingredient_id: ingredientData.id,
@@ -136,12 +174,13 @@ class Recipe extends Model {
             // New entry in pivot table
             toInsert.push(newData)
           }
-
         }
       })
 
-      ingredientsRecipesData.map(ingredientRecipe => {
-        const ingredientInForm = ingredientsData.find(ingredientObj => ingredientObj.id === ingredientRecipe.ingredient_id)
+      ingredientsRecipesData.map((ingredientRecipe) => {
+        const ingredientInForm = ingredientsData.find(
+          (ingredientObj) => ingredientObj.id === ingredientRecipe.ingredient_id
+        )
 
         if (!ingredientInForm) {
           toDelete.push(ingredientRecipe.id)
@@ -153,7 +192,7 @@ class Recipe extends Model {
       }
 
       if (toUpdate.length > 0) {
-        toUpdate.map(updateData => {
+        toUpdate.map((updateData) => {
           queries.push(IngredientRecipe.update(updateData))
         })
       }
@@ -171,7 +210,7 @@ class Recipe extends Model {
 
   formatElasticIngredients = (data) => {
     return {
-      ingredients: data.map(ingredient => {
+      ingredients: data.map((ingredient) => {
         return { uuid: ingredient.uuid }
       })
     }

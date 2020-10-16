@@ -8,8 +8,12 @@ class IngredientController extends Controller {
 
   all = async (req, res, next) => {
     try {
-      const data = await Ingredient
-        .select([ 'ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count' ])
+      const data = await Ingredient.select([
+        'ingredients.id',
+        'ingredients.name',
+        'ingredients.uuid',
+        'ingredients.recipe_count'
+      ])
         .limit(20)
         .orderBy('ingredients.name', 'desc')
         .recipes()
@@ -26,8 +30,12 @@ class IngredientController extends Controller {
 
   get = async (req, res, next) => {
     try {
-      const data = await Ingredient
-        .select([ 'ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count' ])
+      const data = await Ingredient.select([
+        'ingredients.id',
+        'ingredients.name',
+        'ingredients.uuid',
+        'ingredients.recipe_count'
+      ])
         .where('ingredients.uuid', req.params.uuid)
         .recipes()
         .first()
@@ -61,11 +69,16 @@ class IngredientController extends Controller {
     try {
       const formData = Ingredient.transformData(req.body)
 
-      const [ isValid, validatedData ] = Ingredient.validate(formData)
+      const [isValid, validatedData] = Ingredient.validate(formData)
 
       if (isValid) {
-        const data = await Ingredient
-          .insert(formData, [ 'id', 'uuid', 'name', 'created_at', 'recipe_count' ])
+        const data = await Ingredient.insert(formData, [
+          'id',
+          'uuid',
+          'name',
+          'created_at',
+          'recipe_count'
+        ])
 
         delete data.id
 
@@ -90,11 +103,15 @@ class IngredientController extends Controller {
       const formData = Ingredient.transformData(req.body)
       const { uuid } = req.params
 
-      const [ isValid, validatedData ] = Ingredient.validate(formData)
+      const [isValid, validatedData] = Ingredient.validate(formData)
 
       if (isValid) {
-        const data = await Ingredient
-          .updateByUuid(uuid, formData, [ 'uuid', 'name', 'created_at', 'recipe_count' ])
+        const data = await Ingredient.updateByUuid(uuid, formData, [
+          'uuid',
+          'name',
+          'created_at',
+          'recipe_count'
+        ])
 
         return res.status(200).json(data)
       }
@@ -104,9 +121,7 @@ class IngredientController extends Controller {
         status: 400,
         data: validatedData
       })
-    } catch (e) {
-
-    }
+    } catch (e) {}
   }
 
   delete = async (req, res, next) => {
@@ -114,10 +129,10 @@ class IngredientController extends Controller {
       const { uuid } = req.params
       await Ingredient.deleteByUuid(uuid)
 
-      return res.status(200).json({ message: 'Ingredient successfully deleted.' })
-    } catch (e) {
-
-    }
+      return res
+        .status(200)
+        .json({ message: 'Ingredient successfully deleted.' })
+    } catch (e) {}
   }
 }
 

@@ -41,12 +41,14 @@ const createRecipes = numEntries => {
 
   for (let i = 0; i < numEntries; i++) {
     const ingredient_count = Math.ceil(Math.random() * 10)
+    const servings = faker.random.number({ min: 1, max: 5 })
     const recipe = {
       name: faker.lorem.sentence(5),
       steps: JSON.stringify(createSteps(5)),
       prep_time: faker.random.number({ min: 0, max: 30 }),
       cook_time: faker.random.number({ min: 0, max: 120 }),
-      portions: faker.random.number({ min: 1, max: 5 }),
+      yields: servings,
+      servings,
       thumbnail: thumbnails[faker.random.number({ min: 0, max: thumbnailsArrEnd })],
       ingredient_count
     }

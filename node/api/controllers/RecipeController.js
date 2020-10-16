@@ -14,7 +14,7 @@ class RecipeController extends Controller {
         'recipes.name',
         'recipes.steps',
         'recipes.created_at',
-        'recipes.updated_at',
+        'recipes.updated_at'
       ])
         .orderBy('recipes.name', 'desc')
         .ingredients()
@@ -24,7 +24,7 @@ class RecipeController extends Controller {
     } catch (e) {
       return res.status(404).json({
         message: e.message.replace(/"/g, ''),
-        status: 404,
+        status: 404
       })
     }
   }
@@ -36,7 +36,7 @@ class RecipeController extends Controller {
       'recipes.name',
       'recipes.steps',
       'recipes.created_at',
-      'recipes.updated_at',
+      'recipes.updated_at'
     ])
       .where('recipes.uuid', req.params.uuid)
       .ingredients()
@@ -44,7 +44,7 @@ class RecipeController extends Controller {
       .catch((e) => {
         return res.status(404).json({
           message: e.message.replace(/"/g, ''),
-          status: 404,
+          status: 404
         })
       })
 
@@ -63,7 +63,7 @@ class RecipeController extends Controller {
         'recipes.steps',
         'recipes.thumbnail',
         'recipes.created_at',
-        'recipes.updated_at',
+        'recipes.updated_at'
       ])
         .where('recipes.uuid', elasticUuids)
         .ingredients()
@@ -83,7 +83,7 @@ class RecipeController extends Controller {
     } catch (e) {
       return res.status(e.status).json({
         ...e,
-        message: e.message.replace(/"/g, ''),
+        message: e.message.replace(/"/g, '')
       })
     }
   }
@@ -113,7 +113,7 @@ class RecipeController extends Controller {
           'recipes.name',
           'recipes.steps',
           'recipes.created_at',
-          'recipes.updated_at',
+          'recipes.updated_at'
         ])
           .where('recipes.uuid', newData.uuid)
           .ingredients()
@@ -125,12 +125,12 @@ class RecipeController extends Controller {
       return res.status(400).json({
         message: 'Invalid data.',
         status: 400,
-        data: errors,
+        data: errors
       })
     } catch (e) {
       return res.status(404).json({
         message: e.message.replace(/"/g, ''),
-        status: 404,
+        status: 404
       })
     }
   }
@@ -162,7 +162,7 @@ class RecipeController extends Controller {
           'recipes.name',
           'recipes.steps',
           'recipes.created_at',
-          'recipes.updated_at',
+          'recipes.updated_at'
         ])
           .where('recipes.uuid', updateData.uuid)
           .ingredients()
@@ -174,12 +174,12 @@ class RecipeController extends Controller {
       return res.status(400).json({
         message: 'Invalid data.',
         status: 400,
-        data: errors,
+        data: errors
       })
     } catch (e) {
       return res.status(404).json({
         message: e.message.replace(/"/g, ''),
-        status: 404,
+        status: 404
       })
     }
   }
