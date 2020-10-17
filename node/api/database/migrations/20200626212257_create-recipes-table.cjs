@@ -18,6 +18,7 @@ async function up(knex) {
       table.integer('servings').unsigned()
       table.string('thumbnail', 255)
       table.string('source', 255)
+      table.boolean('visible').defaultTo(false).notNullable()
       table
         .datetime('created_at', { precision: 6 })
         .defaultTo(knex.fn.now(6))

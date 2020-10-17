@@ -1,20 +1,26 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-const Dropdown = props => {
-  const { items, onSelect } = props
+const Dropdown = (props) => {
+  const { canAddNew, items, onClickAddNew, onSelect, value } = props
 
   return (
     <div style={{ position: 'relative' }}>
-      <div style={{
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        padding: '10px',
-        background: '#FFF',
-        display: (items.length > 0 ? 'block' : 'none')
+      <div
+        style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          padding: '10px',
+          background: '#FFF',
+          display: value.trim().length > 0 ? 'block' : 'none'
         }}
       >
+        {canAddNew && (
+          <p onClick={onClickAddNew}>
+            Add <b>{value}</b>
+          </p>
+        )}
         {items.map((ingredient) => (
           <p
             key={ingredient.uuid}
@@ -30,13 +36,19 @@ const Dropdown = props => {
 }
 
 Dropdown.propTypes = {
+  canAddNew: PropTypes.bool,
   items: PropTypes.array,
-  onSelect: PropTypes.func
+  onClickAddNew: PropTypes.func,
+  onSelect: PropTypes.func,
+  value: PropTypes.string
 }
 
 Dropdown.defaultProps = {
+  canAddNew: false,
   items: [],
+  onClickAddNew: () => {},
   onSelect: () => {},
+  value: ''
 }
 
 export default Dropdown

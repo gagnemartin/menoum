@@ -1,11 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-const RecipeItem = props => {
+const RecipeItem = (props) => {
   const { item } = props
 
   return (
-    <div key={item.uuid}>
+    <div>
       <img src={item.thumbnail} width='100%' alt={item.name} />
       <p>{item.name}</p>
     </div>
@@ -13,11 +13,11 @@ const RecipeItem = props => {
 }
 
 RecipeItem.propTypes = {
-  item: PropTypes.array
+  item: PropTypes.object
 }
 
 RecipeItem.defaultProps = {
-  item: []
+  item: {}
 }
 
 export default RecipeItem

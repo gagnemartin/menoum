@@ -1,6 +1,6 @@
 import Pluralize from 'pluralize'
 import Database from '../database/database.js'
-import ElasticClient from "../database/ElasticClient.js"
+import ElasticClient from '../database/ElasticClient.js'
 
 class Model {
   constructor(params) {
@@ -11,7 +11,7 @@ class Model {
     this.sync = sync || {}
 
     if (typeof this.sync.elasticsearch !== 'undefined') {
-        this.elastic = new ElasticClient()
+      this.elastic = new ElasticClient()
     }
 
     this.resetQueries()
@@ -22,15 +22,14 @@ class Model {
   }
 
   all = async () => {
-    const query = this.query
-      .clone()
+    const query = this.query.clone()
 
     this.resetQueries()
 
-    return query.then(data => {
+    return query.then((data) => {
       const formattedData = []
 
-      data.map(entry => {
+      data.map((entry) => {
         formattedData.push(this.formatRelationshipsData(entry))
       })
 
@@ -38,11 +37,8 @@ class Model {
     })
   }
 
-  get = async condition => {
-    const query = this.query
-      .where(condition)
-      .first()
-      .clone()
+  get = async (condition) => {
+    const query = this.query.where(condition).first().clone()
 
     this.resetQueries()
 
@@ -50,17 +46,17 @@ class Model {
   }
 
   first = async () => {
-    const query = this.query
-      .first()
-      .clone()
+    const query = this.query.first().clone()
 
     this.resetQueries()
 
-    return query.then(data => {
-      return this.formatRelationshipsData(data)
-    }).catch(e => {
-      throw new Error(e)
-    })
+    return query
+      .then((data) => {
+        return this.formatRelationshipsData(data)
+      })
+      .catch((e) => {
+        throw new Error(e)
+      })
   }
 
   insert = (data, returning = ['*'], elasticExtra = {}) => {
@@ -70,7 +66,7 @@ class Model {
     this.resetQueries()
 
     return query
-      .then(async newData => {
+      .then(async (newData) => {
         const isBulk = data instanceof Array
         let returningData = isBulk ? newData : newData[0]
 
@@ -85,52 +81,58 @@ class Model {
 
         return returningData
       })
-      .catch(e => {
+      .catch((e) => {
         throw new Error(e)
       })
   }
 
-  elasticInsert = async data => {
-    if (data instanceof Array)  {
+  elasticInsert = async (data) => {
+    if (data instanceof Array) {
       const newIndexes = []
 
-      data.map(newData => {
+      data.map((newData) => {
         const newIndex = {}
-        this.sync.elasticsearch.map(field => newIndex[field] = newData[field])
+        this.sync.elasticsearch.map(
+          (field) => (newIndex[field] = newData[field])
+        )
         newIndexes.push(newIndex)
       })
 
-      const elasticData = newIndexes.flatMap(doc => [ { index: { _index: this.table } }, doc ])
+      const elasticData = newIndexes.flatMap((doc) => [
+        { index: { _index: this.table } },
+        doc
+      ])
 
       return this.elastic.client.bulk({ refresh: true, body: elasticData })
     }
 
     const newIndex = {}
-    this.sync.elasticsearch.map(field => newIndex[field] = data[field])
+    this.sync.elasticsearch.map((field) => (newIndex[field] = data[field]))
 
-    return this.elastic.client.index({
-      index: this.table,
-      body: newIndex
-    })
+    return this.elastic.client
+      .index({
+        index: this.table,
+        body: newIndex
+      })
       .then((elasticData) => {
         // Add the elastic_id to the postgres DB
         const elastic_id = elasticData.body._id
         this.updateByUuid(data.uuid, { elastic_id })
       })
-      .catch(e => {
+      .catch((e) => {
         this.deleteByUuid(data.uuid)
         throw new Error(e)
       })
   }
 
-  elasticUpdate = async data => {
+  elasticUpdate = async (data) => {
     let { elastic_id } = data
     const fields = this.sync.elasticsearch
     const elasticData = { elastic_id }
 
-    fields.map(field => {
+    fields.map((field) => {
       if (data[field]) {
-        return elasticData[field] = data[field]
+        return (elasticData[field] = data[field])
       }
     })
 
@@ -155,7 +157,7 @@ class Model {
 
     this.resetQueries()
 
-    return query.then(async data => {
+    return query.then(async (data) => {
       if (this.hasElasticSync()) {
         const elasticData = { ...data[0], ...elasticExtra }
         await this.elasticUpdate(elasticData)
@@ -165,7 +167,7 @@ class Model {
     })
   }
 
-  update = async (data, returning = [ '*' ]) => {
+  update = async (data, returning = ['*']) => {
     const updateData = this.toJSON(data)
     const query = this.query
       .where('id', data.id)
@@ -174,12 +176,12 @@ class Model {
 
     this.resetQueries()
 
-    return query.then(data => {
+    return query.then((data) => {
       return data[0]
     })
   }
 
-  deleteByUuid = async uuid => {
+  deleteByUuid = async (uuid) => {
     this.where('uuid', uuid)
 
     const query = this.query.del().clone()
@@ -193,7 +195,7 @@ class Model {
     return query
   }
 
-  delete = async data => {
+  delete = async (data) => {
     this.where('id', data)
 
     const query = this.query.del().clone()
@@ -203,7 +205,7 @@ class Model {
     return query
   }
 
-  elasticDelete = async uuid => {
+  elasticDelete = async (uuid) => {
     const dataDB = await this.get({ uuid })
     const elastic_id = dataDB.elastic_id
 
@@ -213,7 +215,7 @@ class Model {
     })
   }
 
-  limit = limit => {
+  limit = (limit) => {
     this.query.limit(limit)
     return this
   }
@@ -228,7 +230,7 @@ class Model {
     return this
   }
 
-  select = columns => {
+  select = (columns) => {
     this.query.select(columns)
     return this
   }
@@ -255,25 +257,40 @@ class Model {
         const { pivot_table, foreign_key } = relation
 
         this.query
-          .leftJoin(pivot_table, { [`${this.table}.id`]: `${pivot_table}.${foreign_key}` })
-          .leftOuterJoin(table, { [`${pivot_table}.ingredient_id`]: `${table}.id` })
-
+          .leftJoin(pivot_table, {
+            [`${this.table}.id`]: `${pivot_table}.${foreign_key}`
+          })
+          .leftOuterJoin(table, {
+            [`${pivot_table}.ingredient_id`]: `${table}.id`
+          })
       }
     }
 
     return this
   }
 
-  manyToMany = table => {
+  manyToMany = (table) => {
     const relationship = this.getRelationship(table)
-    const { pivot_table, foreign_key, association_key, primary_key, association_primary_key } = relationship
+    const {
+      pivot_table,
+      foreign_key,
+      association_key,
+      primary_key,
+      association_primary_key
+    } = relationship
 
-    this.select(Database.connect().raw(`json_agg(${pivot_table}) AS ${pivot_table}`))
+    this.select(
+      Database.connect().raw(`json_agg(${pivot_table}) AS ${pivot_table}`)
+    )
     this.select(Database.connect().raw(`json_agg(${table}) AS ${table}`))
 
     this.query
-      .leftJoin(pivot_table, { [`${this.table}.id`]: `${pivot_table}.${foreign_key}` })
-      .leftOuterJoin(table, { [`${pivot_table}.${association_key}`]: `${table}.${association_primary_key}` })
+      .leftJoin(pivot_table, {
+        [`${this.table}.id`]: `${pivot_table}.${foreign_key}`
+      })
+      .leftOuterJoin(table, {
+        [`${pivot_table}.${association_key}`]: `${table}.${association_primary_key}`
+      })
     this.query.groupBy(`${this.table}.${primary_key}`)
     return this
   }
@@ -284,16 +301,16 @@ class Model {
     this.database = Database.connect()
   }
 
-  getRelationshipsInfo = relationships => {
+  getRelationshipsInfo = (relationships) => {
     const formattedRelationships = { ...relationships }
     const tables = Object.keys(formattedRelationships)
 
-    tables.map(table => {
+    tables.map((table) => {
       const relation = formattedRelationships[table]
 
       if (relation.type === 'many_to_many') {
         if (!relation.pivot_table) {
-          const twoTables = [ this.table, table ].sort()
+          const twoTables = [this.table, table].sort()
           relation.pivot_table = twoTables.join('_')
         }
 
@@ -318,11 +335,11 @@ class Model {
     return formattedRelationships
   }
 
-  getRelationship = table => {
+  getRelationship = (table) => {
     return this.relationships[table]
   }
 
-  formatRelationshipsData = data => {
+  formatRelationshipsData = (data) => {
     if (!data) {
       throw new Error('Not found.')
     }
@@ -332,7 +349,7 @@ class Model {
     if (this.relationships) {
       const tables = Object.keys(this.relationships)
 
-      tables.map(table => {
+      tables.map((table) => {
         const relationship = this.getRelationship(table)
         const {
           pivot_table,
@@ -350,14 +367,25 @@ class Model {
           formattedData[pivot_table] = []
         }
 
-        if (formattedData[table].length > 0 && formattedData[pivot_table].length > 0) {
+        if (
+          formattedData[table].length > 0 &&
+          formattedData[pivot_table].length > 0
+        ) {
           const dataMerged = []
 
-          formattedData[table].map(assocData => {
-            const pivotObject = formattedData[pivot_table].find(pivotData => pivotData[foreign_key] === formattedData[primary_key] && pivotData[association_key] === assocData[association_primary_key])
+          formattedData[table].map((assocData) => {
+            const pivotObject = formattedData[pivot_table].find(
+              (pivotData) =>
+                pivotData[foreign_key] === formattedData[primary_key] &&
+                pivotData[association_key] ===
+                  assocData[association_primary_key]
+            )
 
             if (pivotObject) {
-              dataMerged.push({ ...pivotObject, [Pluralize.singular(table)]: assocData })
+              dataMerged.push({
+                ...pivotObject,
+                [Pluralize.singular(table)]: assocData
+              })
             }
           })
 
@@ -372,21 +400,20 @@ class Model {
     return formattedData
   }
 
-  toJSON = data => {
+  toJSON = (data) => {
     // Bulk insert/update
     if (data instanceof Array) {
-      return data.map(obj => this._toJSON(obj))
-
+      return data.map((obj) => this._toJSON(obj))
     }
 
     return this._toJSON(data)
   }
 
-  _toJSON = data => {
+  _toJSON = (data) => {
     const castData = { ...data }
     const fields = Object.keys(castData)
 
-    fields.map(field => {
+    fields.map((field) => {
       if (castData[field] instanceof Array) {
         castData[field] = JSON.stringify(castData[field])
       }
@@ -396,7 +423,7 @@ class Model {
   }
 
   pluck = (array, key) => {
-    return array.map(o => o[key])
+    return array.map((o) => o[key])
   }
 }
 

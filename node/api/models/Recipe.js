@@ -88,7 +88,19 @@ class Recipe extends Model {
           'The name should between 3 and 255 characters long.'
         ]
       },
+      yields: {
+        required: [true, 'Please provide a name.'],
+        type: ['number', 'The yields must be an integer']
+      },
+      servings: {
+        required: [true, 'Please provide a name.'],
+        type: ['number', 'The yields must be an integer']
+      },
       steps: {
+        type: ['array', 'The steps must be of type Array.']
+      },
+      ingredients: {
+        required: [true, 'Please provide a name.'],
         type: ['array', 'The steps must be of type Array.']
       }
     })
@@ -123,6 +135,13 @@ class Recipe extends Model {
 
     if (transformedData.ingredients instanceof Array) {
       transformedData.ingredients.forEach((ingredient, i) => {
+        if (typeof ingredient.unit === 'string') {
+          transformedData.ingredients[i] = {
+            ...ingredient,
+            unit: ingredient.unit.trim()
+          }
+        }
+
         if (typeof ingredient.amount === 'string') {
           transformedData.ingredients[i] = {
             ...ingredient,
@@ -130,6 +149,14 @@ class Recipe extends Model {
           }
         }
       })
+    }
+
+    if (transformedData.steps instanceof Array) {
+      const steps = transformedData.steps
+        .map((step) => step.trim())
+        .filter((step) => step.length > 0)
+
+      transformedData.steps = steps
     }
 
     return transformedData

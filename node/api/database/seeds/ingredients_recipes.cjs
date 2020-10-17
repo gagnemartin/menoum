@@ -18,7 +18,7 @@ const randomWord = (min, max) => {
   return word
 }
 
-const createRecipes = numEntries => {
+const createRecipes = (numEntries) => {
   const recipes = []
   const thumbnails = [
     'https://cdn.pixabay.com/photo/2015/08/25/03/50/background-906135_1280.jpg',
@@ -49,11 +49,16 @@ const createRecipes = numEntries => {
       cook_time: faker.random.number({ min: 0, max: 120 }),
       yields: servings,
       servings,
-      thumbnail: thumbnails[faker.random.number({ min: 0, max: thumbnailsArrEnd })],
+      thumbnail:
+        thumbnails[faker.random.number({ min: 0, max: thumbnailsArrEnd })],
+      visible: true,
       ingredient_count
     }
 
-    while (recipes.some(recipeArr => recipeArr.name === recipe.name) && recipe.name.length >= 255) {
+    while (
+      recipes.some((recipeArr) => recipeArr.name === recipe.name) &&
+      recipe.name.length >= 255
+    ) {
       recipe.name = faker.lorem.sentence(5)
     }
 
@@ -63,13 +68,13 @@ const createRecipes = numEntries => {
   return recipes
 }
 
-const createSteps = numSteps => {
+const createSteps = (numSteps) => {
   const steps = []
 
   for (let i = 0; i < numSteps; i++) {
     let step = faker.lorem.sentence(5)
 
-    while (steps.some(stepArr => stepArr === step)) {
+    while (steps.some((stepArr) => stepArr === step)) {
       step = faker.lorem.sentence(5)
     }
 
@@ -79,7 +84,7 @@ const createSteps = numSteps => {
   return steps
 }
 
-const createIngredients = numEntries => {
+const createIngredients = (numEntries) => {
   const ingredients = []
 
   for (let i = 0; i < numEntries; i++) {
@@ -87,7 +92,11 @@ const createIngredients = numEntries => {
       name: randomWord(2, 40)
     }
 
-    while (ingredients.some(ingredientArr => ingredientArr.name === ingredient.name)) {
+    while (
+      ingredients.some(
+        (ingredientArr) => ingredientArr.name === ingredient.name
+      )
+    ) {
       ingredient.name = randomWord(2, 40)
     }
 
@@ -111,49 +120,49 @@ async function seed(knex) {
 
   await ElasticClient.cluster.health({
     wait_for_status: 'yellow',
-    timeout: '120s',
+    timeout: '120s'
   })
 
   // Empty ElasticSearch
-  const ingredientsIndex = await ElasticClient.indices.exists({
-    index: 'ingredients'
+  // const ingredientsIndex = await ElasticClient.indices.exists({
+  //   index: 'ingredients'
+  // })
+
+  // const recipesIndex = await ElasticClient.indices.exists({
+  //   index: 'recipes'
+  // })
+
+  // if (ingredientsIndex.body) {
+  await ElasticClient.deleteByQuery({
+    index: 'ingredients',
+    conflicts: 'proceed',
+    body: {
+      query: {
+        match_all: {}
+      }
+    }
   })
 
-  const recipesIndex = await ElasticClient.indices.exists({
-    index: 'recipes'
+  // await ElasticClient.indices.delete({
+  //   index: 'ingredients'
+  // })
+  // }
+
+  // if (recipesIndex.body) {
+  await ElasticClient.deleteByQuery({
+    index: 'recipes',
+    conflicts: 'proceed',
+    body: {
+      query: {
+        match_all: {}
+      }
+    }
   })
 
-  if (ingredientsIndex.body) {
-    await ElasticClient.deleteByQuery({
-      index: 'ingredients',
-      conflicts: 'proceed',
-      body: {
-        query: {
-          match_all: {}
-        }
-      }
-    })
-
-    await ElasticClient.indices.delete({
-      index: 'ingredients'
-    })
-  }
-
-  if (recipesIndex.body) {
-    await ElasticClient.deleteByQuery({
-      index: 'recipes',
-      conflicts: 'proceed',
-      body: {
-        query: {
-          match_all: {}
-        }
-      }
-    })
-
-    await ElasticClient.indices.delete({
-      index: 'recipes'
-    })
-  }
+  // await ElasticClient.indices.delete({
+  //   index: 'recipes'
+  // })
+  // }
 
   // Insert Ingredients and Recipes
   const [ingredients, recipes] = await Promise.all([
@@ -161,32 +170,35 @@ async function seed(knex) {
     Recipes.insert(insertRecipes, ['id', 'uuid', 'name', 'ingredient_count'])
   ])
 
-  const elasticIngredients = ingredients.flatMap(doc => [{ index: { _index: 'ingredients' } }, doc])
+  const elasticIngredients = ingredients.flatMap((doc) => [
+    { index: { _index: 'ingredients' } },
+    doc
+  ])
 
-  await ElasticClient.indices.create({
-    index: 'ingredients'
-  })
+  // await ElasticClient.indices.create({
+  //   index: 'ingredients'
+  // })
 
-  await ElasticClient.indices.putMapping({
-    index: 'ingredients',
-    body: {
-      properties: {
-        name: {
-          type: 'completion',
-          analyzer: 'simple',
-          search_analyzer: 'simple'
-        }
-      }
-    }
-  })
+  // await ElasticClient.indices.putMapping({
+  //   index: 'ingredients',
+  //   body: {
+  //     properties: {
+  //       name: {
+  //         type: 'completion',
+  //         analyzer: 'simple',
+  //         search_analyzer: 'simple'
+  //       }
+  //     }
+  //   }
+  // })
 
   await ElasticClient.bulk({ refresh: true, body: elasticIngredients })
   const elasticDataIngredients = await ElasticClient.search({
     index: 'ingredients',
     size: NUM_INGREDIENTS,
     body: {
-      'query': {
-        'match_all': {}
+      query: {
+        match_all: {}
       }
     }
   })
@@ -194,13 +206,14 @@ async function seed(knex) {
   const ingredientsEntries = elasticDataIngredients.body.hits.hits
   const ingredientsUpdates = []
 
-  ingredientsEntries.map(ingredient => {
-    const { _id, _source: { uuid } } = ingredient
+  ingredientsEntries.map((ingredient) => {
+    const {
+      _id,
+      _source: { uuid }
+    } = ingredient
 
     ingredientsUpdates.push(
-      knex('ingredients')
-        .where({ uuid })
-        .update({ elastic_id: _id })
+      knex('ingredients').where({ uuid }).update({ elastic_id: _id })
     )
   })
 
@@ -208,34 +221,35 @@ async function seed(knex) {
 
   const pivotData = []
   const ingredientsLength = ingredients.length
-  const units = [
-    'ml', 'g'
-  ]
+  const units = ['ml', 'g']
 
   const elasticRecipes = []
   // Loop through the recipes to add between 1 and 10 ingredients
-  recipes.map(recipe => {
+  recipes.map((recipe) => {
     const elasticRecipesIngredients = []
 
     for (let i = 0; i < recipe.ingredient_count; i++) {
       const alreadyExists = () => {
-        return pivotData.some(data => {
-          return data.ingredient_id === ingredientRecipe.ingredient_id && data.recipe_id === ingredientRecipe.recipe_id
+        return pivotData.some((data) => {
+          return (
+            data.ingredient_id === ingredientRecipe.ingredient_id &&
+            data.recipe_id === ingredientRecipe.recipe_id
+          )
         })
       }
 
-      let ingredientKey = ingredientsLength * Math.random() | 0
+      let ingredientKey = (ingredientsLength * Math.random()) | 0
       const ingredient_id = ingredients[ingredientKey].id
       const ingredientRecipe = {
         recipe_id: recipe.id,
         ingredient_id,
-        unit: units[units.length * Math.random() | 0],
+        unit: units[(units.length * Math.random()) | 0],
         amount: Math.floor(Math.random() * 10)
       }
 
       // Recipe already has this ingredient associated
       while (alreadyExists()) {
-        ingredientKey = ingredientsLength * Math.random() | 0
+        ingredientKey = (ingredientsLength * Math.random()) | 0
         ingredientRecipe.ingredient_id = ingredients[ingredientKey].id
       }
 
@@ -251,14 +265,17 @@ async function seed(knex) {
     })
   })
 
-  const elasticRecipesFormat = elasticRecipes.flatMap(doc => [{ index: { _index: 'recipes' } }, doc])
+  const elasticRecipesFormat = elasticRecipes.flatMap((doc) => [
+    { index: { _index: 'recipes' } },
+    doc
+  ])
   await ElasticClient.bulk({ refresh: true, body: elasticRecipesFormat })
   const elasticDataRecipes = await ElasticClient.search({
     index: 'recipes',
     size: NUM_RECIPES,
     body: {
-      'query': {
-        'match_all': {}
+      query: {
+        match_all: {}
       }
     }
   })
@@ -266,13 +283,14 @@ async function seed(knex) {
   const recipesEntries = elasticDataRecipes.body.hits.hits
   const recipesUpdates = []
 
-  recipesEntries.map(recipe => {
-    const { _id, _source: { uuid } } = recipe
+  recipesEntries.map((recipe) => {
+    const {
+      _id,
+      _source: { uuid }
+    } = recipe
 
     recipesUpdates.push(
-      knex('recipes')
-        .where({ uuid })
-        .update({ elastic_id: _id })
+      knex('recipes').where({ uuid }).update({ elastic_id: _id })
     )
   })
 

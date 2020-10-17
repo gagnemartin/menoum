@@ -2,21 +2,21 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import RecipeItem from './RecipeItem'
 
-const RecipesList = props => {
+const RecipesList = (props) => {
   const { items } = props
 
   return (
     <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          columnGap: '20px',
-        }}
-      >
-        {items.map((item) => (
-          <RecipeItem item={item} />
-        ))}
-      </div>
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        columnGap: '20px'
+      }}
+    >
+      {items.map((item) => (
+        <RecipeItem item={item} key={item.uuid} />
+      ))}
+    </div>
   )
 }
 

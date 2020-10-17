@@ -1,6 +1,13 @@
+import { backendApi } from '../config/constants'
+import apiFetch from '../global/apiFetch'
+
+const { base } = backendApi
+const path = '/recipes'
+
 const RecipeService = {
   add: async ({
     name,
+    thumbnail,
     prep_time,
     cook_time,
     yields,
@@ -10,6 +17,7 @@ const RecipeService = {
   }) => {
     const body = {
       name,
+      thumbnail,
       prep_time,
       cook_time,
       yields,
@@ -19,19 +27,10 @@ const RecipeService = {
     }
 
     const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(body)
     }
-    return await fetch(`http://localhost:4000/api/v1/recipes/new`, options)
-      .then((data) => {
-        return data.json()
-      })
-      .then((data) => {
-        return data
-      })
+
+    return await apiFetch.post(`${base}${path}/new`, options)
   }
 }
 

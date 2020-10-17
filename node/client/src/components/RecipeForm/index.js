@@ -1,33 +1,21 @@
 import React, { useState, useEffect } from 'react'
-import IngredientsService from '../../services/ingredientsService'
-import RecipesService from '../../services/recipesService'
+import { IngredientsService, RecipesService } from '../../services'
+import { generateId } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
 
 const RecipeForm = () => {
   const [ingredientValue, setIngredientValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
   const [selectedIngredients, setSelectedIngredients] = useState([])
-  const [steps, setSteps] = useState({ AjdAi: '' })
+  const [steps, setSteps] = useState({ [generateId(5)]: '' })
   const [form, setForm] = useState({
     name: '',
+    thumbnail: '',
     prep_time: 0,
     cook_time: 0,
     yields: 0,
     servings: 0
   })
-
-  const generateId = (length) => {
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const charactersLength = characters.length
-    let result = ''
-
-    for (var i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength))
-    }
-
-    return result
-  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -124,6 +112,21 @@ const RecipeForm = () => {
     }
   }
 
+  const onClickAddNewIngredient = async () => {
+    if (ingredientValue.trim().length > 0) {
+      const response = await IngredientsService.new({ name: ingredientValue })
+
+      if (response) {
+        setSelectedIngredients((prevIngredients) => ({
+          ...prevIngredients,
+          [generateId(5)]: response
+        }))
+        setSuggestedIngredients([])
+        setIngredientValue('')
+      }
+    }
+  }
+
   /**
    * Call the API to fetch the suggested ingredients
    */
@@ -148,23 +151,29 @@ const RecipeForm = () => {
 
   return (
     <form action='#' onSubmit={handleSubmit}>
-      <label htmlFor='name'>
-        Name
-        <input
-          onChange={handleChange}
-          value={form.name}
-          id='name'
-          type='text'
-          name='name'
-          placeholder='Recipe name'
-        />
-      </label>
+      <div>
+        <label htmlFor='name'>
+          Name
+          <input
+            onChange={handleChange}
+            value={form.name}
+            id='name'
+            type='text'
+            name='name'
+            placeholder='Recipe name'
+            style={{ display: 'block' }}
+          />
+        </label>
+      </div>
 
       <div>
+        <p>Ingredients</p>
         <Autocomplete
-          onChange={onChange}
+          canAddNew={true}
           items={suggestedIngredients}
           value={ingredientValue}
+          onChange={onChange}
+          onClickAddNew={onClickAddNewIngredient}
           onSelect={onSelectIngredient}
         />
         {Object.keys(selectedIngredients).map((key) => (
@@ -188,67 +197,95 @@ const RecipeForm = () => {
         ))}
       </div>
 
-      <label htmlFor='prep_time'>
-        Preparation Time (minutes)
-        <input
-          onChange={handleChange}
-          value={form.prep_time}
-          id='prep_time'
-          type='number'
-          name='prep_time'
-          placeholder='Preparation time (minutes)'
-        />
-      </label>
-
-      <label htmlFor='cook_time'>
-        Cooking Time (minutes)
-        <input
-          onChange={handleChange}
-          value={form.cook_time}
-          id='cook_time'
-          type='number'
-          name='cook_time'
-          placeholder='Cooking time (minutes)'
-        />
-      </label>
-
-      <label htmlFor='yields'>
-        Yields
-        <input
-          onChange={handleChange}
-          value={form.yields}
-          id='yields'
-          type='number'
-          name='yields'
-          placeholder='Yields'
-        />
-      </label>
-
-      <label htmlFor='servings'>
-        Servings
-        <input
-          onChange={handleChange}
-          value={form.servings}
-          id='servings'
-          type='number'
-          name='servings'
-          placeholder='Servings'
-        />
-      </label>
-
-      <p>Steps</p>
-      {Object.keys(steps).map((key) => (
-        <input
-          data-key={key}
-          onChange={handleStep}
-          value={steps[key].value}
-          type='text'
-          name='steps[]'
-          placeholder='Step'
-        />
-      ))}
       <div>
-        <button onClick={onClickAddStep}>Add a step</button>
+        <label htmlFor='thumbnail'>
+          Thumbnail URL
+          <input
+            onChange={handleChange}
+            value={form.thumbnail}
+            id='thumbnail'
+            type='text'
+            name='thumbnail'
+            placeholder='Thumbnail URL'
+            style={{ display: 'block' }}
+          />
+        </label>
+      </div>
+
+      <div>
+        <label htmlFor='prep_time'>
+          Preparation Time (minutes)
+          <input
+            onChange={handleChange}
+            value={form.prep_time}
+            id='prep_time'
+            type='number'
+            name='prep_time'
+            placeholder='Preparation time (minutes)'
+            style={{ display: 'block' }}
+          />
+        </label>
+
+        <label htmlFor='cook_time'>
+          Cooking Time (minutes)
+          <input
+            onChange={handleChange}
+            value={form.cook_time}
+            id='cook_time'
+            type='number'
+            name='cook_time'
+            placeholder='Cooking time (minutes)'
+            style={{ display: 'block' }}
+          />
+        </label>
+      </div>
+
+      <div>
+        <label htmlFor='yields'>
+          Yields
+          <input
+            onChange={handleChange}
+            value={form.yields}
+            id='yields'
+            type='number'
+            name='yields'
+            placeholder='Yields'
+            style={{ display: 'block' }}
+          />
+        </label>
+
+        <label htmlFor='servings'>
+          Servings
+          <input
+            onChange={handleChange}
+            value={form.servings}
+            id='servings'
+            type='number'
+            name='servings'
+            placeholder='Servings'
+            style={{ display: 'block' }}
+          />
+        </label>
+      </div>
+
+      <div>
+        <p>Steps</p>
+        {Object.keys(steps).map((key) => (
+          <div key={key}>
+            <input
+              data-key={key}
+              onChange={handleStep}
+              value={steps[key].value}
+              type='text'
+              name='steps[]'
+              placeholder='Step'
+              style={{ display: 'block' }}
+            />
+          </div>
+        ))}
+        <div>
+          <button onClick={onClickAddStep}>Add a step</button>
+        </div>
       </div>
 
       <div>

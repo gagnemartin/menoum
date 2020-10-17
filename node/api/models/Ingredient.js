@@ -10,7 +10,7 @@ const params = {
     }
   },
   sync: {
-    elasticsearch: [ 'id', 'uuid', 'name' ]
+    elasticsearch: ['id', 'uuid', 'name']
   }
 }
 
@@ -41,33 +41,36 @@ class Ingredient extends Model {
   //     })
   // }
 
-  searchByName = async query => {
-    return this.elastic.client.search({
-      index: this.table,
-      body: {
-        suggest: {
-          nameSuggester: {
-            prefix: query,
-            completion: {
-              field: 'name',
-              size: 90,
-              fuzzy: {
-                fuzziness: 'auto'
+  searchByName = async (query) => {
+    return this.elastic.client
+      .search({
+        index: this.table,
+        body: {
+          suggest: {
+            nameSuggester: {
+              prefix: query,
+              completion: {
+                field: 'name',
+                size: 90,
+                fuzzy: {
+                  fuzziness: 'auto'
+                }
               }
             }
           }
         }
-      }
-    })
-      .then(data => {
+      })
+      .then((data) => {
         const suggestions = data.body.suggest.nameSuggester
-        return suggestions.flatMap(doc => {
+        return suggestions.flatMap((doc) => {
           const options = doc.options
 
-          return options.flatMap(sugg => [ { name: sugg.text, uuid: sugg._source.uuid, score: sugg._score } ])
+          return options.flatMap((sugg) => [
+            { name: sugg.text, uuid: sugg._source.uuid, score: sugg._score }
+          ])
         })
       })
-      .catch(e => {
+      .catch((e) => {
         throw {
           message: e.meta.body.error.reason,
           type: e.meta.body.error.root_cause[0].type,
@@ -76,19 +79,23 @@ class Ingredient extends Model {
       })
   }
 
-  validate = data => {
+  validate = (data) => {
     const validator = new Validator(data)
 
     return validator.validate({
       name: {
-        required: [ true, 'Please provide a name.' ],
-        type: [ 'string', 'The name must be a string.' ],
-        betweenLength: [ 3, 50, 'The name should between 3 and 255 characters long.' ]
+        required: [true, 'Please provide a name.'],
+        type: ['string', 'The name must be a string.'],
+        betweenLength: [
+          3,
+          50,
+          'The name should between 3 and 255 characters long.'
+        ]
       }
     })
   }
 
-  transformData = data => {
+  transformData = (data) => {
     const transformedData = { ...data }
 
     if (typeof transformedData.name === 'string') {
