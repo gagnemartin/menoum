@@ -51,7 +51,7 @@ const createRecipes = (numEntries) => {
       servings,
       thumbnail:
         thumbnails[faker.random.number({ min: 0, max: thumbnailsArrEnd })],
-      visible: true,
+      is_visible: true,
       ingredient_count
     }
 

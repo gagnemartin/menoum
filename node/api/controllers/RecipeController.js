@@ -96,7 +96,7 @@ class RecipeController extends Controller {
         ingredientsInsert
       )
       delete formData.ingredients
-      const [isValid, errors] = Recipe.validate(formData)
+      const [isValid, errors] = await Recipe.validate(formData)
 
       if (isValid) {
         const newData = await Recipe.insert(
@@ -144,7 +144,7 @@ class RecipeController extends Controller {
       )
       delete formData.ingredients
       const { uuid } = req.params
-      const [isValid, errors] = Recipe.validate(formData)
+      const [isValid, errors] = await Recipe.validate(formData)
 
       if (isValid) {
         const updateData = await Recipe.updateByUuid(

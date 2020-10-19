@@ -75,10 +75,9 @@ class Recipe extends Model {
       })
   }
 
-  validate = (data) => {
+  validate = async (data) => {
     const validator = new Validator(data)
-
-    return validator.validate({
+    const validatedData = await validator.validate({
       name: {
         required: [true, 'Please provide a name.'],
         type: ['string', 'The name must be a string.'],
@@ -104,6 +103,8 @@ class Recipe extends Model {
         type: ['array', 'The steps must be of type Array.']
       }
     })
+
+    return validatedData
   }
 
   transformData = (data) => {

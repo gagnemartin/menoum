@@ -1,10 +1,13 @@
 import express from 'express'
+import isAuthenticated from '../middlewares/isAuthenticated.js'
+import isAuthorized from '../middlewares/isAuthorized.js'
+import { UserController } from '../controllers/index.js'
 
-const router = express.Router()
+const routes = express.Router()
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource')
-})
+routes.post('/register', UserController.register)
+routes.post('/login', UserController.login)
+routes.post('/logout', UserController.logout)
+routes.post('/refresh', isAuthenticated, UserController.refresh)
 
-export default router
+export default routes

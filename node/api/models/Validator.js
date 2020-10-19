@@ -1,22 +1,44 @@
 import Database from '../database/database.js'
 
 class Validator {
-  constructor(data) {
+  constructor(data, table) {
     this.data = data
+    this.table = table
   }
 
-  betweenLength = (field, [ min, max, message ]) => {
+  betweenLength = (field, [min, max, message]) => {
     const value = this.getValue(field)
     const isValid = value.length >= min && value.length <= max
     return this.buildError(isValid, message)
   }
 
-  unique = (field) => {
+  minLength = (field, [min, message]) => {
     const value = this.getValue(field)
-    const db = Database.connect().from(table)
+    const isValid = value.length >= min
+    return this.buildError(isValid, message)
   }
 
-  required = (field, [ isRequired, message ]) => {
+  maxLength = (field, [max, message]) => {
+    const value = this.getValue(field)
+    const isValid = value.length <= max
+    return this.buildError(isValid, message)
+  }
+
+  unique = async (field, [column, message]) => {
+    const value = this.getValue(field)
+    const res = await Database.connect()
+      .from(this.table)
+      .select(column)
+      .where(column, value)
+      .first()
+      .catch((e) => {
+        console.log(e)
+      })
+    const isValid = typeof res === 'undefined'
+    return this.buildError(isValid, message)
+  }
+
+  required = (field, [isRequired, message]) => {
     if (!isRequired) {
       return this.buildError(true, message)
     }
@@ -25,7 +47,7 @@ class Validator {
     return this.buildError(typeof value !== 'undefined', message)
   }
 
-  type = (field, [ fieldType, message ]) => {
+  type = (field, [fieldType, message]) => {
     const value = this.getValue(field)
     const fieldTypeLower = fieldType.toLowerCase()
 
@@ -36,7 +58,28 @@ class Validator {
     return this.buildError(typeof value === fieldTypeLower, message)
   }
 
-  getValue = field => {
+  pattern = (field, [fieldPattern, message]) => {
+    const value = this.getValue(field)
+
+    switch (fieldPattern) {
+      case 'email':
+        return this.buildError(this.isValidEmail(value), message)
+    }
+  }
+
+  equalTo = (field, [equalValue, message]) => {
+    const value = this.getValue(field)
+
+    return this.buildError(value === equalValue, message)
+  }
+
+  isValidEmail = (value) => {
+    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)$/.test(
+      value
+    )
+  }
+
+  getValue = (field) => {
     return this.data[field]
   }
 
@@ -68,19 +111,20 @@ class Validator {
     return error
   }
 
-  validate = (validations) => {
+  validate = async (validations) => {
     const fields = Object.keys(validations)
+    const fieldsLength = fields.length
     const validated = {}
 
     let overallValid = true
 
-    fields.map(field => {
+    for (let c = 0; c < fieldsLength; c++) {
+      const field = fields[c]
       const validation = validations[field]
       const functions = Object.keys(validation)
       const shouldValidate = this.shouldValidate(field, validation)
 
       if (shouldValidate) {
-
         for (let i = 0; i < functions.length; i++) {
           const functionName = functions[i]
           const args = validation[functionName]
@@ -101,7 +145,7 @@ class Validator {
           }
 
           if (this[functionName]) {
-            const error = this[functionName](field, args)
+            let error = await this[functionName](field, args)
 
             if (!error.valid) {
               if (!validated[field]) {
@@ -114,9 +158,9 @@ class Validator {
           }
         }
       }
-    })
+    }
 
-    return [ overallValid, validated ]
+    return [overallValid, validated]
   }
 }
 

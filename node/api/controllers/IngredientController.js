@@ -69,7 +69,7 @@ class IngredientController extends Controller {
     try {
       const formData = Ingredient.transformData(req.body)
 
-      const [isValid, validatedData] = Ingredient.validate(formData)
+      const [isValid, validatedData] = await Ingredient.validate(formData)
 
       if (isValid) {
         const data = await Ingredient.insert(formData, [
@@ -103,7 +103,7 @@ class IngredientController extends Controller {
       const formData = Ingredient.transformData(req.body)
       const { uuid } = req.params
 
-      const [isValid, validatedData] = Ingredient.validate(formData)
+      const [isValid, validatedData] = await Ingredient.validate(formData)
 
       if (isValid) {
         const data = await Ingredient.updateByUuid(uuid, formData, [
