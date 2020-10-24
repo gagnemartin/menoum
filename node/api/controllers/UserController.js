@@ -22,22 +22,13 @@ class UserController extends Controller {
     const [isValid, errors] = await User.validate(formData)
 
     if (isValid) {
-      const hashedPassword = await bcrypt
-        .hash(formData.password, 10)
-        .catch(() => res.sendStatus(500))
+      const hashedPassword = await bcrypt.hash(formData.password, 10)
 
       const data = { email, password: hashedPassword, refresh_token: uuidv4() }
       const expires_at = User.getTokenExpiresAt()
-      const user = await User.insert(data, [
-        'uuid',
-        'email',
-        'role',
-        'refresh_token'
-      ]).catch(() => res.sendStatus(500))
+      const user = await User.insert(data, ['uuid', 'email', 'role', 'refresh_token'])
 
-      const token = await User.generateToken(user).catch(() =>
-        res.sendStatus(500)
-      )
+      const token = await User.generateToken(user)
 
       return res.status(201).json({
         token,
@@ -45,27 +36,14 @@ class UserController extends Controller {
       })
     }
 
-    return res.status(400).json({
-      message: 'Invalid data.',
-      status: 400,
-      data: errors
-    })
+    return next(User.error(400, errors))
   }
 
   login = async (req, res, next) => {
     const {
       body: { email, password }
     } = req
-
-    const user = await User.select([
-      'email',
-      'role',
-      'uuid',
-      'password',
-      'refresh_token'
-    ])
-      .where({ email })
-      .first()
+    const user = await User.select(['email', 'role', 'uuid', 'password', 'refresh_token']).where({ email }).first()
 
     if (user) {
       const isValid = await bcrypt.compare(password, user.password)
@@ -93,7 +71,7 @@ class UserController extends Controller {
       }
     }
 
-    return res.sendStatus(404)
+    return next(User.error(400))
   }
 
   logout = (req, res, next) => {
@@ -102,7 +80,7 @@ class UserController extends Controller {
       expires: new Date(0)
     })
 
-    return res.sendStatus(200)
+    return res.status(200).json({ message: 'OK' })
   }
 
   refresh = async (req, res, next) => {
@@ -115,7 +93,6 @@ class UserController extends Controller {
           refresh_token
         })
         .first()
-        .catch(() => res.sendStatus(403))
 
       if (user) {
         user.refresh_token = new_refresh_token
@@ -139,7 +116,7 @@ class UserController extends Controller {
       }
     }
 
-    return res.sendStatus(403)
+    return next(User.error(403))
   }
 }
 

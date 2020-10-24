@@ -1,3 +1,5 @@
+import AppError from '../helpers/AppError.js'
+
 /**
  * Checks if a user is authorized from a given role
  * Middleware "isAuthenticated" has to be ran before in the route
@@ -12,17 +14,17 @@ const isAuthorized = (roles) => {
     if (user) {
       if (roles instanceof Array) {
         if (!roles.includes(user.role)) {
-          return res.sendStatus(403)
+          return next(new AppError(403))
         }
       } else {
         if (roles !== user.role) {
-          return res.sendStatus(403)
+          return next(new AppError(403))
         }
       }
 
       next()
     } else {
-      return res.sendStatus(401)
+      return next(new AppError(401))
     }
   }
 }

@@ -1,13 +1,11 @@
 import express from 'express'
-import isAuthenticated from '../middlewares/isAuthenticated.js'
-import isAuthorized from '../middlewares/isAuthorized.js'
+import withCatchAsync from '../helpers/withCatchAsync.js'
 import { UserController } from '../controllers/index.js'
-
 const routes = express.Router()
 
-routes.post('/register', UserController.register)
-routes.post('/login', UserController.login)
-routes.post('/logout', UserController.logout)
-routes.post('/refresh', isAuthenticated, UserController.refresh)
+routes.post('/register', withCatchAsync(UserController.register))
+routes.post('/login', withCatchAsync(UserController.login))
+routes.post('/logout', withCatchAsync(UserController.logout))
+routes.post('/refresh', withCatchAsync(UserController.refresh))
 
 export default routes

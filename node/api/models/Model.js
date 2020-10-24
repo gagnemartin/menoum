@@ -1,6 +1,7 @@
 import Pluralize from 'pluralize'
 import Database from '../database/database.js'
 import ElasticClient from '../database/ElasticClient.js'
+import AppError from '../helpers/AppError.js'
 
 class Model {
   constructor(params) {
@@ -92,16 +93,11 @@ class Model {
 
       data.map((newData) => {
         const newIndex = {}
-        this.sync.elasticsearch.map(
-          (field) => (newIndex[field] = newData[field])
-        )
+        this.sync.elasticsearch.map((field) => (newIndex[field] = newData[field]))
         newIndexes.push(newIndex)
       })
 
-      const elasticData = newIndexes.flatMap((doc) => [
-        { index: { _index: this.table } },
-        doc
-      ])
+      const elasticData = newIndexes.flatMap((doc) => [{ index: { _index: this.table } }, doc])
 
       return this.elastic.client.bulk({ refresh: true, body: elasticData })
     }
@@ -150,10 +146,7 @@ class Model {
 
   updateByUuid = async (uuid, data, returning = ['*'], elasticExtra = {}) => {
     const updateData = this.toJSON(data)
-    const query = this.query
-      .where('uuid', uuid)
-      .update(updateData, returning)
-      .clone()
+    const query = this.query.where('uuid', uuid).update(updateData, returning).clone()
 
     this.resetQueries()
 
@@ -169,10 +162,7 @@ class Model {
 
   update = async (data, returning = ['*']) => {
     const updateData = this.toJSON(data)
-    const query = this.query
-      .where('id', data.id)
-      .update(updateData, returning)
-      .clone()
+    const query = this.query.where('id', data.id).update(updateData, returning).clone()
 
     this.resetQueries()
 
@@ -269,19 +259,15 @@ class Model {
     return this
   }
 
+  error = (status, data) => {
+    return new AppError(status, data)
+  }
+
   manyToMany = (table) => {
     const relationship = this.getRelationship(table)
-    const {
-      pivot_table,
-      foreign_key,
-      association_key,
-      primary_key,
-      association_primary_key
-    } = relationship
+    const { pivot_table, foreign_key, association_key, primary_key, association_primary_key } = relationship
 
-    this.select(
-      Database.connect().raw(`json_agg(${pivot_table}) AS ${pivot_table}`)
-    )
+    this.select(Database.connect().raw(`json_agg(${pivot_table}) AS ${pivot_table}`))
     this.select(Database.connect().raw(`json_agg(${table}) AS ${table}`))
 
     this.query
@@ -341,7 +327,7 @@ class Model {
 
   formatRelationshipsData = (data) => {
     if (!data) {
-      throw new Error('Not found.')
+      return data
     }
 
     const formattedData = { ...data }
@@ -351,13 +337,7 @@ class Model {
 
       tables.map((table) => {
         const relationship = this.getRelationship(table)
-        const {
-          pivot_table,
-          foreign_key,
-          primary_key,
-          association_key,
-          association_primary_key
-        } = relationship
+        const { pivot_table, foreign_key, primary_key, association_key, association_primary_key } = relationship
 
         if (!formattedData[table] || !formattedData[table][0]) {
           formattedData[table] = []
@@ -367,18 +347,13 @@ class Model {
           formattedData[pivot_table] = []
         }
 
-        if (
-          formattedData[table].length > 0 &&
-          formattedData[pivot_table].length > 0
-        ) {
+        if (formattedData[table].length > 0 && formattedData[pivot_table].length > 0) {
           const dataMerged = []
 
           formattedData[table].map((assocData) => {
             const pivotObject = formattedData[pivot_table].find(
               (pivotData) =>
-                pivotData[foreign_key] === formattedData[primary_key] &&
-                pivotData[association_key] ===
-                  assocData[association_primary_key]
+                pivotData[foreign_key] === formattedData[primary_key] && pivotData[association_key] === assocData[association_primary_key]
             )
 
             if (pivotObject) {

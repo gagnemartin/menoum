@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { IngredientsService, RecipesService } from '../../services'
+import { useRecipeService } from '../../services/recipesService'
 import { generateId } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
 
 const RecipeForm = () => {
+  const recipesService = useRecipeService()
   const [ingredientValue, setIngredientValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
   const [selectedIngredients, setSelectedIngredients] = useState([])
@@ -78,7 +80,7 @@ const RecipeForm = () => {
       })
     }
 
-    const response = await RecipesService.add(data)
+    const response = await recipesService.add(data)
     console.log(response)
   }
 

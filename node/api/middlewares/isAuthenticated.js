@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import AppError from '../helpers/AppError.js'
 
 const isAuthenticated = (req, res, next) => {
   const authHeader = req.headers.authorization
@@ -8,14 +9,14 @@ const isAuthenticated = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_TOKEN, (err, user) => {
       if (err) {
-        return res.sendStatus(403)
+        return next(new AppError(403))
       }
 
       req.user = user
       next()
     })
   } else {
-    res.sendStatus(401)
+    return next(new AppError(401))
   }
 }
 
