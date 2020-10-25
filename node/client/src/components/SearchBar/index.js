@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import IngredientsService from '../../services/ingredientsService'
+import { useIngredientsService } from '../../services'
 import Autocomplete from './Autocomplete'
 import IngredientsList from './IngredientsList'
+import { isSuccessResponse, getDataFromResponse } from '../../global/helpers'
 
 const SearchBar = (props) => {
   const { onChangeIngredients } = props
 
+  const ingredientsService = useIngredientsService()
   const [searchInputValue, setSearchInputValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
   const [selectedIngredients, setSelectedIngredients] = useState([])
@@ -67,12 +69,18 @@ const SearchBar = (props) => {
   useEffect(() => {
     const fetchIngredients = async () => {
       if (searchInputValue.trim().length > 0) {
-        const ingredients = await IngredientsService.search(searchInputValue)
-        const filtered = ingredients.filter((ingredient) => {
-          return !selectedIngredients.some((d) => d.uuid === ingredient.uuid)
-        })
+        const response = await ingredientsService.search(searchInputValue)
 
-        setSuggestedIngredients(filtered)
+
+        if (isSuccessResponse(response)) {
+          const data = getDataFromResponse(response)
+          
+          const filtered = data.filter((ingredient) => {
+            return !selectedIngredients.some((d) => d.uuid === ingredient.uuid)
+          })
+  
+          setSuggestedIngredients(filtered)
+        }
       } else {
         setSuggestedIngredients([])
       }

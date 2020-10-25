@@ -18,7 +18,7 @@ class IngredientController extends Controller {
       .recipes()
       .all()
 
-    return res.status(200).json(data)
+    return res.status(200).json(Ingredient.success(data))
   }
 
   get = async (req, res, next) => {
@@ -33,7 +33,7 @@ class IngredientController extends Controller {
       .first()
 
     if (data) {
-      return res.status(200).json(data)
+      return res.status(200).json(Ingredient.success(data))
     }
 
     next(Recipe.error(400, errors))
@@ -46,13 +46,14 @@ class IngredientController extends Controller {
       a.score < b.score ? 1 : b.score < a.score ? -1 : 0
     )
 
-    return res.status(200).json(sortedData)
+    return res.status(200).json(Ingredient.success(sortedData))
   }
 
   new = async (req, res, next) => {
     const formData = Ingredient.transformData(req.body)
 
     const [isValid, errors] = await Ingredient.validate(formData)
+    console.log(formData, req.body, errors)
 
     if (isValid) {
       const data = await Ingredient.insert(formData, [
@@ -65,10 +66,10 @@ class IngredientController extends Controller {
 
       delete data.id
 
-      return res.status(201).json(data)
+      return res.status(201).json(Ingredient.success(data))
     }
 
-    next(Recipe.error(400, errors))
+    next(Ingredient.error(400, errors))
   }
 
   update = async (req, res, next) => {
@@ -85,17 +86,17 @@ class IngredientController extends Controller {
         'recipe_count'
       ])
 
-      return res.status(200).json(data)
+      return res.status(200).json(Ingredient.success(data))
     }
 
-    next(Recipe.error(400, errors))
+    next(Ingredient.error(400, errors))
   }
 
   delete = async (req, res, next) => {
     const { uuid } = req.params
     await Ingredient.deleteByUuid(uuid)
 
-    return res.status(200).json({ message: 'Ingredient successfully deleted.' })
+    return res.status(200).json(Ingredient.success())
   }
 }
 

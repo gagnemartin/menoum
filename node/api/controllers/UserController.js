@@ -30,10 +30,12 @@ class UserController extends Controller {
 
       const token = await User.generateToken(user)
 
-      return res.status(201).json({
-        token,
-        expires_at
-      })
+      return res.status(201).json(
+        User.success({
+          token,
+          expires_at
+        })
+      )
     }
 
     return next(User.error(400, errors))
@@ -64,10 +66,12 @@ class UserController extends Controller {
           secure: false
         })
 
-        return res.status(200).json({
-          token,
-          expires_at
-        })
+        return res.status(200).json(
+          User.success({
+            token,
+            expires_at
+          })
+        )
       }
     }
 
@@ -80,7 +84,7 @@ class UserController extends Controller {
       expires: new Date(0)
     })
 
-    return res.status(200).json({ message: 'OK' })
+    return res.status(200).json(User.success())
   }
 
   refresh = async (req, res, next) => {
@@ -109,10 +113,12 @@ class UserController extends Controller {
           secure: false
         })
 
-        return res.status(200).json({
-          token,
-          expires_at
-        })
+        return res.status(200).json(
+          User.success({
+            token,
+            expires_at
+          })
+        )
       }
     }
 

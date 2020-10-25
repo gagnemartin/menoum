@@ -10,3 +10,17 @@ export const generateId = (length = 5) => {
 
   return result
 }
+
+export const isSuccessResponse = (response) => {
+  const successStatus = 'success'
+
+  if (response instanceof Object) {
+    return response.status === successStatus
+  }
+
+  return response === successStatus
+}
+
+export const getDataFromResponse = (response) => {
+  return response.data
+}

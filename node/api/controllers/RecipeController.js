@@ -36,7 +36,7 @@ class RecipeController extends Controller {
       .first()
 
       if (data) {
-        return res.status(200).json(data)
+        return res.status(200).json(Recipe.success(data))
       }
 
       next(Recipe.error(404))
@@ -67,7 +67,7 @@ class RecipeController extends Controller {
       })
       .sort((a, b) => (a.score < b.score ? 1 : b.score < a.score ? -1 : 0))
 
-    return res.status(200).json(dataWithScore)
+    return res.status(200).json(Recipe.success(dataWithScore))
   }
 
   new = async (req, res, next) => {
@@ -94,7 +94,7 @@ class RecipeController extends Controller {
         .ingredients()
         .first()
 
-      return res.status(201).json(data)
+      return res.status(201).json(User.success(data))
     }
 
     next(Recipe.error(400, errors))
@@ -125,7 +125,7 @@ class RecipeController extends Controller {
         .ingredients()
         .first()
 
-      return res.status(200).json(data)
+      return res.status(200).json(Recipe.sucess(data))
     }
   
     next(Recipe.error(400, errors))
@@ -135,7 +135,7 @@ class RecipeController extends Controller {
       const { uuid } = req.params
       await Recipe.deleteByUuid(uuid)
 
-      return res.status(200).json({ message: 'Recipe successfully deleted.' })
+      return res.status(200).json(Recipe.success())
   }
 }
 

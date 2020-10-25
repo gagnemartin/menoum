@@ -259,6 +259,16 @@ class Model {
     return this
   }
 
+  success = (data) => {
+    const returnData = { status: 'success' }
+
+    if (data) {
+      returnData.data = data
+    }
+
+    return returnData
+  }
+
   error = (status, data) => {
     return new AppError(status, data)
   }

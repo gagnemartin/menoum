@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { IngredientsService, RecipesService } from '../../services'
-import { useRecipeService } from '../../services/recipesService'
-import { generateId } from '../../global/helpers'
+import { useIngredientsService, useRecipesService } from '../../services'
+import { generateId, getDataFromResponse, isSuccessResponse } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
 
 const RecipeForm = () => {
-  const recipesService = useRecipeService()
+  const recipesService = useRecipesService()
+  const ingredientsService = useIngredientsService()
   const [ingredientValue, setIngredientValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
   const [selectedIngredients, setSelectedIngredients] = useState([])
@@ -116,12 +116,14 @@ const RecipeForm = () => {
 
   const onClickAddNewIngredient = async () => {
     if (ingredientValue.trim().length > 0) {
-      const response = await IngredientsService.new({ name: ingredientValue })
+      const response = await ingredientsService.add({ name: ingredientValue })
 
-      if (response) {
+      if (isSuccessResponse(response)) {
+        const data = getDataFromResponse(response)
+
         setSelectedIngredients((prevIngredients) => ({
           ...prevIngredients,
-          [generateId(5)]: response
+          [generateId(5)]: data
         }))
         setSuggestedIngredients([])
         setIngredientValue('')
@@ -135,14 +137,16 @@ const RecipeForm = () => {
   useEffect(() => {
     const fetchIngredients = async () => {
       if (ingredientValue.trim().length > 0) {
-        const ingredients = await IngredientsService.search(ingredientValue)
-        const filtered = ingredients.filter((ingredient) => {
-          return !Object.keys(selectedIngredients).some(
-            (key) => selectedIngredients[key].uuid === ingredient.uuid
-          )
-        })
+        const response = await ingredientsService.search(ingredientValue)
 
-        setSuggestedIngredients(filtered)
+        if (isSuccessResponse(response)) {
+          const data = getDataFromResponse(response)
+          const filtered = data.filter((ingredient) => {
+            return !Object.keys(selectedIngredients).some((key) => selectedIngredients[key].uuid === ingredient.uuid)
+          })
+  
+          setSuggestedIngredients(filtered)
+        }
       } else {
         setSuggestedIngredients([])
       }

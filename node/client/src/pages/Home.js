@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import SearchBar from '../components/SearchBar'
 import RecipesList from '../components/RecipesList'
+import { useRecipesService } from '../services'
+import { getDataFromResponse, isSuccessResponse } from '../global/helpers'
 
 const Home = () => {
+  const recipeService = useRecipesService()
   const [ suggestedRecipes, setSuggestedRecipes ] = useState([])
 
-  const onChangeIngredients = uuids => {
+  const onChangeIngredients = async uuids => {
     if (uuids.length > 0) {
       const queryString = uuids
         .map((uuid) => {
@@ -13,13 +16,12 @@ const Home = () => {
         })
         .join('&')
 
-      fetch(`http://localhost:4000/api/v1/recipes/suggest?${queryString}`)
-        .then((data) => {
-          return data.json()
-        })
-        .then((data) => {
-          setSuggestedRecipes(data)
-        })
+      const response = await recipeService.suggest(queryString)
+      
+      if (isSuccessResponse(response)) {
+        const data = getDataFromResponse(response)
+        setSuggestedRecipes(data)
+      }
     } else {
       setSuggestedRecipes([])
     }
