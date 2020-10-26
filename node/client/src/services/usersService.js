@@ -1,7 +1,7 @@
 import { backendApi } from '../config/constants'
 import apiFetch from '../global/apiFetch'
 
-const { base } = backendApi
+const { version } = backendApi
 const path = '/users'
 
 const UsersService = {
@@ -11,7 +11,7 @@ const UsersService = {
       credentials: 'include'
     }
 
-    return await apiFetch.post(`${base}${path}/login`, options)
+    return await apiFetch.post(`${version}${path}/login`, options)
   },
 
   register: async ({ email, password, confirm_password }) => {
@@ -20,7 +20,7 @@ const UsersService = {
       credentials: 'include'
     }
 
-    return await apiFetch.post(`${base}${path}/register`, options)
+    return await apiFetch.post(`${version}${path}/register`, options)
   },
 
   refresh: async () => {
@@ -28,7 +28,7 @@ const UsersService = {
       credentials: 'include'
     }
 
-    return await apiFetch.post(`${base}${path}/refresh`, options)
+    return await apiFetch.post(`${version}${path}/refresh`, options)
   },
 
   logout: async () => {
@@ -36,7 +36,7 @@ const UsersService = {
       credentials: 'include'
     }
 
-    return await apiFetch.post(`${base}${path}/logout`, options)
+    return await apiFetch.post(`${version}${path}/logout`, options)
   }
 }
 

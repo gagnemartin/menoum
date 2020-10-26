@@ -9,17 +9,19 @@ services:
       context: ./api
       dockerfile: ./docker/Dockerfile.dev
     env_file:
-      - ./dev.env
+      - ./.env
     volumes:
       - ./api:/usr/src/app/
       - /usr/src/app/node_modules
     ports:
-      - 4000:4000
-    networks:
-      - api
+      - ${API_PORT}:${API_PORT}
+    expose:
+      - ${API_PORT}
     depends_on:
       - database
       - elastic
+    networks:
+      - app
 
   client:
     container_name: client
@@ -29,12 +31,16 @@ services:
       context: ./client
       dockerfile: ./docker/Dockerfile.dev
     env_file:
-      - ./dev.env
+      - ./.env
     volumes:
       - ./client:/usr/src/app/
       - /usr/src/app/node_modules
     ports:
-      - 3000:3000
+      - ${PORT}:${PORT}
+    expose:
+      - ${PORT}
+    networks:
+      - app
 
   database:
     container_name: database
@@ -43,13 +49,13 @@ services:
       dockerfile: Dockerfile.postgres.dev
     restart: on-failure
     env_file:
-      - ./dev.env
+      - ./.env
     volumes:
       - database-data:/var/lib/postgresql/data/
-    networks:
-      - api
     depends_on:
       - elastic
+    networks:
+      - app
 
   adminer:
     image: adminer
@@ -58,7 +64,7 @@ services:
     ports:
       - 8080:8080
     networks:
-      - api
+      - app
 
   elastic:
     image: elasticsearch:7.8.0
@@ -76,9 +82,9 @@ services:
     volumes:
       - elastic-data:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
+      - ${ELASTIC_PORT}:${ELASTIC_PORT}
     networks:
-      - api
+      - app
 
   kibana:
     image: kibana:7.8.0
@@ -86,10 +92,10 @@ services:
     ports:
       - 5601:5601
     environment:
-      ELASTICSEARCH_URL: http://elastic:9200
-      ELASTICSEARCH_HOSTS: http://elastic:9200
+      ELASTICSEARCH_URL: http://elastic:${ELASTIC_PORT}
+      ELASTICSEARCH_HOSTS: http://elastic:${ELASTIC_PORT}
     networks:
-      - api
+      - app
 
 volumes:
   database-data:
@@ -99,5 +105,6 @@ volumes:
     driver: local
 
 networks:
-  api:
-    name: api
+  app:
+    name: app
+    driver: bridge

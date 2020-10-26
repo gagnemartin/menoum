@@ -31,9 +31,11 @@ const Navigation = () => {
           </>
         ) : (
           <>
-            <li>
-              <Link to='/recipe/new'>Add a Recipe</Link>
-            </li>
+            {userState.user.role === 'admin' && (
+              <li>
+                <Link to='/recipe/new'>Add a Recipe</Link>
+              </li>
+            )}
             <li>
               <p>{userState.user.email}</p>
             </li>

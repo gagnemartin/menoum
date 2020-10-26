@@ -18,7 +18,7 @@ This application uses these technologies:
 
 #### Environment variables
 
-Clone the file `.env.skeleton` to `dev.env` and fill the database information that you want.
+Clone the file `.env.skeleton` to `.env` and fill the database information that you want.
 
 #### Starting the server with Docker
 

@@ -1,5 +1,7 @@
 const backendApi = {
-  base: 'http://localhost:4000/api/v1'
+  base: 'http://localhost',
+  port: process.env.API_PORT,
+  version: '/api/v1'
 }
 
 export { backendApi }

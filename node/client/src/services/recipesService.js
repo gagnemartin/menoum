@@ -2,7 +2,7 @@ import { useUserState } from '../context/userContext'
 import { backendApi } from '../config/constants'
 import apiFetch from '../global/apiFetch'
 
-const { base } = backendApi
+const { version } = backendApi
 const path = '/recipes'
 
 const useRecipesService = () => {
@@ -28,11 +28,11 @@ const useRecipesService = () => {
       }
     }
 
-    return await apiFetch.post(`${base}${path}/new`, options)
+    return await apiFetch.post(`${version}${path}/new`, options)
   }
 
   const suggest = async (q) => {
-    return await apiFetch.get(`${base}${path}/suggest?${q}`)
+    return await apiFetch.get(`${version}${path}/suggest?${q}`)
   }
 
   return { add, suggest }

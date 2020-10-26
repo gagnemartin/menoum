@@ -13,11 +13,11 @@ const isAuthorized = (roles) => {
 
     if (user) {
       if (roles instanceof Array) {
-        if (!roles.includes(user.role)) {
+        if (!roles.includes(user.role) && user.role !== 'admin') {
           return next(new AppError(403))
         }
       } else {
-        if (roles !== user.role) {
+        if (roles !== user.role && user.role !== 'admin') {
           return next(new AppError(403))
         }
       }

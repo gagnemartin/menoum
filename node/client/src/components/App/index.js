@@ -13,7 +13,7 @@ const App = () => {
           <Navigation />
 
           <Switch>
-            <ProtectedRoute exact={true} path='/recipe/new'>
+            <ProtectedRoute role='admin' exact={true} path='/recipe/new'>
               <NewRecipe />
             </ProtectedRoute>
 
