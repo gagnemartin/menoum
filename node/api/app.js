@@ -6,22 +6,22 @@ import cors from 'cors'
 
 import indexRouter from './routes/index.js'
 import errorHandler from './middlewares/errorHandler.js'
-import AppError from './helpers/AppError.js'
 
 const __dirname = path.resolve()
 
 const app = express()
+
 
 app.use(cors({ origin: true, credentials: true }))
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'build')))
 
 app.use('/api/v1', indexRouter)
-app.all('*', (req, res, next) => {
-  next(new AppError(404))
+app.all('/*', (req, res, next) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
 })
 app.use(errorHandler)
 
