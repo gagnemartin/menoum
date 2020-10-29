@@ -23,7 +23,7 @@ async function up() {
     body: {
       properties: {
         name: {
-          type: 'completion',
+          type: 'search_as_you_type',
           analyzer: 'standard',
           search_analyzer: 'standard'
         }

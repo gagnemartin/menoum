@@ -14,10 +14,11 @@ async function up(knex) {
       table.string('last_name')
       table.string('password').notNullable()
       table
-        .enu('role', ['user', 'moderator', 'content_manager', 'admin'], {
-          useNative: true,
-          enumName: 'role'
-        })
+        .enu('role', ['user', 'moderator', 'content_manager', 'admin'])
+        // .enu('role', ['user', 'moderator', 'content_manager', 'admin'], {
+        //   useNative: true,
+        //   enumName: 'role'
+        // })
         .defaultTo('user')
       table.string('refresh_token').unique()
       table.boolean('is_active').defaultTo(true)
@@ -36,7 +37,16 @@ async function up(knex) {
 }
 
 async function down(knex) {
-  return knex.schema.dropTable('users')
+  
+  return knex.schema
+    .table('users', function (table) {
+      table.dropIndex('uuid')
+      table.dropUnique('uuid')
+      table.dropUnique('email')
+      table.dropUnique('refresh_token')
+      // knex.raw('DROP TYPE "role"')
+    })
+    .dropTable('users')
 }
 
 module.exports = { up, down }

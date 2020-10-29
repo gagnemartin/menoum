@@ -46,28 +46,20 @@ class Ingredient extends Model {
       .search({
         index: this.table,
         body: {
-          suggest: {
-            nameSuggester: {
-              prefix: query,
-              completion: {
-                field: 'name',
-                size: 90,
-                fuzzy: {
-                  fuzziness: 'auto'
-                }
-              }
+          query: {
+            multi_match: {
+              query,
+              type: 'bool_prefix',
+              fields: ['name', 'name._2gram', 'name._3gram'],
+              fuzziness: 'auto'
             }
           }
         }
       })
       .then((data) => {
-        const suggestions = data.body.suggest.nameSuggester
+        const suggestions = data.body.hits.hits
         return suggestions.flatMap((doc) => {
-          const options = doc.options
-
-          return options.flatMap((sugg) => [
-            { name: sugg.text, uuid: sugg._source.uuid, score: sugg._score }
-          ])
+          return { name: doc._source.name, uuid: doc._source.uuid, score: doc._score }
         })
       })
       .catch((e) => {

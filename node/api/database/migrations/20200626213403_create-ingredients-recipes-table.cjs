@@ -33,7 +33,15 @@ async function up(knex) {
 }
 
 async function down(knex) {
-  return knex.schema.dropTable('ingredients_recipes')
+  return knex.schema
+    .table('ingredients_recipes', function (table) {
+      table.dropForeign('ingredient_id')
+      table.dropForeign('recipe_id')
+      table.dropIndex('ingredient_id')
+      table.dropIndex('recipe_id')
+      table.dropUnique(['ingredient_id', 'recipe_id'])
+    })
+    .dropTable('ingredients_recipes')
 }
 
 module.exports = { up, down }

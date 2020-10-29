@@ -16,7 +16,13 @@ function up(knex) {
 }
 
 function down(knex) {
-  return knex.schema.dropTable('ingredients')
+  return knex.schema
+    .table('ingredients', function (table) {
+      table.dropUnique('uuid')
+      table.dropIndex('uuid')
+      table.dropIndex('name')
+    })
+    .dropTable('ingredients')
 }
 
 module.exports = { up, down }
