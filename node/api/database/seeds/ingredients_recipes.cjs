@@ -1,10 +1,11 @@
 const faker = require('faker')
 const { Client } = require('@elastic/elasticsearch')
+const { ingredients: ingredientsMock } = require('../../mocks/ingredients.json')
 
 const ElasticClient = new Client({ node: 'http://elastic:9200' })
 
-const NUM_RECIPES = 30
-const NUM_INGREDIENTS = 300
+const NUM_RECIPES = 300
+const NUM_INGREDIENTS = ingredientsMock.length
 
 faker.locale = 'fr'
 
@@ -84,34 +85,13 @@ const createSteps = (numSteps) => {
   return steps
 }
 
-const createIngredients = (numEntries) => {
-  const ingredients = []
-
-  for (let i = 0; i < numEntries; i++) {
-    const ingredient = {
-      name: randomWord(2, 40)
-    }
-
-    while (
-      ingredients.some(
-        (ingredientArr) => ingredientArr.name === ingredient.name
-      )
-    ) {
-      ingredient.name = randomWord(2, 40)
-    }
-
-    ingredients.push(ingredient)
-  }
-
-  return ingredients
-}
-
 async function seed(knex) {
   const Recipes = knex('recipes')
   const Ingredients = knex('ingredients')
   const IngredientsRecipes = knex('ingredients_recipes')
   const insertRecipes = createRecipes(NUM_RECIPES)
-  const insertIngredients = createIngredients(NUM_INGREDIENTS)
+  const insertIngredients = ingredientsMock
+  //const insertIngredients = createIngredients(NUM_INGREDIENTS)
 
   // Empty the tables
   await Ingredients.del()
@@ -123,16 +103,6 @@ async function seed(knex) {
     timeout: '120s'
   })
 
-  // Empty ElasticSearch
-  // const ingredientsIndex = await ElasticClient.indices.exists({
-  //   index: 'ingredients'
-  // })
-
-  // const recipesIndex = await ElasticClient.indices.exists({
-  //   index: 'recipes'
-  // })
-
-  // if (ingredientsIndex.body) {
   await ElasticClient.deleteByQuery({
     index: 'ingredients',
     conflicts: 'proceed',
@@ -143,12 +113,6 @@ async function seed(knex) {
     }
   })
 
-  // await ElasticClient.indices.delete({
-  //   index: 'ingredients'
-  // })
-  // }
-
-  // if (recipesIndex.body) {
   await ElasticClient.deleteByQuery({
     index: 'recipes',
     conflicts: 'proceed',
@@ -159,10 +123,6 @@ async function seed(knex) {
     }
   })
 
-  // await ElasticClient.indices.delete({
-  //   index: 'recipes'
-  // })
-  // }
 
   // Insert Ingredients and Recipes
   const [ingredients, recipes] = await Promise.all([
@@ -174,23 +134,6 @@ async function seed(knex) {
     { index: { _index: 'ingredients' } },
     doc
   ])
-
-  // await ElasticClient.indices.create({
-  //   index: 'ingredients'
-  // })
-
-  // await ElasticClient.indices.putMapping({
-  //   index: 'ingredients',
-  //   body: {
-  //     properties: {
-  //       name: {
-  //         type: 'completion',
-  //         analyzer: 'simple',
-  //         search_analyzer: 'simple'
-  //       }
-  //     }
-  //   }
-  // })
 
   await ElasticClient.bulk({ refresh: true, body: elasticIngredients })
   const elasticDataIngredients = await ElasticClient.search({
