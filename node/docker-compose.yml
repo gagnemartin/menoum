@@ -70,9 +70,10 @@ services:
     image: elasticsearch:7.8.0
     container_name: elastic
     environment:
-      - node.name=es01
+      - node.name=elastic
       - cluster.name=es-docker-cluster
-      - cluster.initial_master_nodes=es01
+      - discovery.seed_hosts=elastic02
+      - cluster.initial_master_nodes=elastic,elastic02
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
@@ -83,6 +84,25 @@ services:
       - elastic-data:/usr/share/elasticsearch/data
     ports:
       - ${ELASTIC_PORT}:${ELASTIC_PORT}
+    networks:
+      - app
+    
+  elastic02:
+    image: elasticsearch:7.8.0
+    container_name: elastic02
+    environment:
+      - node.name=elastic02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elastic
+      - cluster.initial_master_nodes=elastic,elastic02
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic-data02:/usr/share/elasticsearch/data
     networks:
       - app
 
@@ -102,6 +122,9 @@ volumes:
     name: postgres-data
   elastic-data:
     name: elastic-data
+    driver: local
+  elastic-data02:
+    name: elastic-data02
     driver: local
 
 networks:

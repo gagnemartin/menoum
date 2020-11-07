@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -29,9 +29,11 @@ health="$(echo "$health" | sed -r 's/^[[:space:]]+|[[:space:]]+$//g')" # trim wh
 until [ "$health" = 'green' ]; do
     health="$(curl -fsSL "$host/_cat/health?h=status")"
     health="$(echo "$health" | sed -r 's/^[[:space:]]+|[[:space:]]+$//g')" # trim whitespace (otherwise we'll have "green ")
-    >&2 echo "Elastic Search is unavailable - sleeping"
+    >&2 echo "Elastic Search is not ready - sleeping"
     sleep 1
 done
 
 >&2 echo "Elastic Search is up"
-exec "${cmd} && npm run start:dev"
+
+npm run migrate:latest &
+exec $cmd

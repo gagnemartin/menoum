@@ -10,6 +10,8 @@ async function up(knex) {
 
       table.string('unit', 20).defaultTo(null)
       table.integer('amount').defaultTo(null).unsigned()
+      table.string('section', 50).defaultTo(null)
+      table.boolean('is_main').defaultTo(false)
 
       table
         .datetime('created_at', { precision: 6 })
@@ -25,7 +27,7 @@ async function up(knex) {
         .references('ingredients.id')
         .onDelete('CASCADE')
       table.foreign('recipe_id').references('recipes.id').onDelete('CASCADE')
-      table.unique(['ingredient_id', 'recipe_id'])
+      table.unique(['ingredient_id', 'recipe_id', 'section'])
       table.index('ingredient_id')
       table.index('recipe_id')
     })
@@ -39,7 +41,7 @@ async function down(knex) {
       table.dropForeign('recipe_id')
       table.dropIndex('ingredient_id')
       table.dropIndex('recipe_id')
-      table.dropUnique(['ingredient_id', 'recipe_id'])
+      table.dropUnique(['ingredient_id', 'recipe_id', 'section'])
     })
     .dropTable('ingredients_recipes')
 }

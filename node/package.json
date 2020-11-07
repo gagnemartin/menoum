@@ -6,10 +6,12 @@
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "docker-compose exec client npm run test",
     "start": "docker-compose up",
-    "init": "docker-compose down -v && docker-compose up -d && npm run migrations && docker-compose stop",
-    "migrations": "cd api && npm run migrate:latest && npm run seed:run"
+    "init": "docker-compose down -v && docker-compose up --build",
+    "migrations": "docker-compose exec api npm run migrate:latest",
+    "rollback": "docker-compose exec api npm run migrate:rollback",
+    "seeds": "docker-compose exec api npm run seed:run"
   },
   "repository": {
     "type": "git",
