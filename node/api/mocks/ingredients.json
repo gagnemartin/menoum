@@ -1,4 +1,5 @@
 {
+  "sections": ["Sauce", "Pasta", "Bread", "Starter", "Salad", "Appetizers"],
   "ingredients": [
     { "id": 1, "name": "acidulated water", "recipe_count": 0 },
     { "id": 2, "name": "ackee", "recipe_count": 0 },

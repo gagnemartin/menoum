@@ -341,18 +341,20 @@ class Model {
     }
 
     const formattedData = { ...data }
-
+    
     if (this.relationships) {
       const tables = Object.keys(this.relationships)
-
+      
       tables.map((table) => {
         const relationship = this.getRelationship(table)
         const { pivot_table, foreign_key, primary_key, association_key, association_primary_key } = relationship
 
+        // Create the associated table key if it doesn't exist
         if (!formattedData[table] || !formattedData[table][0]) {
           formattedData[table] = []
         }
 
+        // Create the pivot table key if it doesn't exist
         if (!formattedData[pivot_table] || !formattedData[pivot_table][0]) {
           formattedData[pivot_table] = []
         }
@@ -360,16 +362,15 @@ class Model {
         if (formattedData[table].length > 0 && formattedData[pivot_table].length > 0) {
           const dataMerged = []
 
-          formattedData[table].map((assocData) => {
-            const pivotObject = formattedData[pivot_table].find(
-              (pivotData) =>
-                pivotData[foreign_key] === formattedData[primary_key] && pivotData[association_key] === assocData[association_primary_key]
+          formattedData[pivot_table].map((pivotData) => {
+            const assocObject = formattedData[table].find(
+              (assocData) => pivotData[foreign_key] === formattedData[primary_key] && assocData[primary_key] === pivotData[association_key]
             )
 
-            if (pivotObject) {
+            if (assocObject) {
               dataMerged.push({
-                ...pivotObject,
-                [Pluralize.singular(table)]: assocData
+                ...assocObject,
+                [pivot_table]: pivotData
               })
             }
           })

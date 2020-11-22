@@ -74,10 +74,10 @@ class RecipeController extends Controller {
     const formData = Recipe.transformData(req.body)
     const ingredientsInsert = formData.ingredients
     const elasticIngredients = Recipe.formatElasticIngredients(ingredientsInsert)
-    delete formData.ingredients
     const [isValid, errors] = await Recipe.validate(formData)
 
     if (isValid) {
+      delete formData.ingredients
       const newData = await Recipe.insert(formData, ['id', 'uuid', 'name', 'steps', 'created_at', 'ingredient_count'], elasticIngredients)
 
       await Recipe.syncIngredients(newData.id, ingredientsInsert)
@@ -94,7 +94,7 @@ class RecipeController extends Controller {
         .ingredients()
         .first()
 
-      return res.status(201).json(User.success(data))
+      return res.status(201).json(Recipe.success(data))
     }
 
     next(Recipe.error(400, errors))
@@ -104,11 +104,11 @@ class RecipeController extends Controller {
     const formData = Recipe.transformData(req.body)
     const ingredientsInsert = formData.ingredients
     const elasticIngredients = Recipe.formatElasticIngredients(ingredientsInsert)
-    delete formData.ingredients
     const { uuid } = req.params
     const [isValid, errors] = await Recipe.validate(formData)
 
     if (isValid) {
+      delete formData.ingredients
       const updateData = await Recipe.updateByUuid(uuid, formData, ['id', 'uuid'], elasticIngredients)
 
       await Recipe.syncIngredients(updateData.id, ingredientsInsert)
@@ -125,7 +125,7 @@ class RecipeController extends Controller {
         .ingredients()
         .first()
 
-      return res.status(200).json(Recipe.sucess(data))
+      return res.status(200).json(Recipe.success(data))
     }
   
     next(Recipe.error(400, errors))

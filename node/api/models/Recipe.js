@@ -88,18 +88,18 @@ class Recipe extends Model {
         ]
       },
       yields: {
-        required: [true, 'Please provide a name.'],
+        required: [true, 'Please provide a number if yields.'],
         type: ['number', 'The yields must be an integer']
       },
       servings: {
-        required: [true, 'Please provide a name.'],
+        required: [true, 'Please provide a number of servings.'],
         type: ['number', 'The yields must be an integer']
       },
       steps: {
         type: ['array', 'The steps must be of type Array.']
       },
       ingredients: {
-        required: [true, 'Please provide a name.'],
+        required: [true, 'Please provide a list of ingredients.'],
         type: ['array', 'The steps must be of type Array.']
       }
     })
@@ -176,41 +176,41 @@ class Recipe extends Model {
       const toDelete = []
 
       ingredients.map((ingredient) => {
-        const { uuid, unit, amount } = ingredient
-        const ingredientData = ingredientsData.find(
-          (ingredientObj) => ingredientObj.uuid === uuid
-        )
+        const { ingredient_recipe_id, uuid, unit, amount, section, is_main } = ingredient
+        const ingredientData = ingredientsData.find((ingredientObj) => ingredientObj.uuid === uuid)
 
         // Ingredient is valid
         if (ingredientData) {
-          const ingredientRecipeInDb = ingredientsRecipesData.find(
-            (ingredientRecipe) =>
-              ingredientRecipe.ingredient_id === ingredientData.id &&
-              ingredientRecipe.recipe_id === recipe_id
+          const ingredientsRecipesInDb = ingredientsRecipesData.find((ingredientRecipe) =>
+            ingredientRecipe.id === ingredient_recipe_id &&
+            ingredientRecipe.recipe_id === recipe_id &&
+            ingredientRecipe.ingredient_id === ingredientData.id
           )
           const newData = {
             recipe_id,
             ingredient_id: ingredientData.id,
             unit,
-            amount
+            amount,
+            section: section || null,
+            is_main: is_main || false
           }
 
           // Update data in pivot table
-          if (ingredientRecipeInDb) {
-            toUpdate.push({ ...newData, id: ingredientRecipeInDb.id })
+          if (ingredientsRecipesInDb) {
+              toUpdate.push({ ...newData, id: ingredientsRecipesInDb.id })
           } else {
             // New entry in pivot table
-            toInsert.push(newData)
+            if (!ingredient_recipe_id) {
+              toInsert.push(newData)
+            }
           }
         }
       })
 
       ingredientsRecipesData.map((ingredientRecipe) => {
-        const ingredientInForm = ingredientsData.find(
-          (ingredientObj) => ingredientObj.id === ingredientRecipe.ingredient_id
-        )
+        const ingredientIsInForm = ingredients.some((ingredientRecipeObj) => ingredientRecipeObj.ingredient_recipe_id === ingredientRecipe.id)
 
-        if (!ingredientInForm) {
+        if (!ingredientIsInForm) {
           toDelete.push(ingredientRecipe.id)
         }
       })
@@ -228,6 +228,8 @@ class Recipe extends Model {
       if (toDelete.length > 0) {
         queries.push(IngredientRecipe.delete(toDelete))
       }
+
+      
 
       return Promise.all(queries)
     } catch (e) {
