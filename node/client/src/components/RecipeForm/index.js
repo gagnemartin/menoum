@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { useIngredientsService, useRecipesService } from '../../services'
+import PropTypes from 'prop-types'
+import { useIngredientsService } from '../../services'
 import { generateId, getDataFromResponse, isSuccessResponse } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
 
-const RecipeForm = () => {
-  const recipesService = useRecipesService()
+const RecipeForm = (props) => {
+  const { submitRecipe, recipe } = props
   const ingredientsService = useIngredientsService()
   const [ingredientValue, setIngredientValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
@@ -70,17 +71,23 @@ const RecipeForm = () => {
       steps: Object.keys(steps).map((key) => steps[key]),
       ingredients: Object.keys(selectedIngredients).map((key) => {
         const ingredient = selectedIngredients[key]
-        const { uuid, unit, amount } = ingredient
-
-        return {
+        const { ingredient_recipe_id, uuid, unit, amount, section } = ingredient
+        const data = {
           uuid,
           unit,
-          amount
+          amount,
+          section
         }
+
+        if (ingredient_recipe_id) {
+          data.ingredient_recipe_id = ingredient_recipe_id
+        }
+
+        return data
       })
     }
 
-    const response = await recipesService.add(data)
+    const response = await submitRecipe(data)
     console.log(response)
   }
 
@@ -101,7 +108,9 @@ const RecipeForm = () => {
       uuid: ingredient.uuid,
       name: ingredient.name,
       unit: '',
-      amount: 0
+      amount: 0,
+      section: '',
+      is_main: false
     }
 
     if (ingredient) {
@@ -131,6 +140,10 @@ const RecipeForm = () => {
     }
   }
 
+  const replaceNullWith = (value, replaceValue) => {
+    return value === null ? replaceValue : value
+  }
+
   /**
    * Call the API to fetch the suggested ingredients
    */
@@ -144,7 +157,7 @@ const RecipeForm = () => {
           const filtered = data.filter((ingredient) => {
             return !Object.keys(selectedIngredients).some((key) => selectedIngredients[key].uuid === ingredient.uuid)
           })
-  
+
           setSuggestedIngredients(filtered)
         }
       } else {
@@ -154,6 +167,41 @@ const RecipeForm = () => {
 
     fetchIngredients()
   }, [ingredientValue])
+
+  useEffect(() => {
+    if (recipe.uuid) {
+      const { name, thumbnail, prep_time, cook_time, yields, servings, steps: stepsDB, ingredients } = recipe
+
+      setForm({
+        name,
+        thumbnail: replaceNullWith(thumbnail, ''),
+        prep_time: replaceNullWith(prep_time, 0),
+        cook_time: replaceNullWith(cook_time, 0),
+        yields: replaceNullWith(yields, 0),
+        servings: replaceNullWith(servings, 0)
+      })
+
+      const ingredientsPrefill = ingredients.map((ingredient) => {
+        return {
+          ingredient_recipe_id: ingredient.ingredients_recipes.id,
+          uuid: ingredient.uuid,
+          name: ingredient.name,
+          amount: replaceNullWith(ingredient.ingredients_recipes.amount, 0),
+          unit: replaceNullWith(ingredient.ingredients_recipes.unit, ''),
+          section: replaceNullWith(ingredient.ingredients_recipes.section, '')
+        }
+      })
+
+      setSelectedIngredients(ingredientsPrefill)
+
+      const stepsPrefill = {}
+      stepsDB.forEach((step) => {
+          stepsPrefill[generateId()] = step
+      })
+
+      setSteps(stepsPrefill)
+    }
+  }, [])
 
   return (
     <form action='#' onSubmit={handleSubmit}>
@@ -172,8 +220,8 @@ const RecipeForm = () => {
         </label>
       </div>
 
-      <div>
-        <p>Ingredients</p>
+      <fieldset>
+        <legend>Ingredients</legend>
         <Autocomplete
           canAddNew={true}
           items={suggestedIngredients}
@@ -183,11 +231,20 @@ const RecipeForm = () => {
           onSelect={onSelectIngredient}
         />
         {Object.keys(selectedIngredients).map((key) => (
-          <div key={key}>
-            <p>{selectedIngredients[key].name}</p>
+          <fieldset key={key}>
+            <legend>{selectedIngredients[key].name}</legend>
             <input
               onChange={handleChangeIngredientData}
               data-key={key}
+              placeholder='Amount'
+              type='number'
+              name='amount'
+              value={selectedIngredients[key].amount}
+            />
+            <input
+              onChange={handleChangeIngredientData}
+              data-key={key}
+              placeholder='Unit'
               type='text'
               name='unit'
               value={selectedIngredients[key].unit}
@@ -195,13 +252,14 @@ const RecipeForm = () => {
             <input
               onChange={handleChangeIngredientData}
               data-key={key}
-              type='number'
-              name='amount'
-              value={selectedIngredients[key].amount}
+              placeholder='Section'
+              type='text'
+              name='section'
+              value={selectedIngredients[key].section}
             />
-          </div>
+          </fieldset>
         ))}
-      </div>
+      </fieldset>
 
       <div>
         <label htmlFor='thumbnail'>
@@ -274,14 +332,14 @@ const RecipeForm = () => {
         </label>
       </div>
 
-      <div>
-        <p>Steps</p>
+      <fieldset>
+        <legend>Steps</legend>
         {Object.keys(steps).map((key) => (
           <div key={key}>
             <input
               data-key={key}
               onChange={handleStep}
-              value={steps[key].value}
+              value={steps[key]}
               type='text'
               name='steps[]'
               placeholder='Step'
@@ -292,13 +350,22 @@ const RecipeForm = () => {
         <div>
           <button onClick={onClickAddStep}>Add a step</button>
         </div>
-      </div>
+      </fieldset>
 
       <div>
         <button type='submit'>Send</button>
       </div>
     </form>
   )
+}
+
+RecipeForm.propTypes = {
+  recipe: PropTypes.object,
+  submitRecipe: PropTypes.func.isRequired
+}
+
+RecipeForm.defaultProps = {
+  recipe: {}
 }
 
 export default RecipeForm

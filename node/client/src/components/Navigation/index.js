@@ -36,9 +36,7 @@ const Navigation = () => {
                 <Link to='/recipe/new'>Add a Recipe</Link>
               </li>
             )}
-            <li>
-              <p>{userState.user.email}</p>
-            </li>
+            <li>{userState.user.email}</li>
             <li>
               <Logout />
             </li>

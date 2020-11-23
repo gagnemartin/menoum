@@ -134,28 +134,51 @@ class Recipe extends Model {
       transformedData.servings = parseInt(transformedData.servings)
     }
 
+    // DEFAULTS
+
+    if (typeof transformedData.yields === 'undefined') {
+      transformedData.yields = 0
+    }
+
+    if (typeof transformedData.servings === 'undefined') {
+      transformedData.servings = 0
+    }
+
+    if (typeof transformedData.prep_time === 'undefined') {
+      transformedData.prep_time = 0
+    }
+
+    if (typeof transformedData.cook_time === 'undefined') {
+      transformedData.cook_time = 0
+    }
+
     if (transformedData.ingredients instanceof Array) {
       transformedData.ingredients.forEach((ingredient, i) => {
         if (typeof ingredient.unit === 'string') {
-          transformedData.ingredients[i] = {
-            ...ingredient,
-            unit: ingredient.unit.trim()
-          }
+          transformedData.ingredients[i].unit = ingredient.unit.trim()
         }
 
         if (typeof ingredient.amount === 'string') {
-          transformedData.ingredients[i] = {
-            ...ingredient,
-            amount: parseInt(ingredient.amount)
-          }
+          transformedData.ingredients[i].amount = parseInt(ingredient.amount)
+        }
+        if (typeof ingredient.section === 'string') {
+          transformedData.ingredients[i].section = ingredient.section.trim()
+        }
+
+        // DEFAULTS
+        
+        if (typeof ingredient.is_main === 'undefined') {
+          transformedData.ingredients[i].is_main = false
+        }
+
+        if (typeof ingredient.section === 'undefined' || ingredient.section.length === 0) {
+          transformedData.ingredients[i].section = null
         }
       })
     }
 
     if (transformedData.steps instanceof Array) {
-      const steps = transformedData.steps
-        .map((step) => step.trim())
-        .filter((step) => step.length > 0)
+      const steps = transformedData.steps.map((step) => step.trim()).filter((step) => step.length > 0)
 
       transformedData.steps = steps
     }
@@ -191,8 +214,8 @@ class Recipe extends Model {
             ingredient_id: ingredientData.id,
             unit,
             amount,
-            section: section || null,
-            is_main: is_main || false
+            section: section,
+            is_main: is_main
           }
 
           // Update data in pivot table

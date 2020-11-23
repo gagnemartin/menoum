@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { Redirect } from 'react-router-dom'
+import { Redirect, Route } from 'react-router-dom'
 import { useUserState } from '../../context/userContext'
 
 const ProtectedRoute = (props) => {
-  const { children, component, role } = props
+  const { children, component, exact, path, role } = props
   const userData = useUserState()
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -44,17 +44,24 @@ const ProtectedRoute = (props) => {
       return <Component />
     }
 
-    return children
+    return (
+      <Route exact={exact} path={path}>
+        {children}
+      </Route>
+    )
   } else {
     return <Redirect to={{ pathname: '/login' }} />
   }
 }
 
 ProtectedRoute.propTypes = {
+  exact: PropTypes.bool,
+  path: PropTypes.string.isRequired,
   role: PropTypes.string
 }
 
 ProtectedRoute.defaultProps = {
+  exact: false,
   role: 'user'
 }
 

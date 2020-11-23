@@ -23,17 +23,7 @@ class RecipeController extends Controller {
   }
 
   get = async (req, res, next) => {
-    const data = await Recipe.select([
-      'recipes.id',
-      'recipes.uuid',
-      'recipes.name',
-      'recipes.steps',
-      'recipes.created_at',
-      'recipes.updated_at'
-    ])
-      .where('recipes.uuid', req.params.uuid)
-      .ingredients()
-      .first()
+    const data = await Recipe.select(['recipes.*']).where('recipes.uuid', req.params.uuid).ingredients().first()
 
       if (data) {
         return res.status(200).json(Recipe.success(data))
