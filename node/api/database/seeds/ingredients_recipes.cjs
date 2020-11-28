@@ -10,17 +10,25 @@ const NUM_INGREDIENTS = ingredientsMock.length
 
 faker.locale = 'fr'
 
+const randomNumberFromMax = (max) => {
+  return (max * Math.random()) | 0
+}
+
+const randomFromArray = (arr) => {
+  return arr[randomNumberFromMax(arr.length)]
+}
+
 const createRecipes = (numEntries) => {
   const recipes = []
 
   const thumbnailsArrEnd = thumbnails.length - 1
 
   for (let i = 0; i < numEntries; i++) {
-    const ingredient_count = Math.ceil(Math.random() * 10)
+    const ingredient_count = faker.random.number({ min: 0, max: 10 })
     const servings = faker.random.number({ min: 1, max: 5 })
     const recipe = {
       name: faker.lorem.sentence(5),
-      steps: JSON.stringify(createSteps(5)),
+      steps: JSON.stringify(createSteps(faker.random.number({ min: 4, max: 10 }))),
       prep_time: faker.random.number({ min: 0, max: 30 }),
       cook_time: faker.random.number({ min: 0, max: 120 }),
       yields: servings,
@@ -44,16 +52,40 @@ const createRecipes = (numEntries) => {
 }
 
 const createSteps = (numSteps) => {
-  const steps = []
+  const generateSteps = (numSteps) => {
+    const steps = []
+    for (let i = 0; i < numSteps; i++) {
+      let step = faker.lorem.sentence(5)
 
-  for (let i = 0; i < numSteps; i++) {
-    let step = faker.lorem.sentence(5)
+      while (steps.some((stepArr) => stepArr === step)) {
+        step = faker.lorem.sentence(5)
+      }
 
-    while (steps.some((stepArr) => stepArr === step)) {
-      step = faker.lorem.sentence(5)
+      steps.push({
+        type: 'step',
+        value: step
+      })
     }
+    return steps
+  }
 
-    steps.push(step)
+  const steps = []
+  const numSections = randomNumberFromMax(3)
+
+  if (numSections >= 2) {
+    const numStepsDivided = Math.ceil(numSteps / numSections)
+
+    for (let i = 0; i < numSections; i++) {
+      const sectionSteps = generateSteps(numStepsDivided)
+      steps.push({
+        type: 'section',
+        value: randomFromArray(sections),
+        steps: sectionSteps
+      })
+    }
+  } else {
+    const stepsGenerated = generateSteps(numSteps)
+    steps.push(...stepsGenerated)
   }
 
   return steps
@@ -155,13 +187,13 @@ async function seed(knex) {
         })
       }
 
-      let ingredientKey = (ingredientsLength * Math.random()) | 0
+      let ingredientKey = randomNumberFromMax(ingredientsLength)
       const ingredient_id = ingredients[ingredientKey].id
       const ingredientRecipe = {
         recipe_id: recipe.id,
         ingredient_id,
-        unit: units[(units.length * Math.random()) | 0],
-        amount: Math.floor(Math.random() * 10)
+        unit: randomFromArray(units),
+        amount: faker.random.number({ min: 1, max: 10 })
       }
 
       if (i === 0) {
@@ -169,7 +201,7 @@ async function seed(knex) {
       }
 
       if (recipe.ingredient_count > 5) {
-        ingredientRecipe.section = sections[(sections.length * Math.random()) | 0]
+        ingredientRecipe.section = randomFromArray(sections)
       }
 
       // Recipe already has this ingredient associated

@@ -99,7 +99,7 @@ const refresh = async (dispatch) => {
       } else {
         dispatch({ type: ACTION_TYPES.error, error: payload })
       }
-    }, 300000)
+    }, 840000)
   } catch (error) {
     dispatch({ type: ACTION_TYPES.error, error })
   }

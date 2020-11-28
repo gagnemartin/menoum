@@ -81,11 +81,7 @@ class Recipe extends Model {
       name: {
         required: [true, 'Please provide a name.'],
         type: ['string', 'The name must be a string.'],
-        betweenLength: [
-          3,
-          255,
-          'The name should between 3 and 255 characters long.'
-        ]
+        betweenLength: [3, 255, 'The name should between 3 and 255 characters long.']
       },
       yields: {
         required: [true, 'Please provide a number if yields.'],
@@ -96,7 +92,7 @@ class Recipe extends Model {
         type: ['number', 'The yields must be an integer']
       },
       steps: {
-        type: ['array', 'The steps must be of type Array.']
+        type: ['object', 'The steps must be of type Array.']
       },
       ingredients: {
         required: [true, 'Please provide a list of ingredients.'],
