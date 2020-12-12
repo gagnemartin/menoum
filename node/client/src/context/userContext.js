@@ -1,4 +1,4 @@
-import React, { useContext, useReducer } from 'react'
+import { createContext, useEffect, useContext, useReducer } from 'react';
 import jwt from 'jsonwebtoken'
 import { UsersService } from '../services'
 import { isSuccessResponse } from '../global/helpers'
@@ -16,8 +16,8 @@ const DEFAULT_STATE = {
   error: {}
 }
 
-const UserStateContext = React.createContext(DEFAULT_STATE)
-const UserDispatchContext = React.createContext({})
+const UserStateContext = createContext(DEFAULT_STATE)
+const UserDispatchContext = createContext({})
 
 
 const userReducer = (state, action) => {
@@ -165,7 +165,7 @@ const useUser = () => {
 const UserProvider = ({ children }) => {
   const [user, setUser] = useReducer(userReducer, DEFAULT_STATE)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = refresh(setUser)
 
     return () => {

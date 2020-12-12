@@ -1,4 +1,3 @@
-import React from 'react'
 import { useHistory } from 'react-router-dom'
 import { useUserDispatch, logout } from '../../context/userContext'
 

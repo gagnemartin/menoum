@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types'
 import { Redirect, Route } from 'react-router-dom'
 import { useUserState } from '../../context/userContext'

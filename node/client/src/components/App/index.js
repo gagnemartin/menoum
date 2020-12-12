@@ -1,4 +1,3 @@
-import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import { Home, NewRecipe, UpdateRecipe, Login, Register } from '../../pages'
 import { UserProvider } from '../../context/userContext'
