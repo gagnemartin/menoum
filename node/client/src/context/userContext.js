@@ -48,6 +48,7 @@ const userReducer = (state, action) => {
       return {
         ...DEFAULT_STATE,
         status: ACTION_TYPES.success,
+        loading: false,
         user
       }
     }
@@ -55,6 +56,7 @@ const userReducer = (state, action) => {
       return {
         ...DEFAULT_STATE,
         status: ACTION_TYPES.error,
+        loading: false,
         error: action.error
       }
     }

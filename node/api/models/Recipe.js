@@ -92,7 +92,7 @@ class Recipe extends Model {
         type: ['number', 'The yields must be an integer']
       },
       steps: {
-        type: ['object', 'The steps must be of type Array.']
+        type: ['array', 'The steps must be of type Array.']
       },
       ingredients: {
         required: [true, 'Please provide a list of ingredients.'],
@@ -174,9 +174,32 @@ class Recipe extends Model {
     }
 
     if (transformedData.steps instanceof Array) {
-      const steps = transformedData.steps.map((step) => step.trim()).filter((step) => step.length > 0)
+      const transformedSteps = []
 
-      transformedData.steps = steps
+      transformedData.steps.forEach((step) => {
+        const { type, value, steps } = step
+        const formattedStep = {
+          type: type.trim(),
+          value: value.trim()
+        }
+
+        if (type === 'section') {
+          if (steps instanceof Array && steps.length > 0) {
+            formattedStep.steps = steps.map((d) => {
+              return {
+                type: 'step',
+                value: d.value.trim()
+              }
+            })
+          }
+        }
+
+        if (formattedStep.value.length > 0) {
+          transformedSteps.push(formattedStep)
+        }
+      })
+
+      transformedData.steps = transformedSteps
     }
 
     return transformedData

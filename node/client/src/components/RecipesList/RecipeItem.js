@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import ProtectedLink from '../App/ProtectedLink'
 
 const RecipeItem = (props) => {
   const { item } = props
@@ -7,7 +8,12 @@ const RecipeItem = (props) => {
   return (
     <div>
       <img src={item.thumbnail} width='100%' alt={item.name} />
-      <p>{item.name}</p>
+      <div style={{ margin: '10px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+        <p style={{ margin: '0' }}>{item.name}</p>
+        <ProtectedLink role='admin' to={`/recipe/edit/${item.uuid}`}>
+          Edit
+        </ProtectedLink>
+      </div>
     </div>
   )
 }

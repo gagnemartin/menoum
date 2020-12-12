@@ -10,7 +10,7 @@ const RecipeForm = (props) => {
   const [ingredientValue, setIngredientValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
   const [selectedIngredients, setSelectedIngredients] = useState([])
-  const [steps, setSteps] = useState({ [generateId(5)]: '' })
+  const [steps, setSteps] = useState({ [generateId(5)]: { value: '', section: '' } })
   const [form, setForm] = useState({
     name: '',
     thumbnail: '',
@@ -54,13 +54,53 @@ const RecipeForm = (props) => {
   const handleStep = (e) => {
     const {
       dataset: { key },
-      value
+      value,
+      name
     } = e.target
+
+    const type = name === 'steps[]' ? 'value' : 'section'
 
     setSteps((prevSteps) => ({
       ...prevSteps,
-      [key]: value
+      [key]: {
+        ...prevSteps[key],
+        [type]: value
+      }
     }))
+  }
+
+  const formatSteps = (formSteps) => {
+    const formatStep = (value) => {
+      return {
+        type: 'step',
+        value
+      }
+    }
+
+    const formattedSteps = []
+    const arraySteps = Object.keys(formSteps).map((key) => formSteps[key])
+    
+    arraySteps.forEach(step => {
+      const { section, value } = step
+
+      if (section?.trim().length > 0) {
+        const sectionIndex = formattedSteps.findIndex((d) => d.type === 'section' && d.value === section.toLowerCase())
+
+        if (sectionIndex === -1) {
+          formattedSteps.push({
+            type: 'section',
+            value: section.toLowerCase(),
+            steps: [formatStep(value)]
+          })
+        } else {
+          formattedSteps[sectionIndex].steps.push(formatStep(value))
+        }
+      } else {
+        formattedSteps.push(formatStep(value))
+      }
+    })
+
+    return formattedSteps
   }
 
   const handleSubmit = async (e) => {
@@ -68,7 +108,7 @@ const RecipeForm = (props) => {
 
     const data = {
       ...form,
-      steps: Object.keys(steps).map((key) => steps[key]),
+      steps: formatSteps(steps),
       ingredients: Object.keys(selectedIngredients).map((key) => {
         const ingredient = selectedIngredients[key]
         const { ingredient_recipe_id, uuid, unit, amount, section } = ingredient
@@ -88,7 +128,12 @@ const RecipeForm = (props) => {
     }
 
     const response = await submitRecipe(data)
-    console.log(response)
+
+    if (isSuccessResponse(response)) {
+      console.log(response)
+    } else {
+      console.error(response)
+    }
   }
 
   const onChange = (e) => {
@@ -196,7 +241,16 @@ const RecipeForm = (props) => {
 
       const stepsPrefill = {}
       stepsDB.forEach((step) => {
-          stepsPrefill[generateId()] = step
+          if (step.type === 'section') {
+            step.steps.forEach(d => {
+              stepsPrefill[generateId()] = {
+                value: d.value,
+                section: step.value
+              }
+            })
+          } else {
+            stepsPrefill[generateId()] = { value: step.value, section: '' }
+          }
       })
 
       setSteps(stepsPrefill)
@@ -339,11 +393,18 @@ const RecipeForm = (props) => {
             <input
               data-key={key}
               onChange={handleStep}
-              value={steps[key]}
+              value={steps[key].value}
               type='text'
               name='steps[]'
               placeholder='Step'
-              style={{ display: 'block' }}
+            />
+            <input
+              data-key={key}
+              onChange={handleStep}
+              value={steps[key].section}
+              type='text'
+              name='sections[]'
+              placeholder='Section'
             />
           </div>
         ))}
