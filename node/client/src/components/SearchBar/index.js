@@ -1,17 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useLocation, useHistory } from 'react-router-dom'
+import { isEqual } from 'lodash'
 import { useIngredientsService } from '../../services'
 import Autocomplete from './Autocomplete'
 import IngredientsList from './IngredientsList'
-import { isSuccessResponse, getDataFromResponse } from '../../global/helpers'
+import { isSuccessResponse, getDataFromResponse, formatArrayQuery } from '../../global/helpers'
+
+const URL_KEY = 'ingredients[]'
 
 const SearchBar = (props) => {
-  const { onChangeIngredients } = props
+  const { onChangeIngredients, useUrl } = props
 
+  const history = useHistory()
+  const location = useLocation()
   const ingredientsService = useIngredientsService()
   const [searchInputValue, setSearchInputValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
   const [selectedIngredients, setSelectedIngredients] = useState([])
+
+  const getSearchParams = (key) => {
+    const searchParams = new URLSearchParams(location.search)
+    return searchParams.getAll(key)
+  }
 
   /**
    * User writes in the input
@@ -55,12 +66,24 @@ const SearchBar = (props) => {
     }
   }
 
+  const updateSearchParams = (uuids) => {
+    if (useUrl && uuids.length > 0) {
+       history.push({
+        search: `?${formatArrayQuery(URL_KEY, uuids)}`
+      })
+    }
+  }
+
   /**
    * List of selected ingredients changed
    */
   const handleIngredientsChange = () => {
     const uuids = selectedIngredients.map((ingredient) => ingredient.uuid)
     onChangeIngredients(uuids)
+
+    if (!isEqual(uuids, getSearchParams(URL_KEY))) {
+      updateSearchParams(uuids)
+    }
   }
 
   /**
@@ -91,6 +114,72 @@ const SearchBar = (props) => {
 
   useEffect(handleIngredientsChange, [selectedIngredients])
 
+  useEffect(() => {
+    const { action } = history
+    const ingredientsInUrl = getSearchParams(URL_KEY)
+    
+    if (action === 'POP') {
+      const fetchIngredients = async () => {
+
+      if (ingredientsInUrl.length > 0) {
+        const response = await ingredientsService.getByUuids(ingredientsInUrl)
+
+
+        if (isSuccessResponse(response)) {
+          const data = getDataFromResponse(response)
+          const ingredients = []
+
+          // Keep the same order as the URL
+          ingredientsInUrl.forEach(uuid => {
+            const ingredient = data.find(d => d.uuid === uuid)
+
+            if (ingredient) {
+              ingredients.push(ingredient)
+            }
+          })
+
+          setSelectedIngredients(ingredients)
+        }
+      } else {
+        setSelectedIngredients([])
+      }
+    }
+
+      fetchIngredients()
+    } else if (action === 'PUSH' && ingredientsInUrl.length === 0) {
+      setSelectedIngredients([])
+    }
+  }, [location])
+
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      const ingredientsInUrl = getSearchParams(URL_KEY)
+
+      if (ingredientsInUrl.length > 0) {
+        const response = await ingredientsService.getByUuids(ingredientsInUrl)
+
+
+        if (isSuccessResponse(response)) {
+          const data = getDataFromResponse(response)
+          const ingredients = []
+
+          // Keep the same order as the URL
+          ingredientsInUrl.forEach(uuid => {
+            const ingredient = data.find(d => d.uuid === uuid)
+
+            if (ingredient) {
+              ingredients.push(ingredient)
+            }
+          })
+
+          setSelectedIngredients(ingredients)
+        }
+      }
+    }
+    
+    fetchIngredients()
+  }, [])
+
   return (
     <div>
       <Autocomplete
@@ -108,7 +197,12 @@ const SearchBar = (props) => {
 }
 
 SearchBar.propTypes = {
-  onChangeIngredients: PropTypes.func.isRequired
+  onChangeIngredients: PropTypes.func.isRequired,
+  useUrl: PropTypes.bool
+}
+
+SearchBar.defaultProps = {
+  useUrl: false
 }
 
 export default SearchBar

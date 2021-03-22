@@ -4,11 +4,12 @@
  * Module dependencies.
  */
 import debugLib from 'debug'
+import colors from 'colors'
 import http from 'http'
 import app from '../app.js'
 import Database from '../database/database.js'
 
-const debug = debugLib('menoum:server')
+const debug = debugLib('menoum:dev')
 
 /**
  * Get port from environment and store in Express.
@@ -85,6 +86,7 @@ function onListening() {
   const addr = server.address()
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
   debug('Listening on ' + bind)
+  debug(colors.green(`Please visit https://localhost:${process.env.PORT}/`))
 }
 
 Database.test()

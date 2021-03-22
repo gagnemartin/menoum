@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import SearchBar from '../components/SearchBar'
 import RecipesList from '../components/RecipesList'
 import { useRecipesService } from '../services'
-import { getDataFromResponse, isSuccessResponse } from '../global/helpers'
+import { getDataFromResponse, isSuccessResponse, formatArrayQuery } from '../global/helpers'
 
 const Home = () => {
   const recipeService = useRecipesService()
@@ -10,11 +10,7 @@ const Home = () => {
 
   const onChangeIngredients = async uuids => {
     if (uuids.length > 0) {
-      const queryString = uuids
-        .map((uuid) => {
-          return `uuids[]=${uuid}`
-        })
-        .join('&')
+      const queryString = formatArrayQuery('uuids[]', uuids)
 
       const response = await recipeService.suggest(queryString)
       
@@ -29,7 +25,7 @@ const Home = () => {
 
   return (
     <>
-      <SearchBar onChangeIngredients={onChangeIngredients} />
+      <SearchBar useUrl onChangeIngredients={onChangeIngredients} />
       <RecipesList items={suggestedRecipes} />
     </>
   )

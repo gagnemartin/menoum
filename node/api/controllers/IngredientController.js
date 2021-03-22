@@ -7,12 +7,7 @@ class IngredientController extends Controller {
   }
 
   all = async (req, res, next) => {
-    const data = await Ingredient.select([
-      'ingredients.id',
-      'ingredients.name',
-      'ingredients.uuid',
-      'ingredients.recipe_count'
-    ])
+    const data = await Ingredient.select(['ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count'])
       .limit(20)
       .orderBy('ingredients.name', 'desc')
       .recipes()
@@ -22,12 +17,7 @@ class IngredientController extends Controller {
   }
 
   get = async (req, res, next) => {
-    const data = await Ingredient.select([
-      'ingredients.id',
-      'ingredients.name',
-      'ingredients.uuid',
-      'ingredients.recipe_count'
-    ])
+    const data = await Ingredient.select(['ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count'])
       .where('ingredients.uuid', req.params.uuid)
       .recipes()
       .first()
@@ -42,9 +32,7 @@ class IngredientController extends Controller {
   search = async (req, res, next) => {
     const { q: query } = req.query
     const data = await Ingredient.searchByName(query)
-    const sortedData = data.sort((a, b) =>
-      a.score < b.score ? 1 : b.score < a.score ? -1 : 0
-    )
+    const sortedData = data.sort((a, b) => (a.score < b.score ? 1 : b.score < a.score ? -1 : 0))
 
     return res.status(200).json(Ingredient.success(sortedData))
   }
@@ -53,16 +41,9 @@ class IngredientController extends Controller {
     const formData = Ingredient.transformData(req.body)
 
     const [isValid, errors] = await Ingredient.validate(formData)
-    console.log(formData, req.body, errors)
 
     if (isValid) {
-      const data = await Ingredient.insert(formData, [
-        'id',
-        'uuid',
-        'name',
-        'created_at',
-        'recipe_count'
-      ])
+      const data = await Ingredient.insert(formData, ['id', 'uuid', 'name', 'created_at', 'recipe_count'])
 
       delete data.id
 
@@ -79,12 +60,7 @@ class IngredientController extends Controller {
     const [isValid, errors] = await Ingredient.validate(formData)
 
     if (isValid) {
-      const data = await Ingredient.updateByUuid(uuid, formData, [
-        'uuid',
-        'name',
-        'created_at',
-        'recipe_count'
-      ])
+      const data = await Ingredient.updateByUuid(uuid, formData, ['uuid', 'name', 'created_at', 'recipe_count'])
 
       return res.status(200).json(Ingredient.success(data))
     }
@@ -97,6 +73,24 @@ class IngredientController extends Controller {
     await Ingredient.deleteByUuid(uuid)
 
     return res.status(200).json(Ingredient.success())
+  }
+
+  getByUuids = async (req, res, next) => {
+    const {
+      query: { uuids }
+    } = req
+
+    let response = []
+    
+    if (uuids?.length > 0) {
+      const data = await Ingredient.select(['ingredients.id', 'ingredients.name', 'ingredients.uuid', 'ingredients.recipe_count'])
+        .where('uuid', uuids)
+        .all()
+  
+      response = Ingredient.success(data)
+    }
+
+    return res.status(200).json(response)
   }
 }
 

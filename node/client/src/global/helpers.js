@@ -24,3 +24,10 @@ export const isSuccessResponse = (response) => {
 export const getDataFromResponse = (response) => {
   return response.data
 }
+
+export const formatArrayQuery = (key, data) => {
+  return data.map((value) => {
+        return `${key}=${value}`
+      })
+      .join('&')
+}

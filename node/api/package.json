@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node bin/www.js",
-    "start:dev": "nodemon bin/www.js",
+    "start:dev": "DEBUG=menoum:dev nodemon bin/www.js",
     "migrate:make": "npm run knexflags migrate:make",
     "migrate:latest": "npm run knexflags migrate:latest",
     "migrate:rollback": "npm run knexflags migrate:rollback",
@@ -19,6 +19,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.8.0",
     "bcrypt": "^5.0.0",
+    "colors": "^1.4.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",

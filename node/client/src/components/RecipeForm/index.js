@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useIngredientsService } from '../../services'
 import { generateId, getDataFromResponse, isSuccessResponse } from '../../global/helpers'
