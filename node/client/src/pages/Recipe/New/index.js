@@ -1,5 +1,5 @@
-import { useRecipesService } from '../services'
-import RecipeForm from '../components/RecipeForm'
+import { useRecipesService } from '../../../services'
+import RecipeForm from '../../../components/RecipeForm'
 
 const NewRecipe = () => {
   const recipesService = useRecipesService()

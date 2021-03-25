@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { useUserDispatch, login } from '../context/userContext'
+import { useUserDispatch, login } from '../../../context/userContext'
 
 const Login = () => {
   const history = useHistory()
   const location = useLocation()
   const dispatch = useUserDispatch()
-  
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [hasError, setHasError] = useState(false)
@@ -37,7 +37,7 @@ const Login = () => {
     setIsLoading(true)
     const data = { email, password }
     const res = await login(dispatch, data)
-    
+
     if (res.status === 'success') {
       const { from } = location.state || { from: { pathname: '/' } }
       setIsLoading(false)
@@ -50,12 +50,12 @@ const Login = () => {
 
   return (
     <form onSubmit={handleSubmit} action='#'>
-      { hasError &&
-      <p>{errorMessage}</p>
-      }
+      {hasError && <p>{errorMessage}</p>}
       <input onChange={handleChange} name='email' type='email' value={email} />
       <input onChange={handleChange} name='password' type='password' value={password} />
-      <button type='submit' disabled={isLoading}>Login</button>
+      <button type='submit' disabled={isLoading}>
+        Login
+      </button>
     </form>
   )
 }

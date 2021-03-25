@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useRecipesService } from '../services'
-import RecipeForm from '../components/RecipeForm'
+import { useRecipesService } from '../../../services'
+import RecipeForm from '../../../components/RecipeForm'
 
 const UpdateRecipe = () => {
   const { uuid } = useParams()
