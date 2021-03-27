@@ -13,7 +13,7 @@ const Logout = () => {
   }
 
   return (
-    <a onClick={handleClick} href='#'>
+    <a onClick={handleClick} href='#' data-testid='nav-logout'>
       Logout
     </a>
   )

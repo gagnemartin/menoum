@@ -17,26 +17,34 @@ const Navigation = () => {
     <nav>
       <ul>
         <li>
-          <Link to='/'>Home</Link>
+          <Link to='/' data-testid='nav-home'>
+            Home
+          </Link>
         </li>
 
         {!isLoading && Object.keys(userState.user).length === 0 ? (
           <>
             <li>
-              <Link to='/login'>Login</Link>
+              <Link to='/login' data-testid='nav-login'>
+                Login
+              </Link>
             </li>
             <li>
-              <Link to='/register'>Register</Link>
+              <Link to='/register' data-testid='nav-register'>
+                Register
+              </Link>
             </li>
           </>
         ) : (
           <>
             {userState.user.role === 'admin' && (
               <li>
-                <Link to='/recipe/new'>Add a Recipe</Link>
+                <Link to='/recipe/new' data-testid='nav-new-recipe'>
+                  Add a Recipe
+                </Link>
               </li>
             )}
-            <li>{userState.user.email}</li>
+            <li data-testid='nav-email'>{userState.user.email}</li>
             <li>
               <Logout />
             </li>

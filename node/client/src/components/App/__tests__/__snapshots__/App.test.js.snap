@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<App /> should render and match snapshot 1`] = `
+<DocumentFragment>
+  <div>
+    <nav>
+      <ul>
+        <li>
+          <a
+            data-testid="nav-home"
+            href="/"
+          >
+            Home
+          </a>
+        </li>
+        <li
+          data-testid="nav-email"
+        />
+        <li>
+          <a
+            data-testid="nav-logout"
+            href="#"
+          >
+            Logout
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div>
+      <input
+        type="text"
+        value=""
+      />
+      <div
+        style="position: relative;"
+      >
+        <div
+          style="position: absolute; top: 0px; left: 0px; padding: 10px; background: rgb(255, 255, 255); display: none;"
+        />
+      </div>
+      <div
+        style="margin: 10px;"
+      />
+    </div>
+    <div
+      style="display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 20px;"
+    />
+  </div>
+</DocumentFragment>
+`;

@@ -1,24 +1,23 @@
-import { createContext, useEffect, useContext, useReducer } from 'react';
+import { createContext, useEffect, useContext, useReducer } from 'react'
 import jwt from 'jsonwebtoken'
 import { UsersService } from '../services'
 import { isSuccessResponse } from '../global/helpers'
 
-const ACTION_TYPES = {
+export const ACTION_TYPES = {
   request: 'REQUEST',
   success: 'SUCCESS',
   error: 'ERROR'
 }
 
-const DEFAULT_STATE = {
+export const DEFAULT_STATE = {
   status: ACTION_TYPES.request,
   user: {},
   loading: true,
   error: {}
 }
 
-const UserStateContext = createContext(DEFAULT_STATE)
-const UserDispatchContext = createContext({})
-
+export const UserStateContext = createContext(DEFAULT_STATE)
+export const UserDispatchContext = createContext({})
 
 const userReducer = (state, action) => {
   switch (action.type) {
@@ -180,4 +179,4 @@ const UserProvider = ({ children }) => {
   )
 }
 
-export { UserProvider, useUserState, useUserDispatch, useUser, login, logout, register }
+export { UserProvider, useUserState, useUserDispatch, userReducer, useUser, login, logout, register }
