@@ -1,4 +1,4 @@
-import { useUserState } from '../context/userContext'
+import { useUserState } from '../hooks/useUser'
 import { backendApi } from '../config/constants'
 import apiFetch from '../global/apiFetch'
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { useUserDispatch, login } from '../../../context/userContext'
+import { login } from '../../../context/userContext'
+import { useUserDispatch } from '../../../hooks/useUser'
 
 const Login = () => {
   const history = useHistory()

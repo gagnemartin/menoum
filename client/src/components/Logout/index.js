@@ -1,5 +1,6 @@
 import { useHistory } from 'react-router-dom'
-import { useUserDispatch, logout } from '../../context/userContext'
+import { logout } from '../../context/userContext'
+import { useUserDispatch } from '../../hooks/useUser'
 
 const Logout = () => {
   const history = useHistory()

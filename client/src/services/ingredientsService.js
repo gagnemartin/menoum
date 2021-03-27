@@ -1,4 +1,4 @@
-import { useUserState } from '../context/userContext'
+import { useUserState } from '../hooks/useUser'
 import { backendApi } from '../config/constants'
 import apiFetch from '../global/apiFetch'
 
@@ -7,7 +7,7 @@ const path = '/ingredients'
 
 const formatQueryString = (key, data) => {
   return data
-    .filter(value => value.length > 0)
+    .filter((value) => value.length > 0)
     .map((value) => {
       return `${key}[]=${value}`
     })

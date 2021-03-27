@@ -5,7 +5,10 @@ import Logout from '../'
 import * as userContext from '../../../context/userContext'
 
 jest.mock('../../../context/userContext', () => ({
-  logout: jest.fn(),
+  logout: jest.fn()
+}))
+
+jest.mock('../../../hooks/useUser', () => ({
   useUserDispatch: jest.fn()
 }))
 

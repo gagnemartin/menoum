@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { useUserDispatch, register } from '../../../context/userContext'
+import { register } from '../../../context/userContext'
+import { useUserDispatch } from '../../../hooks/useUser'
 import { isSuccessResponse } from '../../../global/helpers'
 
 const Register = () => {

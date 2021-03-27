@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { useUserState } from '../../context/userContext'
+import { useUserState } from '../../hooks/useUser'
 
 const ProtectedLink = (props) => {
   const userData = useUserState()

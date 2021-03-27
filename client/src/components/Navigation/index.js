@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
-import { useUserState } from '../../context/userContext'
+import { useUserState } from '../../hooks/useUser'
 import Logout from '../Logout'
 
 const Navigation = () => {
@@ -15,7 +14,7 @@ const Navigation = () => {
             Home
           </Link>
         </li>
-        
+
         {!loading ? (
           Object.keys(userState.user).length === 0 ? (
             <>
@@ -44,9 +43,10 @@ const Navigation = () => {
                 <Logout />
               </li>
             </>
-          )) : (
-            <li data-testid='nav-loading'>Loading</li>
-          )}
+          )
+        ) : (
+          <li data-testid='nav-loading'>Loading</li>
+        )}
       </ul>
     </nav>
   )
