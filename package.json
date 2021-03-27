@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "description": "### Technologies This application uses these technologies: - [Adminer](https://www.adminer.org/) to view and manage the database - [Docker](https://docs.docker.com/compose/) to run the application - [Elasticsearch](https://www.elastic.co/) as a search engine - [Express.js](https://expressjs.com/) as a Node.js framework - [React](https://reactjs.org/) as a frontend framework - [Kibana](https://www.elastic.co/kibana) to visualize Elasticsearch's data - [Knex.js](http://knexjs.org/) to communicate with the database - [Node.js](https://nodejs.org/) as a backend server - [PostgreSQL](https://www.postgresql.org/) as a database system",
   "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "husky": "^5.2.0"
+  },
   "scripts": {
     "test": "docker-compose exec client npm run test",
+    "test:headless": "docker-compose exec -T client npm run test:headless",
     "start": "docker-compose up",
     "init": "docker-compose down -v && docker-compose up --build",
     "migrations": "docker-compose exec api npm run migrate:latest",
     "rollback": "docker-compose exec api npm run migrate:rollback",
-    "seeds": "docker-compose exec api npm run seed:run"
+    "seeds": "docker-compose exec api npm run seed:run",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
