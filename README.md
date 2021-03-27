@@ -22,15 +22,14 @@ Clone the file `.env.skeleton` to `.env` and fill the database information that 
 
 #### Starting the server with Docker
 
-The command `docker-compose up` will start the React, Node and Postgres servers with Adminer to manage your database data. Elasticsearch will also launch with Kibana to visualize your data.
+The command `npm start` will start the React, Node and Postgres servers with Adminer to manage your database data. Elasticsearch will also launch with Kibana to visualize your data. The migrations will automatically run.
 
-In another terminal, `cd api` and run all the migrations: `docker-compose exec api npm run migrate:latest`. Then run the seeders: `docker-compose exec api npm run seed:run`
+In another terminal, run the seeders: `npm run seeds`
 
 The data from the database will persist even the container is not running.
-If you ever need to completely erase the database and start over, run `docker-compose down -v` where `-v` tells Docker
-to also delete the volumes. Then run `docker-compose up` to start over.
+If you ever need to completely erase the database and start over, run `npm run init`. This will remove everything, start over and force build the Docker images.
 
-The application will be visible at [http://localhost:3000/](http://localhost:3000/).
+The application will be visible at [https://localhost:3000/](https://localhost:3000/).
 
 #### Adminer
 To view and manage the Postgres database, navigate to [http://localhost:8080/](http://localhost:8080/) and login with the database information from the **dev.env** file. Select **PostgreSQL** as the System. The Server input is the database's Docker container name, which is simply **database**.
