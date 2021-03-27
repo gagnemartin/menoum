@@ -1,9 +1,22 @@
-import { useReducer } from 'react'
-import { render } from '@testing-library/react'
-import { renderHook, act } from '@testing-library/react-hooks'
+import { render, waitFor } from '@testing-library/react'
 import { BrowserRouter as Router } from 'react-router-dom'
+import jwt from 'jsonwebtoken'
 import Navigation from '../'
-import { UserProvider, DEFAULT_STATE, ACTION_TYPES, userReducer } from '../../../context/userContext'
+import { UserProvider } from '../../../context/userContext'
+import UsersService from '../../../services/usersService'
+
+const userMock = {
+  email: 'test@test.com',
+  role: 'user'
+}
+
+const userAdminMock = {
+  ...userMock,
+  role: 'admin'
+}
+
+const userToken = jwt.sign(userMock, 'fakehash')
+const userAdminToken = jwt.sign(userAdminMock, 'fakehash')
 
 /**
  * A custom render to setup providers. Extends regular
@@ -13,53 +26,111 @@ import { UserProvider, DEFAULT_STATE, ACTION_TYPES, userReducer } from '../../..
  * @see https://testing-library.com/docs/react-testing-library/setup#custom-render
  */
 const customRender = (children) => {
-  return render(<UserProvider>{children}</UserProvider>)
+  return render(
+    <UserProvider>
+      <Router>{children}</Router>
+    </UserProvider>
+  )
 }
 
-describe('<Navigation />', () => {
-  it('should not have login button when loading', () => {
-    const updatedState = {
-      ...DEFAULT_STATE,
-      status: ACTION_TYPES.success,
-      user: {
-        email: 'test@test.com'
-      },
-      loading: false
+const usersServiceMocks = {
+  success: {
+    status: 'success',
+    data: {
+      token: userToken
     }
-    const { result, rerender } = renderHook(() => useReducer(userReducer, DEFAULT_STATE))
-    const [state, dispatch] = result.current
-    // dispatch({ type: ACTION_TYPES.success, data: { token: 'as' } })
-    act(() => {
-      dispatch({
-        type: ACTION_TYPES.success,
-        payload: {
-          data: {
-            token:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjJ9.J78feKgEv-EbpTKGLYT74KT-qtaXjZDAGlpd3Rxwhy4'
-          }
-        }
-      })
-      // rerender({
-      //   status: ACTION_TYPES.success,
-      //   user: {
-      //     email: 'test@test.com'
-      //   },
-      //   loading: false
-      // })
+  },
+  successAdmin: {
+    status: 'success',
+    data: {
+      token: userAdminToken
+    }
+  },
+  error: {
+    status: 'error',
+    error: new Error('False Error')
+  }
+}
+
+jest.mock('../../../services/usersService', () => ({
+  refresh: jest.fn()
+}))
+
+describe('<Navigation />', () => {
+  it('should try to automatically login on page load', async () => {
+    UsersService.refresh.mockReturnValue(usersServiceMocks.success)
+    const refresh = jest.spyOn(UsersService, 'refresh')
+    const { unmount } = customRender(<Navigation />)
+
+    await waitFor(() => {
+      expect(refresh).toHaveBeenCalledTimes(1)
     })
-    rerender(updatedState)
 
-    const { queryByTestId, queryByText, asFragment } = customRender(
-      <Router>
-        <Navigation />
-      </Router>
-    )
-
-    // customRender(<Navigation />, { providerProps })
-    //const { getByTestId, asFragment } = render(<Navigation />)
-    const element = queryByText(updatedState.user.email)
-
-    expect(element).toBeInTheDocument()
-    expect(asFragment()).toMatchSnapshot()
+    refresh.mockRestore()
+    unmount()
   })
+
+  it('should show show Loading during automatic login', async () => {
+    UsersService.refresh.mockReturnValue(usersServiceMocks.success)
+    const { queryByTestId, unmount } = customRender(<Navigation />)
+
+    await waitFor(() => {
+      const element = queryByTestId('nav-loading')
+      expect(element).toBeInTheDocument()
+    })
+
+    unmount()
+  })   
+
+  it('should show email on page load after successfull automatic login', async () => {
+    UsersService.refresh.mockReturnValue(usersServiceMocks.success)
+    const { queryByTestId, unmount } = customRender(<Navigation />)
+
+    await waitFor(() => {
+      const element = queryByTestId('nav-email')
+      expect(element).toBeInTheDocument()
+    })
+
+    unmount()
+  })      
+  
+  it('should throw an error after unsuccessfull automatic login', async () => {
+    UsersService.refresh.mockReturnValue(usersServiceMocks.error)
+    const { queryByTestId, unmount } = customRender(<Navigation />)
+
+    await waitFor(() => {
+      const element = queryByTestId('nav-login')
+      expect(element).toBeInTheDocument()
+    })
+
+    unmount()
+  })      
+  
+  it('should not see admin section for normal user', async () => {
+    UsersService.refresh.mockReturnValue(usersServiceMocks.success)
+    const { queryByTestId, unmount } = customRender(<Navigation />)
+
+    await waitFor(() => {
+      const element = queryByTestId('nav-new-recipe')
+      expect(element).not.toBeInTheDocument()
+
+      const elementEmail = queryByTestId('nav-email')
+      expect(elementEmail).toBeInTheDocument()
+    })
+
+    unmount()
+  })      
+  
+  
+it('should see admin section for admin user', async () => {
+    UsersService.refresh.mockReturnValue(usersServiceMocks.successAdmin)
+    const { queryByTestId, unmount } = customRender(<Navigation />)
+
+    await waitFor(() => {
+      const element = queryByTestId('nav-new-recipe')
+      expect(element).toBeInTheDocument()
+    })
+
+    unmount()
+  })      
 })

@@ -14,15 +14,9 @@ exports[`<App /> should render and match snapshot 1`] = `
           </a>
         </li>
         <li
-          data-testid="nav-email"
-        />
-        <li>
-          <a
-            data-testid="nav-logout"
-            href="#"
-          >
-            Logout
-          </a>
+          data-testid="nav-loading"
+        >
+          Loading
         </li>
       </ul>
     </nav>

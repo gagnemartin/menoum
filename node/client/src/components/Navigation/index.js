@@ -5,13 +5,7 @@ import Logout from '../Logout'
 
 const Navigation = () => {
   const userState = useUserState()
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    if (userState.status !== 'REQUEST') {
-      setIsLoading(false)
-    }
-  }, [userState])
+  const { loading } = userState
 
   return (
     <nav>
@@ -21,35 +15,38 @@ const Navigation = () => {
             Home
           </Link>
         </li>
-
-        {!isLoading && Object.keys(userState.user).length === 0 ? (
-          <>
-            <li>
-              <Link to='/login' data-testid='nav-login'>
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link to='/register' data-testid='nav-register'>
-                Register
-              </Link>
-            </li>
-          </>
-        ) : (
-          <>
-            {userState.user.role === 'admin' && (
+        
+        {!loading ? (
+          Object.keys(userState.user).length === 0 ? (
+            <>
               <li>
-                <Link to='/recipe/new' data-testid='nav-new-recipe'>
-                  Add a Recipe
+                <Link to='/login' data-testid='nav-login'>
+                  Login
                 </Link>
               </li>
-            )}
-            <li data-testid='nav-email'>{userState.user.email}</li>
-            <li>
-              <Logout />
-            </li>
-          </>
-        )}
+              <li>
+                <Link to='/register' data-testid='nav-register'>
+                  Register
+                </Link>
+              </li>
+            </>
+          ) : (
+            <>
+              {userState.user.role === 'admin' && (
+                <li>
+                  <Link to='/recipe/new' data-testid='nav-new-recipe'>
+                    Add a Recipe
+                  </Link>
+                </li>
+              )}
+              <li data-testid='nav-email'>{userState.user.email}</li>
+              <li>
+                <Logout />
+              </li>
+            </>
+          )) : (
+            <li data-testid='nav-loading'>Loading</li>
+          )}
       </ul>
     </nav>
   )
