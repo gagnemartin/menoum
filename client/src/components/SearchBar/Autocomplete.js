@@ -6,14 +6,8 @@ const Autocomplete = (props) => {
 
   return (
     <>
-      <input type='text' value={value} onChange={onChange} />
-      <Dropdown
-        canAddNew={canAddNew}
-        items={items}
-        onClickAddNew={onClickAddNew}
-        onSelect={onSelect}
-        value={value}
-      />
+      <input type='text' value={value} onChange={onChange} data-testid='ingredient-search-input' />
+      <Dropdown canAddNew={canAddNew} items={items} onClickAddNew={onClickAddNew} onSelect={onSelect} value={value} />
     </>
   )
 }

@@ -15,10 +15,14 @@ const UpdateRecipe = () => {
   }
 
   useEffect(() => {
-    recipesService.get(uuid).then((response) => {
+    const getRecipe = async () => {
+      const response = await recipesService.get(uuid)
+
       setRecipe(response.data)
       setIsLoading(false)
-    })
+    }
+
+    getRecipe()
   }, [])
 
   if (isLoading) {
@@ -26,7 +30,7 @@ const UpdateRecipe = () => {
   }
 
   return (
-    <div>
+    <div data-testid='page-recipe-update'>
       <h1>Update Recipe</h1>
 
       <RecipeForm submitRecipe={submitRecipe} recipe={recipe} />

@@ -21,11 +21,7 @@ const Dropdown = (props) => {
           </p>
         )}
         {items.map((ingredient) => (
-          <p
-            key={ingredient.uuid}
-            data-uuid={ingredient.uuid}
-            onClick={onSelect}
-          >
+          <p key={ingredient.uuid} data-uuid={ingredient.uuid} onClick={onSelect} data-testid='ingredient-dropdown-item'>
             {ingredient.name}
           </p>
         ))}

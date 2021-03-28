@@ -390,22 +390,8 @@ const RecipeForm = (props) => {
         <legend>Steps</legend>
         {Object.keys(steps).map((key) => (
           <div key={key}>
-            <input
-              data-key={key}
-              onChange={handleStep}
-              value={steps[key].value}
-              type='text'
-              name='steps[]'
-              placeholder='Step'
-            />
-            <input
-              data-key={key}
-              onChange={handleStep}
-              value={steps[key].section}
-              type='text'
-              name='sections[]'
-              placeholder='Section'
-            />
+            <input data-key={key} onChange={handleStep} value={steps[key].value} type='text' name='steps[]' placeholder='Step' />
+            <input data-key={key} onChange={handleStep} value={steps[key].section} type='text' name='sections[]' placeholder='Section' />
           </div>
         ))}
         <div>
@@ -414,7 +400,9 @@ const RecipeForm = (props) => {
       </fieldset>
 
       <div>
-        <button type='submit'>Send</button>
+        <button type='submit' data-testid='button-submit-recipe'>
+          Send
+        </button>
       </div>
     </form>
   )

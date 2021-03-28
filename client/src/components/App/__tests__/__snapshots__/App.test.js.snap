@@ -22,6 +22,7 @@ exports[`<App /> should render and match snapshot 1`] = `
     </nav>
     <div>
       <input
+        data-testid="ingredient-search-input"
         type="text"
         value=""
       />

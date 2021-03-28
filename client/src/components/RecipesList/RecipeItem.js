@@ -5,7 +5,7 @@ const RecipeItem = (props) => {
   const { item } = props
 
   return (
-    <div>
+    <div data-testid='recipe-list-item'>
       <img src={item.thumbnail} width='100%' alt={item.name} />
       <div style={{ margin: '10px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
         <p style={{ margin: '0' }}>{item.name}</p>

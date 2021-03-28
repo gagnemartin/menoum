@@ -10,7 +10,7 @@ const NewRecipe = () => {
   }
 
   return (
-    <div>
+    <div data-testid='page-recipe-new'>
       <h1>New Recipe</h1>
 
       <RecipeForm submitRecipe={submitRecipe} />
