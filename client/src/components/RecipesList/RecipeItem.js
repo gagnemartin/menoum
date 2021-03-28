@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import ProtectedLink from '../App/ProtectedLink'
+import { ProtectedLink } from '../Protected'
 
 const RecipeItem = (props) => {
   const { item } = props

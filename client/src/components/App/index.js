@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import { Home, NewRecipe, UpdateRecipe, Login, Register } from '../../pages'
 import { UserProvider } from '../../context/userContext'
-import ProtectedRoute from './ProtectedRoute'
+import { ProtectedRoute } from '../Protected'
 import Navigation from '../Navigation'
 
 const App = () => {

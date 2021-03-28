@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Redirect, Route } from 'react-router-dom'
 import { useUserState } from '../../hooks/useUser'
+import { ACTION_TYPES } from '../../reducers/userReducer'
 
 const ProtectedRoute = (props) => {
   const { children, component, exact, path, role } = props
@@ -14,17 +15,17 @@ const ProtectedRoute = (props) => {
   const checkAuthenthicated = () => {
     const { status } = userData
 
-    return status === 'SUCCESS'
+    return status === ACTION_TYPES.success
   }
 
   const checkAuthorized = () => {
     const { status, user } = userData
 
-    return status === 'SUCCESS' && user.role === role
+    return status === ACTION_TYPES.success && user.role === role
   }
 
   useEffect(() => {
-    if (userData.status === 'REQUEST') {
+    if (userData.status === ACTION_TYPES.request) {
       setIsLoading(true)
     } else {
       setIsAuthenticated(checkAuthenthicated())
@@ -39,7 +40,7 @@ const ProtectedRoute = (props) => {
     if (!isAuthorized) {
       return <Redirect to={{ pathname: '/' }} />
     }
-    
+
     if (component) {
       return <Component />
     }

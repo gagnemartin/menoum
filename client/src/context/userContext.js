@@ -71,6 +71,7 @@ const logout = async (dispatch) => {
     const payload = await UsersService.logout()
 
     if (isSuccessResponse(payload)) {
+      console.log('SUCCESS', payload)
       dispatch({ type: ACTION_TYPES.success, payload })
       return payload
     } else {

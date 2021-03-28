@@ -20,7 +20,7 @@ describe('<Logout />', () => {
         <Logout />
       </Router>
     )
-
+    
     userEvent.click(queryByTestId('nav-logout'))
 
     await waitFor(() => {
