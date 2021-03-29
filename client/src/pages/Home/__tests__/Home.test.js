@@ -2,19 +2,13 @@ import { render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter as Router } from 'react-router-dom'
 import Home from '../'
-import useRecipesServiceHook from '../../../services/recipesService'
+import useRecipesService from '../../../services/recipesService'
 import { mockRecipesServiceResponse, mockRecipes } from '../../../mocks/recipeMocks'
-import { mockIngredientsServiceResponse, mockIngredients } from '../../../mocks/ingredientMocks'
+import { mockIngredients } from '../../../mocks/ingredientMocks'
 
 jest.mock('../../../services/recipesService')
 
-jest.mock('../../../services/ingredientsService', () => {
-  return () => ({
-    search: () => {
-      return mockIngredientsServiceResponse.search.success
-    }
-  })
-})
+jest.mock('../../../services/ingredientsService')
 
 const customRender = (children) => {
   return render(<Router>{children}</Router>)
@@ -22,11 +16,11 @@ const customRender = (children) => {
 
 describe('<Home />', () => {
   it('should show the search input', async () => {
-    useRecipesServiceHook.mockReturnValue({
-      suggest: jest.fn(() => {
-        return mockRecipesServiceResponse.suggest.success
-      })
-    })
+    // useRecipesService.mockReturnValue({
+    //   suggest: jest.fn(() => {
+    //     return mockRecipesServiceResponse.suggest.success
+    //   })
+    // })
     const { queryByTestId } = customRender(<Home />)
 
     await waitFor(() => {
@@ -36,7 +30,7 @@ describe('<Home />', () => {
   })
 
   it('should suggest recipes when ingredients change', async () => {
-    useRecipesServiceHook.mockReturnValue({
+    useRecipesService.mockReturnValue({
       suggest: jest.fn(() => {
         return mockRecipesServiceResponse.suggest.success
       })
@@ -60,7 +54,7 @@ describe('<Home />', () => {
   })
 
   it('should not suggest recipes if the request fails', async () => {
-    useRecipesServiceHook.mockReturnValue({
+    useRecipesService.mockReturnValue({
       suggest: jest.fn(() => {
         return mockRecipesServiceResponse.suggest.error
       })

@@ -1,35 +1,79 @@
 import jwt from 'jsonwebtoken'
 
-const userMock = {
+const mockUser = {
   email: 'test@test.com',
+  password: 'test123',
   role: 'user'
 }
 
-const userAdminMock = {
-  ...userMock,
+const mockUserAdmin = {
+  ...mockUser,
   role: 'admin'
 }
 
-const userToken = jwt.sign(userMock, 'fakehash')
-const userAdminToken = jwt.sign(userAdminMock, 'fakehash')
+const userToken = jwt.sign(mockUser, 'fakehash')
+const userAdminToken = jwt.sign(mockUserAdmin, 'fakehash')
 
-const usersServiceResponseMocks = {
-  success: {
-    status: 'success',
-    data: {
-      token: userToken
+const mockUsersServiceResponse = {
+  refresh: {
+    success: {
+      status: 'success',
+      data: {
+        token: userToken
+      }
+    },
+    successAdmin: {
+      status: 'success',
+      data: {
+        token: userAdminToken
+      }
+    },
+    error: {
+      status: 'error',
+      error: new Error('False Error')
     }
   },
-  successAdmin: {
-    status: 'success',
-    data: {
-      token: userAdminToken
+
+  login: {
+    success: {
+      status: 'success',
+      data: {
+        token: userToken
+      }
+    },
+    successAdmin: {
+      status: 'success',
+      data: {
+        token: userAdminToken
+      }
+    },
+    error: {
+      status: 'error',
+      error: new Error('False Error')
     }
   },
-  error: {
-    status: 'error',
-    error: new Error('False Error')
+
+  register: {
+    success: {
+      status: 'success',
+      data: {
+        token: userToken
+      }
+    },
+    successAdmin: {
+      status: 'success',
+      data: {
+        token: userAdminToken
+      }
+    },
+    error: {
+      status: 'error',
+      error: new Error('False Error'),
+      data: {
+        email: { minLength: 'Too short' }
+      }
+    }
   }
 }
 
-export { userAdminMock, userMock, usersServiceResponseMocks, userAdminToken, userToken }
+export { mockUserAdmin, mockUser, mockUsersServiceResponse, userAdminToken, userToken }

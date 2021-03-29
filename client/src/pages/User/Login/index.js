@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { login } from '../../../context/userContext'
+import { isSuccessResponse } from '../../../global/helpers'
 import { useUserDispatch } from '../../../hooks/useUser'
 
 const Login = () => {
@@ -37,24 +38,22 @@ const Login = () => {
     setHasError(false)
     setIsLoading(true)
     const data = { email, password }
-    const res = await login(dispatch, data)
-
-    if (res.status === 'success') {
+    const response = await login(dispatch, data)
+    setIsLoading(false)
+    if (isSuccessResponse(response)) {
       const { from } = location.state || { from: { pathname: '/' } }
-      setIsLoading(false)
       history.replace(from)
     } else {
       setHasError(true)
-      setIsLoading(false)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} action='#'>
-      {hasError && <p>{errorMessage}</p>}
-      <input onChange={handleChange} name='email' type='email' value={email} />
-      <input onChange={handleChange} name='password' type='password' value={password} />
-      <button type='submit' disabled={isLoading} data-testid='button-login'>
+      {hasError && <p data-testid='login-error-message'>{errorMessage}</p>}
+      <input onChange={handleChange} name='email' type='email' value={email} data-testid='login-input-email' />
+      <input onChange={handleChange} name='password' type='password' value={password} data-testid='login-input-password' />
+      <button type='submit' disabled={isLoading} data-testid='button-login' data-testid='login-button-submit'>
         Login
       </button>
     </form>

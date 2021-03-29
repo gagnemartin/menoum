@@ -3,7 +3,7 @@ import { MemoryRouter as Router } from 'react-router-dom'
 import Navigation from '../'
 import { UserProvider } from '../../../context/userContext'
 import UsersService from '../../../services/usersService'
-import { usersServiceResponseMocks } from '../../../mocks/userMocks'
+import { mockUsersServiceResponse } from '../../../mocks/userMocks'
 
 const customRender = (children) => {
   return render(
@@ -13,9 +13,7 @@ const customRender = (children) => {
   )
 }
 
-jest.mock('../../../services/usersService', () => ({
-  refresh: jest.fn()
-}))
+jest.mock('../../../services/usersService')
 
 describe('<Navigation />', () => {
   beforeEach(() => {
@@ -23,7 +21,7 @@ describe('<Navigation />', () => {
   })
 
   it('should try to automatically login on page load', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const refresh = jest.spyOn(UsersService, 'refresh')
     customRender(<Navigation />)
 
@@ -35,7 +33,7 @@ describe('<Navigation />', () => {
   })
 
   it('should show show Loading during automatic login', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = customRender(<Navigation />)
 
     await waitFor(() => {
@@ -50,7 +48,7 @@ describe('<Navigation />', () => {
   })
 
   it('should show email on page load after successfull automatic login', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = customRender(<Navigation />)
 
     await waitFor(() => {
@@ -60,7 +58,7 @@ describe('<Navigation />', () => {
   })
 
   it('should throw an error after unsuccessfull automatic login', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.error)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.error)
     const { queryByTestId } = customRender(<Navigation />)
 
     await waitFor(() => {
@@ -70,7 +68,7 @@ describe('<Navigation />', () => {
   })
 
   it('should not see admin section for normal user', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = customRender(<Navigation />)
 
     await waitFor(() => {
@@ -83,7 +81,7 @@ describe('<Navigation />', () => {
   })
 
   it('should see admin section for admin user', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.successAdmin)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.successAdmin)
       const { queryByTestId } = customRender(<Navigation />)
 
     await waitFor(() => {

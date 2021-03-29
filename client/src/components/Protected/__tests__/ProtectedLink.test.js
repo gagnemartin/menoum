@@ -2,12 +2,10 @@ import { render, waitFor } from '@testing-library/react'
 import { MemoryRouter as Router, Route, Switch } from 'react-router-dom'
 import { ProtectedLink } from '../'
 import UsersService from '../../../services/usersService'
-import { usersServiceResponseMocks } from '../../../mocks/userMocks'
+import { mockUsersServiceResponse } from '../../../mocks/userMocks'
 import { UserProvider } from '../../../context/userContext'
 
-jest.mock('../../../services/usersService', () => ({
-  refresh: jest.fn()
-}))
+jest.mock('../../../services/usersService')
 
 const renderAtPath = () => {
   return render(
@@ -33,7 +31,7 @@ const renderAtPath = () => {
 
 describe('<ProtectedLink />', () => {
   it('should show the link if authorized', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.successAdmin)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.successAdmin)
     const { queryByTestId } = renderAtPath()
 
     await waitFor(() => {
@@ -43,7 +41,7 @@ describe('<ProtectedLink />', () => {
   })
 
   it('should not show the link if not authorized', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = renderAtPath()
 
     await waitFor(() => {

@@ -2,11 +2,9 @@ import { render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '../'
 import UsersService from '../../../services/usersService'
-import { usersServiceResponseMocks } from '../../../mocks/userMocks'
+import { mockUsersServiceResponse } from '../../../mocks/userMocks'
 
-jest.mock('../../../services/usersService', () => ({
-  refresh: jest.fn()
-}))
+jest.mock('../../../services/usersService')
 
 describe('<App />', () => {
   beforeEach(() => {
@@ -14,7 +12,7 @@ describe('<App />', () => {
   })
 
   it('should render and match snapshot', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { asFragment } = render(<App />)
 
     await waitFor(() => {
@@ -23,7 +21,7 @@ describe('<App />', () => {
   })
 
   it('should navigate to admin section for admin user', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.successAdmin)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.successAdmin)
     const { queryByTestId, queryByText } = render(<App />)
 
     await waitFor(() => {

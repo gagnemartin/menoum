@@ -2,12 +2,10 @@ import { render, waitFor } from '@testing-library/react'
 import { MemoryRouter as Router, Route, Switch } from 'react-router-dom'
 import { ProtectedRoute } from '../'
 import UsersService from '../../../services/usersService'
-import { usersServiceResponseMocks } from '../../../mocks/userMocks'
+import { mockUsersServiceResponse } from '../../../mocks/userMocks'
 import { UserProvider } from '../../../context/userContext'
 
-jest.mock('../../../services/usersService', () => ({
-  refresh: jest.fn()
-}))
+jest.mock('../../../services/usersService')
 
 const renderAtPath = (path) => {
   return render(
@@ -44,7 +42,7 @@ const renderAtPath = (path) => {
 
 describe('<ProtectedRoute />', () => {
   it('should be redirected to homepage if not authorized', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = renderAtPath('/admin-route')
 
     await waitFor(() => {
@@ -54,7 +52,7 @@ describe('<ProtectedRoute />', () => {
   })
 
   it('should be redirected to login if not authenticated', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.error)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.error)
     const { queryByTestId } = renderAtPath('/user-route')
 
     await waitFor(() => {
@@ -64,7 +62,7 @@ describe('<ProtectedRoute />', () => {
   })
 
   it('should render from component prop if defined', async () => {
-    UsersService.refresh.mockReturnValue(usersServiceResponseMocks.success)
+    UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = renderAtPath('/component-route')
 
     await waitFor(() => {

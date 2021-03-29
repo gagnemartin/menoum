@@ -30,7 +30,6 @@ const Register = () => {
       case 'confirm_password':
         setConfirmPassword(value)
         break
-      default:
     }
   }
 
@@ -40,43 +39,54 @@ const Register = () => {
     setErrors({})
     setIsLoading(true)
     const data = { email, password, confirm_password: confirmPassword }
-    const res = await register(dispatch, data)
+    const response = await register(dispatch, data)
+    console.log(response)
 
-    if (isSuccessResponse(res)) {
+    if (isSuccessResponse(response)) {
       const { from } = location.state || { from: { pathname: '/' } }
       setIsLoading(false)
       history.replace(from)
     } else {
-      setErrors(res.data)
+      setErrors(response.data)
       setIsLoading(false)
     }
   }
 
   const showErrors = (errors) => {
     if (errors) {
-      return Object.keys(errors).map((error) => <p key={error}>{errors[error].message}</p>)
+      return Object.keys(errors).map((error) => (
+        <p key={error} data-testid='register-error-item'>
+          {errors[error].message}
+        </p>
+      ))
     }
   }
 
   return (
     <form onSubmit={handleSubmit} action='#'>
       <div>
-        <input onChange={handleChange} name='email' type='email' value={email} />
+        <input onChange={handleChange} name='email' type='email' value={email} data-testid='register-input-email' />
         {showErrors(errors.email)}
       </div>
 
       <div>
-        <input onChange={handleChange} name='password' type='password' value={password} />
+        <input onChange={handleChange} name='password' type='password' value={password} data-testid='register-input-password' />
         {showErrors(errors.password)}
       </div>
 
       <div>
-        <input onChange={handleChange} name='confirm_password' type='password' value={confirmPassword} />
+        <input
+          onChange={handleChange}
+          name='confirm_password'
+          type='password'
+          value={confirmPassword}
+          data-testid='register-input-password-confirm'
+        />
         {showErrors(errors.confirm_password)}
       </div>
 
       <div>
-        <button type='submit' disabled={isLoading}>
+        <button type='submit' disabled={isLoading} data-testid='register-button-submit'>
           Register
         </button>
       </div>
