@@ -1,90 +1,90 @@
 import { createContext, useEffect, useReducer } from 'react'
 import { UsersService } from '../services'
 import { isSuccessResponse } from '../global/helpers'
-import userReducer, { ACTION_TYPES, DEFAULT_STATE } from '../reducers/userReducer'
+import userReducer, { actionTypes, initialState } from '../reducers/userReducer'
 
-const UserStateContext = createContext(DEFAULT_STATE)
+const UserStateContext = createContext(initialState)
 const UserDispatchContext = createContext({})
 
 const refresh = async (dispatch) => {
-  dispatch({ type: ACTION_TYPES.request, loading: true })
+  dispatch({ type: actionTypes.request, loading: true })
   try {
     const payload = await UsersService.refresh()
 
     if (isSuccessResponse(payload)) {
-      dispatch({ type: ACTION_TYPES.success, payload })
+      dispatch({ type: actionTypes.success, payload })
     } else {
-      dispatch({ type: ACTION_TYPES.error, error: payload })
+      dispatch({ type: actionTypes.error, error: payload })
     }
 
     return setInterval(async () => {
       const payload = await UsersService.refresh()
 
       if (isSuccessResponse(payload)) {
-        dispatch({ type: ACTION_TYPES.success, payload })
+        dispatch({ type: actionTypes.success, payload })
       } else {
-        dispatch({ type: ACTION_TYPES.error, error: payload })
+        dispatch({ type: actionTypes.error, error: payload })
       }
     }, 840000)
   } catch (error) {
-    dispatch({ type: ACTION_TYPES.error, error })
+    dispatch({ type: actionTypes.error, error })
   }
 }
 
 const login = async (dispatch, data) => {
-  dispatch({ type: ACTION_TYPES.request, loading: true })
+  dispatch({ type: actionTypes.request, loading: true })
   try {
     const payload = await UsersService.login(data)
 
     if (isSuccessResponse(payload)) {
-      dispatch({ type: ACTION_TYPES.success, payload })
+      dispatch({ type: actionTypes.success, payload })
       return payload
     } else {
       throw payload
     }
   } catch (error) {
-    dispatch({ type: ACTION_TYPES.error, error })
+    dispatch({ type: actionTypes.error, error })
     return error
   }
 }
 
 const register = async (dispatch, data) => {
-  dispatch({ type: ACTION_TYPES.request, loading: true })
+  dispatch({ type: actionTypes.request, loading: true })
   try {
     const payload = await UsersService.register(data)
 
     if (isSuccessResponse(payload)) {
-      dispatch({ type: ACTION_TYPES.success, payload })
+      dispatch({ type: actionTypes.success, payload })
       return payload
     } else {
       throw payload
     }
   } catch (error) {
-    dispatch({ type: ACTION_TYPES.error, error })
+    dispatch({ type: actionTypes.error, error })
     return error
   }
 }
 
 const logout = async (dispatch) => {
-  dispatch({ type: ACTION_TYPES.request, loading: true })
+  dispatch({ type: actionTypes.request, loading: true })
   try {
     const payload = await UsersService.logout()
 
     if (isSuccessResponse(payload)) {
       console.log('SUCCESS', payload)
-      dispatch({ type: ACTION_TYPES.success, payload })
+      dispatch({ type: actionTypes.success, payload })
       return payload
     } else {
       throw payload
     }
   } catch (error) {
-    dispatch({ type: ACTION_TYPES.error, error })
+    dispatch({ type: actionTypes.error, error })
     return error
   }
 }
 
 const UserProvider = ({ children }) => {
-  const [user, setUser] = useReducer(userReducer, DEFAULT_STATE)
+  const [user, setUser] = useReducer(userReducer, initialState)
 
   useEffect(() => {
     const interval = refresh(setUser)

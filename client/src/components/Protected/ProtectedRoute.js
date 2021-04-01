@@ -2,42 +2,28 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Redirect, Route } from 'react-router-dom'
 import { useUserState } from '../../hooks/useUser'
-import { ACTION_TYPES } from '../../reducers/userReducer'
+import useAccessControl from '../../hooks/useAccessControl'
+import { actionTypes } from '../../reducers/userReducer'
 
 const ProtectedRoute = (props) => {
   const { children, component, exact, path, role } = props
   const userData = useUserState()
+  const {  isAuthenticated, isAuthorized  } = useAccessControl()
   const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isAuthorized, setIsAuthorized] = useState(false)
   const Component = component
 
-  const checkAuthenthicated = () => {
-    const { status } = userData
-
-    return status === ACTION_TYPES.success
-  }
-
-  const checkAuthorized = () => {
-    const { status, user } = userData
-
-    return status === ACTION_TYPES.success && user.role === role
-  }
-
   useEffect(() => {
-    if (userData.status === ACTION_TYPES.request) {
+    if (userData.status === actionTypes.request) {
       setIsLoading(true)
     } else {
-      setIsAuthenticated(checkAuthenthicated())
-      setIsAuthorized(checkAuthorized())
       setIsLoading(false)
     }
   }, [userData])
 
   if (isLoading) return null
 
-  if (isAuthenticated) {
-    if (!isAuthorized) {
+  if (isAuthenticated()) {
+    if (!isAuthorized(role)) {
       return <Redirect to={{ pathname: '/' }} />
     }
 

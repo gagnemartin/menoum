@@ -18,7 +18,10 @@ const useUserDispatch = () => {
 }
 
 const useUser = () => {
-  return [useUserState(), useUserDispatch()]
+  const userState = useUserState()
+  const dispatch = useUserDispatch()
+
+  return [userState, dispatch]
 }
 
 export { useUserState, useUserDispatch }

@@ -1,13 +1,13 @@
 import jwt from 'jsonwebtoken'
 
-export const ACTION_TYPES = {
+export const actionTypes = {
   request: 'REQUEST',
   success: 'SUCCESS',
   error: 'ERROR'
 }
 
-export const DEFAULT_STATE = {
-  status: ACTION_TYPES.request,
+export const initialState = {
+  status: actionTypes.request,
   user: {},
   loading: true,
   error: {}
@@ -15,15 +15,15 @@ export const DEFAULT_STATE = {
 
 const userReducer = (state, action) => {
   switch (action.type) {
-    case ACTION_TYPES.request: {
+    case actionTypes.request: {
       return {
-        ...DEFAULT_STATE,
-        status: ACTION_TYPES.request,
+        ...initialState,
+        status: actionTypes.request,
         user: state.user,
         loading: true
       }
     }
-    case ACTION_TYPES.success: {
+    case actionTypes.success: {
       let user = {}
 
       if (action.payload.data && action.payload.data.token) {
@@ -39,16 +39,16 @@ const userReducer = (state, action) => {
       }
 
       return {
-        ...DEFAULT_STATE,
-        status: ACTION_TYPES.success,
+        ...initialState,
+        status: actionTypes.success,
         loading: false,
         user
       }
     }
-    case ACTION_TYPES.error: {
+    case actionTypes.error: {
       return {
-        ...DEFAULT_STATE,
-        status: ACTION_TYPES.error,
+        ...initialState,
+        status: actionTypes.error,
         loading: false,
         error: action.error
       }
