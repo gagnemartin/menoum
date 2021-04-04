@@ -31,3 +31,11 @@ export const formatArrayQuery = (key, data) => {
       })
       .join('&')
 }
+
+export const replaceNullWith = (value, replaceValue) => {
+  return value === null ? replaceValue : value
+}
+
+export const setDefaultValue = (field, defaultValue, data) => {
+  return replaceNullWith(data[field], defaultValue) || defaultValue
+}

@@ -14,6 +14,10 @@
     "migrations": "docker-compose exec api npm run migrate:latest",
     "rollback": "docker-compose exec api npm run migrate:rollback",
     "seeds": "docker-compose exec api npm run seed:run",
+
+    "audit": "docker-compose exec client npm audit",
+    "audit:fix": "docker-compose exec client npm audit fix",
+
     "prepare": "husky install"
   },
   "repository": {

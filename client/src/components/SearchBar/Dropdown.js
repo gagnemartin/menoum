@@ -16,7 +16,7 @@ const Dropdown = (props) => {
         }}
       >
         {canAddNew && (
-          <p onClick={onClickAddNew}>
+          <p onClick={onClickAddNew} data-testid='ingredient-dropdown-add-new'>
             Add <b>{value}</b>
           </p>
         )}

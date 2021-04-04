@@ -19,7 +19,7 @@ describe('<NewRecipe />', () => {
 
   it('should request the service to add the recipe', async () => {
     const { queryByTestId } = render(<NewRecipe />)
-    const buttonSubmit = queryByTestId('button-submit-recipe')
+    const buttonSubmit = queryByTestId('recipe-form-button-submit')
     expect(buttonSubmit).toBeInTheDocument()
 
     userEvent.click(buttonSubmit)

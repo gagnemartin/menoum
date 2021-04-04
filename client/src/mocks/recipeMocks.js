@@ -5,20 +5,22 @@ const mockRecipes = [
     name: 'Voluptatum dolorum qui fuga nisi.',
     steps: [
       {
-        type: 'step',
-        value: 'Qui dolores id nemo quia.'
-      },
-      {
-        type: 'step',
-        value: 'Iure alias labore consequatur officia.'
-      },
-      {
-        type: 'step',
-        value: 'Labore et sed eligendi dolorem.'
-      },
-      {
-        type: 'step',
-        value: 'Molestiae cum distinctio dolorem et.'
+        type: 'section',
+        value: 'Salad',
+        steps: [
+          {
+            type: 'step',
+            value: 'Iure alias labore consequatur officia.'
+          },
+          {
+            type: 'step',
+            value: 'Labore et sed eligendi dolorem.'
+          },
+          {
+            type: 'step',
+            value: 'Molestiae cum distinctio dolorem et.'
+          }
+        ]
       },
       {
         type: 'step',

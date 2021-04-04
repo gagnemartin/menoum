@@ -85,7 +85,7 @@ function onError(error) {
 function onListening() {
   const addr = server.address()
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
-  debug('Listening on ' + bind)
+  debug('Backend listening on ' + bind)
   debug(colors.green(`Please visit https://localhost:${process.env.PORT}/`))
 }
 

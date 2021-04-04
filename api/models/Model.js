@@ -68,6 +68,7 @@ class Model {
 
     return query
       .then(async (newData) => {
+        console.log(newData)
         const isBulk = data instanceof Array
         let returningData = isBulk ? newData : newData[0]
 

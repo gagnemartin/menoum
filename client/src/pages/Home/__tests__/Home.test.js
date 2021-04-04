@@ -4,11 +4,21 @@ import { MemoryRouter as Router } from 'react-router-dom'
 import Home from '../'
 import useRecipesService from '../../../services/recipesService'
 import { mockRecipesServiceResponse, mockRecipes } from '../../../mocks/recipeMocks'
-import { mockIngredients } from '../../../mocks/ingredientMocks'
+import { mockIngredients, mockIngredientsServiceResponse } from '../../../mocks/ingredientMocks'
 
 jest.mock('../../../services/recipesService')
 
-jest.mock('../../../services/ingredientsService')
+jest.mock('../../../services/ingredientsService', () => {
+  return () => ({
+    search: () => {
+      return mockIngredientsServiceResponse.search.success
+    },
+    add: (data) => {
+      mockIngredientsServiceResponse.search.success.name = data.name
+      return mockIngredientsServiceResponse.search.success
+    }
+  })
+})
 
 const customRender = (children) => {
   return render(<Router>{children}</Router>)
@@ -35,7 +45,7 @@ describe('<Home />', () => {
         return mockRecipesServiceResponse.suggest.success
       })
     })
-    const { queryByTestId, queryAllByTestId, queryByText } = customRender(<Home />)
+    const { queryByTestId, queryByText } = customRender(<Home />)
     const searchInput = queryByTestId('ingredient-search-input')
 
     expect(searchInput).toBeInTheDocument()
@@ -59,7 +69,7 @@ describe('<Home />', () => {
         return mockRecipesServiceResponse.suggest.error
       })
     })
-    const { queryByTestId, queryAllByTestId, queryByText } = customRender(<Home />)
+    const { queryByTestId, queryByText } = customRender(<Home />)
     const searchInput = queryByTestId('ingredient-search-input')
 
     expect(searchInput).toBeInTheDocument()

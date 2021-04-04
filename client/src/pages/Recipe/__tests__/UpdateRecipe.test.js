@@ -32,7 +32,7 @@ describe('<UpdateRecipe />', () => {
     const { queryByTestId } = customRender(<UpdateRecipe />)
 
     await waitFor(() => {
-      const buttonSubmit = queryByTestId('button-submit-recipe')
+      const buttonSubmit = queryByTestId('recipe-form-button-submit')
       expect(buttonSubmit).toBeInTheDocument()
 
       userEvent.click(buttonSubmit)
