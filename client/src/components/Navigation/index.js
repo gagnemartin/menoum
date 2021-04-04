@@ -1,6 +1,22 @@
 import { Link } from 'react-router-dom'
+import styled from 'styled-components'
 import { useUserState } from '../../hooks/useUser'
+import Dropdown from '../Layout/Dropdown'
 import Logout from '../Logout'
+
+const Ul = styled.ul`
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li a {
+    display: block;
+    padding: 10px;
+    color: inherit;
+  }
+`
 
 const Navigation = () => {
   const userState = useUserState()
@@ -8,7 +24,7 @@ const Navigation = () => {
 
   return (
     <nav>
-      <ul>
+      <Ul>
         <li>
           <Link to='/' data-testid='nav-home'>
             Home
@@ -30,24 +46,27 @@ const Navigation = () => {
               </li>
             </>
           ) : (
-            <>
-              {userState.user.role === 'admin' && (
-                <li>
-                  <Link to='/recipe/new' data-testid='nav-new-recipe'>
-                    Add a Recipe
-                  </Link>
-                </li>
-              )}
-              <li data-testid='nav-email'>{userState.user.email}</li>
-              <li>
-                <Logout />
-              </li>
-            </>
+            <li>
+              <Dropdown header={<span data-testid='nav-email'>{userState.user.email}</span>}>
+                <ul>
+                  {userState.user.role === 'admin' && (
+                    <li>
+                      <Link to='/recipe/new' data-testid='nav-new-recipe'>
+                        Add a Recipe
+                      </Link>
+                    </li>
+                  )}
+                  <li>
+                    <Logout />
+                  </li>
+                </ul>
+              </Dropdown>
+            </li>
           )
         ) : (
           <li data-testid='nav-loading'>Loading</li>
         )}
-      </ul>
+      </Ul>
     </nav>
   )
 }

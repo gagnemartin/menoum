@@ -4,7 +4,9 @@ exports[`<App /> should render and match snapshot 1`] = `
 <DocumentFragment>
   <div>
     <nav>
-      <ul>
+      <ul
+        class="sc-hKwCoD kfUcMW"
+      >
         <li>
           <a
             data-testid="nav-home"
