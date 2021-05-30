@@ -1,22 +1,17 @@
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { useUserState } from '../../hooks/useUser'
-import Dropdown from '../Layout/Dropdown'
+import { Dropdown, Flexbox, List } from '../Layout'
 import Logout from '../Logout'
 
-const Ul = styled.ul`
-  display: flex;
-  justify-content: space-between;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+const style = {
+  display: 'block',
+  padding: '10px',
+  color: 'inherit'
+}
 
-  li a {
-    display: block;
-    padding: 10px;
-    color: inherit;
-  }
-`
+const NavLink = styled(Link)(style)
+const NavItem = styled.div(style)
 
 const Navigation = () => {
   const userState = useUserState()
@@ -24,49 +19,53 @@ const Navigation = () => {
 
   return (
     <nav>
-      <Ul>
-        <li>
-          <Link to='/' data-testid='nav-home'>
-            Home
-          </Link>
-        </li>
+      <Flexbox justifyContent='space-between'>
+        <List.Ul listStyle='none' inline>
+          <List.Item>
+            <NavLink to='/' data-testid='nav-home'>
+              Home
+            </NavLink>
+          </List.Item>
+        </List.Ul>
 
-        {!loading ? (
-          Object.keys(userState.user).length === 0 ? (
-            <>
-              <li>
-                <Link to='/login' data-testid='nav-login'>
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link to='/register' data-testid='nav-register'>
-                  Register
-                </Link>
-              </li>
-            </>
+        <List.Ul listStyle='none' inline>
+          {!loading ? (
+            Object.keys(userState.user).length === 0 ? (
+              <>
+                <List.Item>
+                  <NavLink to='/login' data-testid='nav-login'>
+                    Login
+                  </NavLink>
+                </List.Item>
+                <List.Item>
+                  <NavLink to='/register' data-testid='nav-register'>
+                    Register
+                  </NavLink>
+                </List.Item>
+              </>
+            ) : (
+              <List.Item>
+                <Dropdown header={<span data-testid='nav-email'>{userState.user.email}</span>}>
+                  <List.Ul listStyle='none'>
+                    {userState.user.role === 'admin' && (
+                      <List.Item>
+                        <NavLink to='/recipe/new' data-testid='nav-new-recipe'>
+                          Add a Recipe
+                        </NavLink>
+                      </List.Item>
+                    )}
+                    <List.Item>
+                      <Logout />
+                    </List.Item>
+                  </List.Ul>
+                </Dropdown>
+              </List.Item>
+            )
           ) : (
-            <li>
-              <Dropdown header={<span data-testid='nav-email'>{userState.user.email}</span>}>
-                <ul>
-                  {userState.user.role === 'admin' && (
-                    <li>
-                      <Link to='/recipe/new' data-testid='nav-new-recipe'>
-                        Add a Recipe
-                      </Link>
-                    </li>
-                  )}
-                  <li>
-                    <Logout />
-                  </li>
-                </ul>
-              </Dropdown>
-            </li>
-          )
-        ) : (
-          <li data-testid='nav-loading'>Loading</li>
-        )}
-      </Ul>
+            <List.Item data-testid='nav-loading'>Loading</List.Item>
+          )}
+        </List.Ul>
+      </Flexbox>
     </nav>
   )
 }

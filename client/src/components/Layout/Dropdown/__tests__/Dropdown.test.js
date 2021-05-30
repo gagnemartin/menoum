@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import Dropdown from '../'
+import Dropdown from '../Dropdown'
 
 const Header = () => {
   return <p>Button</p>

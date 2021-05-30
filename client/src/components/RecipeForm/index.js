@@ -168,7 +168,9 @@ const RecipeForm = (props) => {
     }
   }
 
-  const onClickAddNewIngredient = async () => {
+  const onClickAddNewIngredient = async (e) => {
+    e.preventDefault()
+
     if (ingredientValue.trim().length > 0) {
       const response = await ingredientsService.add({ name: ingredientValue })
 

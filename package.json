@@ -7,17 +7,15 @@
     "husky": "^5.2.0"
   },
   "scripts": {
-    "test": "docker-compose exec client npm run test",
-    "test:headless": "docker-compose exec -T client npm run test:headless",
+    "test": "docker-compose up -d --no-recreate && docker-compose exec client npm run test",
+    "test:headless": "docker-compose up -d --no-recreate && docker-compose exec -T client npm run test:headless",
     "start": "docker-compose up",
     "init": "docker-compose down -v && docker-compose up --build",
     "migrations": "docker-compose exec api npm run migrate:latest",
     "rollback": "docker-compose exec api npm run migrate:rollback",
     "seeds": "docker-compose exec api npm run seed:run",
-
     "audit": "docker-compose exec client npm audit",
     "audit:fix": "docker-compose exec client npm audit fix",
-
     "prepare": "husky install"
   },
   "repository": {

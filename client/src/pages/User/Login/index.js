@@ -53,7 +53,7 @@ const Login = () => {
       {hasError && <p data-testid='login-error-message'>{errorMessage}</p>}
       <input onChange={handleChange} name='email' type='email' value={email} data-testid='login-input-email' />
       <input onChange={handleChange} name='password' type='password' value={password} data-testid='login-input-password' />
-      <button type='submit' disabled={isLoading} data-testid='button-login' data-testid='login-button-submit'>
+      <button type='submit' disabled={isLoading} data-testid='login-button-submit'>
         Login
       </button>
     </form>

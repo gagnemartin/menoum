@@ -5,26 +5,28 @@ const IngredientsList = props => {
 
   return (
     <div style={{ margin: '10px' }}>
-        {items.map((ingredient) => (
-          <span
-            key={ingredient.uuid}
-            style={{
-              border: 'solid 1px lightgray',
-              marginRight: '10px',
-              padding: '5px',
-            }}
+      {items.map((ingredient) => (
+        <span
+          key={ingredient.uuid}
+          data-testid={`selected-ingredient-${ingredient.uuid}`}
+          style={{
+            border: 'solid 1px lightgray',
+            marginRight: '10px',
+            padding: '5px'
+          }}
+        >
+          {ingredient.name}
+          <button
+            onClick={handleRemove}
+            data-uuid={ingredient.uuid}
+            style={{ marginLeft: '10px' }}
+            data-testid={`selected-ingredient-remove-${ingredient.uuid}`}
           >
-            {ingredient.name}
-            <button
-              onClick={handleRemove}
-              data-uuid={ingredient.uuid}
-              style={{ marginLeft: '10px' }}
-            >
-              X
-            </button>
-          </span>
-        ))}
-      </div>
+            X
+          </button>
+        </span>
+      ))}
+    </div>
   )
 }
 

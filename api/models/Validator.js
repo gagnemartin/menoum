@@ -32,7 +32,7 @@ class Validator {
       .where(column, value)
       .first()
       .catch((e) => {
-        console.log(e)
+        console.error(e)
       })
     const isValid = typeof res === 'undefined'
     return this.buildError(isValid, message)

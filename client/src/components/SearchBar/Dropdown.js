@@ -16,14 +16,14 @@ const Dropdown = (props) => {
         }}
       >
         {canAddNew && (
-          <p onClick={onClickAddNew} data-testid='ingredient-dropdown-add-new'>
+          <a href='#' onClick={onClickAddNew} data-testid='ingredient-dropdown-add-new'>
             Add <b>{value}</b>
-          </p>
+          </a>
         )}
         {items.map((ingredient) => (
-          <p key={ingredient.uuid} data-uuid={ingredient.uuid} onClick={onSelect} data-testid='ingredient-dropdown-item'>
+          <a href='#' key={ingredient.uuid} data-uuid={ingredient.uuid} onClick={onSelect} data-testid='ingredient-dropdown-item'>
             {ingredient.name}
-          </p>
+          </a>
         ))}
       </div>
     </div>

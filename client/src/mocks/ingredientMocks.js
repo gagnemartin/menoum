@@ -16,6 +16,16 @@ const mockIngredientsServiceResponse = {
       error: new Error('False Error')
     }
   },
+  getByUuids: {
+    success: {
+      status: 'success',
+      data: mockIngredients
+    },
+    error: {
+      status: 'error',
+      error: new Error('False Error')
+    }
+  },
   add: {
     success: {
       status: 'success',

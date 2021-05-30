@@ -40,6 +40,8 @@ const SearchBar = (props) => {
    * @param {object} e
    */
   const handleClickIngredient = (e) => {
+    e.preventDefault()
+
     const uuid = e.target.dataset.uuid
     const ingredient = suggestedIngredients.find((d) => d.uuid === uuid)
 
@@ -67,9 +69,15 @@ const SearchBar = (props) => {
   }
 
   const updateSearchParams = (uuids) => {
-    if (useUrl && uuids.length > 0) {
-       history.push({
-        search: `?${formatArrayQuery(URL_KEY, uuids)}`
+    if (useUrl) {
+      let searchParams = ''
+
+      if (uuids.length > 0) {
+        searchParams = `?${formatArrayQuery(URL_KEY, uuids)}`
+      }
+
+      history.push({
+        search: searchParams
       })
     }
   }
@@ -118,37 +126,39 @@ const SearchBar = (props) => {
     const { action } = history
     const ingredientsInUrl = getSearchParams(URL_KEY)
     
+    // Browser previous or forward
     if (action === 'POP') {
       const fetchIngredients = async () => {
+        if (ingredientsInUrl.length > 0) {
+          const response = await ingredientsService.getByUuids(ingredientsInUrl)
 
-      if (ingredientsInUrl.length > 0) {
-        const response = await ingredientsService.getByUuids(ingredientsInUrl)
 
+          if (isSuccessResponse(response)) {
+            const data = getDataFromResponse(response)
+            const ingredients = []
 
-        if (isSuccessResponse(response)) {
-          const data = getDataFromResponse(response)
-          const ingredients = []
+            // Keep the same order as the URL
+            ingredientsInUrl.forEach(uuid => {
+              const ingredient = data.find(d => d.uuid === uuid)
 
-          // Keep the same order as the URL
-          ingredientsInUrl.forEach(uuid => {
-            const ingredient = data.find(d => d.uuid === uuid)
+              if (ingredient) {
+                ingredients.push(ingredient)
+              }
+            })
 
-            if (ingredient) {
-              ingredients.push(ingredient)
-            }
-          })
-
-          setSelectedIngredients(ingredients)
+            setSelectedIngredients(ingredients)
+          }
+        } else {
+          setSelectedIngredients([])
         }
-      } else {
-        setSelectedIngredients([])
       }
-    }
 
       fetchIngredients()
-    } else if (action === 'PUSH' && ingredientsInUrl.length === 0) {
-      setSelectedIngredients([])
     }
+    // else if (action === 'PUSH' && ingredientsInUrl.length === 0) {
+    //   console.log('HEREEEEE')
+    //   setSelectedIngredients([])
+    // }
   }, [location])
 
   useEffect(() => {

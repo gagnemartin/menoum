@@ -40,7 +40,6 @@ const Register = () => {
     setIsLoading(true)
     const data = { email, password, confirm_password: confirmPassword }
     const response = await register(dispatch, data)
-    console.log(response)
 
     if (isSuccessResponse(response)) {
       const { from } = location.state || { from: { pathname: '/' } }

@@ -4,23 +4,37 @@ exports[`<App /> should render and match snapshot 1`] = `
 <DocumentFragment>
   <div>
     <nav>
-      <ul
-        class="sc-hKwCoD kfUcMW"
+      <div
+        class="sc-bdvvaa hFucwp"
       >
-        <li>
-          <a
-            data-testid="nav-home"
-            href="/"
-          >
-            Home
-          </a>
-        </li>
-        <li
-          data-testid="nav-loading"
+        <ul
+          class="sc-eCImvq ehSQlT"
+          display="flex"
         >
-          Loading
-        </li>
-      </ul>
+          <li
+            class="sc-gKckTs iBpJOX"
+          >
+            <a
+              class="sc-iCfLBT lbWCiB"
+              data-testid="nav-home"
+              href="/"
+            >
+              Home
+            </a>
+          </li>
+        </ul>
+        <ul
+          class="sc-eCImvq ehSQlT"
+          display="flex"
+        >
+          <li
+            class="sc-gKckTs iBpJOX"
+            data-testid="nav-loading"
+          >
+            Loading
+          </li>
+        </ul>
+      </div>
     </nav>
     <div>
       <input
