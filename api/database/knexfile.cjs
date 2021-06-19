@@ -7,7 +7,7 @@ module.exports = {
   onUpdateTrigger: ({ table, except_columns = [] }) => {
     let command = `
     CREATE TRIGGER ${table}_updated_at
-    AFTER UPDATE ON ${table}
+    BEFORE UPDATE ON ${table}
     FOR EACH ROW
     `
 

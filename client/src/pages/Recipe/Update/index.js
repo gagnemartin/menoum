@@ -10,6 +10,7 @@ const UpdateRecipe = () => {
   const [recipe, setRecipe] = useState({})
 
   const submitRecipe = async (data) => {
+    console.log({ ...data, uuid: recipe.uuid })
     const response = await recipesService.update({ ...data, uuid: recipe.uuid })
     return response
   }
