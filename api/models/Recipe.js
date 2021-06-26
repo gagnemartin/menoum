@@ -47,8 +47,33 @@ class Recipe extends Model {
         index: this.table,
         body: {
           query: {
-            bool: {
-              should: matches
+            nested: {
+              path: 'ingredients',
+              query: {
+                function_score: {
+                  // boost_mode: 'sum',
+                  query: {
+                    bool: {
+                      must: [
+                        {
+                          bool: {
+                            should: matches
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  functions: [
+                    {
+                      field_value_factor: {
+                        field: 'ingredients.weight',
+                        factor: 1.2,
+                        missing: 1
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         }
@@ -160,11 +185,13 @@ class Recipe extends Model {
         if (typeof ingredient.section === 'string') {
           transformedData.ingredients[i].section = ingredient.section.trim()
         }
+        if (typeof ingredient.weight !== 'undefined') {
+          transformedData.ingredients[i].weight = parseFloat(ingredient.weight)
+        }
 
         // DEFAULTS
-        
-        if (typeof ingredient.is_main === 'undefined') {
-          transformedData.ingredients[i].is_main = false
+        if (typeof ingredient.weight === 'undefined') {
+          transformedData.ingredients[i].weight = 1
         }
 
         if (typeof ingredient.section === 'undefined' || ingredient.section.length === 0) {
@@ -218,7 +245,7 @@ class Recipe extends Model {
       const toDelete = []
 
       ingredients.map((ingredient) => {
-        const { ingredient_recipe_id, uuid, unit, amount, section, is_main } = ingredient
+        const { ingredient_recipe_id, uuid, unit, amount, section, weight } = ingredient
         const ingredientData = ingredientsData.find((ingredientObj) => ingredientObj.uuid === uuid)
 
         // Ingredient is valid
@@ -234,7 +261,7 @@ class Recipe extends Model {
             unit,
             amount,
             section: section,
-            is_main: is_main
+            weight
           }
 
           // Update data in pivot table
@@ -283,7 +310,7 @@ class Recipe extends Model {
   formatElasticIngredients = (data) => {
     return {
       ingredients: data.map((ingredient) => {
-        return { uuid: ingredient.uuid }
+        return { uuid: ingredient.uuid, weight: ingredient.weight }
       })
     }
   }

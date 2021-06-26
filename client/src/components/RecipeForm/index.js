@@ -156,7 +156,7 @@ const RecipeForm = (props) => {
         unit: '',
         amount: 0,
         section: '',
-        is_main: false
+        weight: 1
       }
       
       setSelectedIngredients((prevIngredients) => ({

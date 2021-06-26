@@ -11,7 +11,7 @@ async function up(knex) {
       table.string('unit', 20).defaultTo(null)
       table.integer('amount').defaultTo(null).unsigned()
       table.string('section', 50).defaultTo(null)
-      table.boolean('is_main').defaultTo(false)
+      table.decimal('weight').defaultTo(1)
 
       table
         .datetime('created_at', { precision: 6 })

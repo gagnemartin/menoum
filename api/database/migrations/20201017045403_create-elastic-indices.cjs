@@ -31,7 +31,18 @@ async function up() {
     }
   })
 
-  return ingredientsMapping
+  const recipesMapping = ElasticClient.indices.putMapping({
+    index: 'recipes',
+    body: {
+      properties: {
+        ingredients: {
+          type: 'nested'
+        }
+      }
+    }
+  })
+
+  return Promise.all([ingredientsMapping, recipesMapping])
 }
 
 async function down() {

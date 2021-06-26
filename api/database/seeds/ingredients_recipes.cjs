@@ -24,16 +24,16 @@ const createRecipes = (numEntries) => {
   const thumbnailsArrEnd = thumbnails.length - 1
 
   for (let i = 0; i < numEntries; i++) {
-    const ingredient_count = faker.random.number({ min: 0, max: 10 })
-    const servings = faker.random.number({ min: 1, max: 5 })
+    const ingredient_count = faker.datatype.number({ min: 0, max: 10 })
+    const servings = faker.datatype.number({ min: 1, max: 5 })
     const recipe = {
       name: faker.lorem.sentence(5),
-      steps: JSON.stringify(createSteps(faker.random.number({ min: 4, max: 10 }))),
-      prep_time: faker.random.number({ min: 0, max: 30 }),
-      cook_time: faker.random.number({ min: 0, max: 120 }),
+      steps: JSON.stringify(createSteps(faker.datatype.number({ min: 4, max: 10 }))),
+      prep_time: faker.datatype.number({ min: 0, max: 30 }),
+      cook_time: faker.datatype.number({ min: 0, max: 120 }),
       yields: servings,
       servings,
-      thumbnail: thumbnails[faker.random.number({ min: 0, max: thumbnailsArrEnd })],
+      thumbnail: thumbnails[faker.datatype.number({ min: 0, max: thumbnailsArrEnd })],
       is_visible: true,
       ingredient_count
     }
@@ -193,11 +193,12 @@ async function seed(knex) {
         recipe_id: recipe.id,
         ingredient_id,
         unit: randomFromArray(units),
-        amount: faker.random.number({ min: 1, max: 10 })
+        amount: faker.datatype.number({ min: 1, max: 10 }),
+        weight: 1
       }
 
       if (i === 0) {
-        ingredientRecipe.is_main = true
+        ingredientRecipe.weight = 2
       }
 
       if (recipe.ingredient_count > 5) {
@@ -210,7 +211,7 @@ async function seed(knex) {
         ingredientRecipe.ingredient_id = ingredients[ingredientKey].id
       }
 
-      elasticRecipesIngredients.push({ uuid: ingredients[ingredientKey].uuid })
+      elasticRecipesIngredients.push({ uuid: ingredients[ingredientKey].uuid, weight: ingredientRecipe.weight })
       pivotData.push(ingredientRecipe)
     }
 

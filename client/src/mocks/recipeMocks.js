@@ -65,7 +65,7 @@ const mockRecipes = [
           unit: 'g',
           amount: 5,
           section: 'Bread',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -85,7 +85,7 @@ const mockRecipes = [
           unit: 'ml',
           amount: 5,
           section: 'Starter',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -105,7 +105,7 @@ const mockRecipes = [
           unit: 'ml',
           amount: 4,
           section: 'Pasta',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -125,7 +125,7 @@ const mockRecipes = [
           unit: 'ml',
           amount: 7,
           section: 'Bread',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -145,7 +145,7 @@ const mockRecipes = [
           unit: 'g',
           amount: 10,
           section: 'Sauce',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -165,7 +165,7 @@ const mockRecipes = [
           unit: 'g',
           amount: 7,
           section: 'Appetizers',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -185,7 +185,7 @@ const mockRecipes = [
           unit: 'ml',
           amount: 1,
           section: 'Salad',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -205,7 +205,7 @@ const mockRecipes = [
           unit: 'ml',
           amount: 2,
           section: 'Salad',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -225,7 +225,7 @@ const mockRecipes = [
           unit: 'ml',
           amount: 1,
           section: 'Starter',
-          is_main: true,
+          weight: 2.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }
@@ -245,7 +245,7 @@ const mockRecipes = [
           unit: 'g',
           amount: 4,
           section: 'Pasta',
-          is_main: null,
+          weight: 1.0,
           created_at: '2021-03-27T18:57:47.013142',
           updated_at: '2021-03-27T18:57:47.013142'
         }

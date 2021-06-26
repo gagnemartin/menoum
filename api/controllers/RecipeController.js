@@ -91,10 +91,11 @@ class RecipeController extends Controller {
   }
 
   update = async (req, res, next) => {
+    delete req.body.uuid
+    const { uuid } = req.params
     const formData = Recipe.transformData(req.body)
     const ingredientsInsert = formData.ingredients
     const elasticIngredients = Recipe.formatElasticIngredients(ingredientsInsert)
-    const { uuid } = req.params
     const [isValid, errors] = await Recipe.validate(formData)
 
     if (isValid) {
