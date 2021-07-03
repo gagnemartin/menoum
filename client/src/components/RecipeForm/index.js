@@ -197,11 +197,8 @@ const RecipeForm = (props) => {
 
         if (isSuccessResponse(response)) {
           const data = getDataFromResponse(response)
-          const filtered = data.filter((ingredient) => {
-            return !Object.keys(selectedIngredients).some((key) => selectedIngredients[key].uuid === ingredient.uuid)
-          })
 
-          setSuggestedIngredients(filtered)
+          setSuggestedIngredients(data)
         }
       } else {
         setSuggestedIngredients([])
