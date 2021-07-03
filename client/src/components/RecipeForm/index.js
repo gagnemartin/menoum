@@ -104,12 +104,13 @@ const RecipeForm = (props) => {
       steps: formatSteps(steps),
       ingredients: Object.keys(selectedIngredients).map((key) => {
         const ingredient = selectedIngredients[key]
-        const { ingredient_recipe_id, uuid, unit, amount, section } = ingredient
+        const { ingredient_recipe_id, uuid, unit, amount, section, weight } = ingredient
         const data = {
           uuid,
           unit,
           amount,
-          section
+          section,
+          weight
         }
 
         if (ingredient_recipe_id) {
@@ -219,7 +220,8 @@ const RecipeForm = (props) => {
           name: ingredient.name,
           amount: replaceNullWith(ingredient.ingredients_recipes.amount, 0),
           unit: replaceNullWith(ingredient.ingredients_recipes.unit, ''),
-          section: replaceNullWith(ingredient.ingredients_recipes.section, '')
+          section: replaceNullWith(ingredient.ingredients_recipes.section, ''),
+          weight: replaceNullWith(ingredient.ingredients_recipes.weight, 1)
         }
       })
 
@@ -299,6 +301,16 @@ const RecipeForm = (props) => {
               name='section'
               value={selectedIngredients[key].section}
               data-testid='recipe-form-input-ingredient-section'
+            />
+            <input
+              onChange={handleChangeIngredientData}
+              data-key={key}
+              placeholder='Weight'
+              type='number'
+              step='0.1'
+              name='weight'
+              value={selectedIngredients[key].weight}
+              data-testid='recipe-form-input-ingredient-weight'
             />
           </fieldset>
         ))}
