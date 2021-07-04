@@ -1,25 +1,16 @@
 import { render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter as Router, Switch, Route, useLocation } from 'react-router-dom'
+import { MemoryRouter as Router, Switch, Route } from 'react-router-dom'
 import Login from '../Login'
 import { mockUsersServiceResponse, mockUser } from '../../../mocks/userMocks'
-import { login } from '../../../context/userContext'
+import { UsersService } from '../../../services'
 
-jest.mock('../../../context/userContext', () => ({
-  login: jest.fn()
-}))
 jest.mock('../../../hooks/useUser', () => ({
-  useUserDispatch: jest.fn()
+  useUserDispatch: () => jest.fn()
 }))
+jest.mock('../../../services/usersService')
 
-// jest.mock('react-router-dom', () => ({
-//   ...jest.requireActual('react-router-dom'),
-//   useLocation: () => ({
-//     state: { from: { pathname: '/est' } }
-//   })
-// }))
-
-const customRender = (children) => {
+const customRender = () => {
   return render(
     <Router initialEntries={['/login']}>
       <Switch>
@@ -36,26 +27,8 @@ const customRender = (children) => {
 }
 
 describe('<Login />', () => {
-  it('should update the state when te user types', async () => {
-    const { queryByTestId } = customRender(<Login />)
-
-    const inputEmail = queryByTestId('login-input-email')
-    const inputPassword = queryByTestId('login-input-password')
-
-    expect(inputEmail).toBeInTheDocument()
-    expect(inputPassword).toBeInTheDocument()
-
-    userEvent.type(inputEmail, mockUser.email)
-    userEvent.type(inputPassword, mockUser.password)
-
-    await waitFor(() => {
-      expect(inputEmail.value).toBe(mockUser.email)
-      expect(inputPassword.value).toBe(mockUser.password)
-    })
-  })
-
-  it('should show error is user can not login', async () => {
-    login.mockReturnValueOnce(mockUsersServiceResponse.login.error)
+  it('should show error if user can not login', async () => {
+    UsersService.login.mockReturnValueOnce(mockUsersServiceResponse.login.error)
     const { queryByTestId } = customRender(<Login />)
 
     const inputEmail = queryByTestId('login-input-email')
@@ -76,6 +49,7 @@ describe('<Login />', () => {
   })
 
   it('should redirect to homepage if no previous page is defined', async () => {
+    UsersService.login.mockReturnValueOnce(mockUsersServiceResponse.login.success)
     const { queryByTestId } = customRender(<Login />)
 
     const inputEmail = queryByTestId('login-input-email')

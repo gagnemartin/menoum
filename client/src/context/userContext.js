@@ -31,57 +31,6 @@ const refresh = async (dispatch) => {
   }
 }
 
-const login = async (dispatch, data) => {
-  dispatch({ type: actionTypes.request, loading: true })
-  try {
-    const payload = await UsersService.login(data)
-
-    if (isSuccessResponse(payload)) {
-      dispatch({ type: actionTypes.success, payload })
-      return payload
-    } else {
-      throw payload
-    }
-  } catch (error) {
-    dispatch({ type: actionTypes.error, error })
-    return error
-  }
-}
-
-const register = async (dispatch, data) => {
-  dispatch({ type: actionTypes.request, loading: true })
-  try {
-    const payload = await UsersService.register(data)
-
-    if (isSuccessResponse(payload)) {
-      dispatch({ type: actionTypes.success, payload })
-      return payload
-    } else {
-      throw payload
-    }
-  } catch (error) {
-    dispatch({ type: actionTypes.error, error })
-    return error
-  }
-}
-
-const logout = async (dispatch) => {
-  dispatch({ type: actionTypes.request, loading: true })
-  try {
-    const payload = await UsersService.logout()
-
-    if (isSuccessResponse(payload)) {
-      dispatch({ type: actionTypes.success, payload })
-      return payload
-    } else {
-      throw payload
-    }
-  } catch (error) {
-    dispatch({ type: actionTypes.error, error })
-    return error
-  }
-}
-
 const UserProvider = ({ children }) => {
   const [user, setUser] = useReducer(userReducer, initialState)
 
@@ -100,4 +49,4 @@ const UserProvider = ({ children }) => {
   )
 }
 
-export { UserProvider, UserStateContext, UserDispatchContext, login, logout, register }
+export { UserProvider, UserStateContext, UserDispatchContext }

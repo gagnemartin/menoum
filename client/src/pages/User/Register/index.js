@@ -1,35 +1,37 @@
 import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { register } from '../../../context/userContext'
 import { useUserDispatch } from '../../../hooks/useUser'
 import { isSuccessResponse } from '../../../global/helpers'
+import useFormInput from '../../../hooks/useFormInput'
+import { actionTypes } from '../../../reducers/userReducer'
+import { UsersService } from '../../../services'
 
 const Register = () => {
   const history = useHistory()
   const location = useLocation()
   const dispatch = useUserDispatch()
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const email = useFormInput('')
+  const password = useFormInput('')
+  const confirmPassword = useFormInput('')
+
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleChange = (e) => {
-    const {
-      target: { name, value }
-    } = e
+  const register = async (data) => {
+    dispatch({ type: actionTypes.request, loading: true })
+    try {
+      const payload = await UsersService.register(data)
 
-    switch (name) {
-      case 'email':
-        setEmail(value)
-        break
-      case 'password':
-        setPassword(value)
-        break
-      case 'confirm_password':
-        setConfirmPassword(value)
-        break
+      if (isSuccessResponse(payload)) {
+        dispatch({ type: actionTypes.success, payload })
+        return payload
+      } else {
+        throw payload
+      }
+    } catch (error) {
+      dispatch({ type: actionTypes.error, error })
+      return error
     }
   }
 
@@ -38,8 +40,8 @@ const Register = () => {
 
     setErrors({})
     setIsLoading(true)
-    const data = { email, password, confirm_password: confirmPassword }
-    const response = await register(dispatch, data)
+    const data = { email: email.value, password: password.value, confirm_password: confirmPassword.value }
+    const response = await register(data)
 
     if (isSuccessResponse(response)) {
       const { from } = location.state || { from: { pathname: '/' } }
@@ -64,21 +66,20 @@ const Register = () => {
   return (
     <form onSubmit={handleSubmit} action='#'>
       <div>
-        <input onChange={handleChange} name='email' type='email' value={email} data-testid='register-input-email' />
+        <input {...email} name='email' type='email' data-testid='register-input-email' />
         {showErrors(errors.email)}
       </div>
 
       <div>
-        <input onChange={handleChange} name='password' type='password' value={password} data-testid='register-input-password' />
+        <input {...password} name='password' type='password' data-testid='register-input-password' />
         {showErrors(errors.password)}
       </div>
 
       <div>
         <input
-          onChange={handleChange}
+          {...confirmPassword}
           name='confirm_password'
           type='password'
-          value={confirmPassword}
           data-testid='register-input-password-confirm'
         />
         {showErrors(errors.confirm_password)}

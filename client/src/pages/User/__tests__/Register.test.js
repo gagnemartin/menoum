@@ -4,13 +4,12 @@ import { MemoryRouter as Router, Switch, Route } from 'react-router-dom'
 import Register from '../Register'
 import { mockUsersServiceResponse, mockUser } from '../../../mocks/userMocks'
 import { register } from '../../../context/userContext'
+import { UsersService } from '../../../services'
 
-jest.mock('../../../context/userContext', () => ({
-  register: jest.fn()
-}))
 jest.mock('../../../hooks/useUser', () => ({
-  useUserDispatch: jest.fn()
+  useUserDispatch: () => jest.fn()
 }))
+jest.mock('../../../services/usersService')
 
 const customRender = () => {
   return render(
@@ -29,30 +28,8 @@ const customRender = () => {
 }
 
 describe('<Register />', () => {
-  it('should update the state when te user types', async () => {
-    const { queryByTestId } = customRender()
-
-    const inputEmail = queryByTestId('register-input-email')
-    const inputPassword = queryByTestId('register-input-password')
-    const inputPasswordConfirm = queryByTestId('register-input-password-confirm')
-
-    expect(inputEmail).toBeInTheDocument()
-    expect(inputPassword).toBeInTheDocument()
-    expect(inputPasswordConfirm).toBeInTheDocument()
-
-    userEvent.type(inputEmail, mockUser.email)
-    userEvent.type(inputPassword, mockUser.password)
-    userEvent.type(inputPasswordConfirm, mockUser.password)
-
-    await waitFor(() => {
-      expect(inputEmail.value).toBe(mockUser.email)
-      expect(inputPassword.value).toBe(mockUser.password)
-      expect(inputPasswordConfirm.value).toBe(mockUser.password)
-    })
-  })
-
   it('should show error is user can not register', async () => {
-    register.mockReturnValueOnce(mockUsersServiceResponse.register.error)
+    UsersService.register.mockReturnValueOnce(mockUsersServiceResponse.register.error)
     const { queryByTestId, queryAllByTestId } = customRender()
 
     const inputEmail = queryByTestId('register-input-email')
@@ -72,7 +49,7 @@ describe('<Register />', () => {
   })
 
   it('should redirect to homepage if no previous page is defined', async () => {
-    register.mockReturnValueOnce(mockUsersServiceResponse.register.success)
+    UsersService.register.mockReturnValueOnce(mockUsersServiceResponse.register.success)
     const { queryByTestId } = customRender()
 
     const inputEmail = queryByTestId('register-input-email')
@@ -92,7 +69,7 @@ describe('<Register />', () => {
   })
 
   it('should redirect to previous page', async () => {
-    register.mockReturnValueOnce(mockUsersServiceResponse.register.success)
+    UsersService.register.mockReturnValueOnce(mockUsersServiceResponse.register.success)
     // useLocation.mockImplementation(() => ({
     //   state: { from: '/test' }
     // }))

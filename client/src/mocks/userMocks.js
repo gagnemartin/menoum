@@ -52,6 +52,25 @@ const mockUsersServiceResponse = {
       error: new Error('False Error')
     }
   },
+  
+  logout: {
+    success: {
+      status: 'success',
+      data: {
+        token: userToken
+      }
+    },
+    successAdmin: {
+      status: 'success',
+      data: {
+        token: userAdminToken
+      }
+    },
+    error: {
+      status: 'error',
+      error: new Error('False Error')
+    }
+  },
 
   register: {
     success: {
