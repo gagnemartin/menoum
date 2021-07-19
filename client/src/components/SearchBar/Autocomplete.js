@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import TextField from '@material-ui/core/TextField'
 import Dropdown from './Dropdown'
 
 const Autocomplete = (props) => {
@@ -6,7 +7,7 @@ const Autocomplete = (props) => {
 
   return (
     <>
-      <input type='text' value={value} onChange={onChange} data-testid='ingredient-search-input' />
+      <TextField value={value} onChange={onChange} variant='outlined' data-testid='ingredient-search-input' multiline fullWidth />
       <Dropdown canAddNew={canAddNew} items={items} onClickAddNew={onClickAddNew} onSelect={onSelect} value={value} />
     </>
   )

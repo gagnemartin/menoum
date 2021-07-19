@@ -5,35 +5,28 @@ exports[`<App /> should render and match snapshot 1`] = `
   <div>
     <nav>
       <div
-        class="sc-bdvvaa hFucwp"
+        class="MuiBox-root css-k008qs"
       >
-        <ul
-          class="sc-eCImvq ehSQlT"
-          display="flex"
+        <div
+          class="MuiBox-root css-1ilyui9"
         >
-          <li
-            class="sc-gKckTs iBpJOX"
+          <a
+            class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-tgjvbr-MuiTypography-root-MuiLink-root"
+            data-testid="nav-home"
+            href="/"
           >
-            <a
-              class="sc-iCfLBT lbWCiB"
-              data-testid="nav-home"
-              href="/"
-            >
-              Home
-            </a>
-          </li>
-        </ul>
-        <ul
-          class="sc-eCImvq ehSQlT"
-          display="flex"
+            Home
+          </a>
+        </div>
+        <div
+          class="MuiBox-root css-k008qs"
         >
-          <li
-            class="sc-gKckTs iBpJOX"
+          <p
             data-testid="nav-loading"
           >
-            Loading
-          </li>
-        </ul>
+            loading
+          </p>
+        </div>
       </div>
     </nav>
     <div>

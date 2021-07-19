@@ -78,7 +78,7 @@ class UserController extends Controller {
     return next(User.error(400))
   }
 
-  logout = (req, res, next) => {
+  logout = async (req, res, next) => {
     res.cookie('refresh_token', '', {
       httpOnly: true,
       expires: new Date(0)

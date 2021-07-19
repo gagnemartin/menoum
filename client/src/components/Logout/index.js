@@ -1,4 +1,5 @@
 import { useHistory } from 'react-router-dom'
+import Link from '@material-ui/core/Link'
 import { isSuccessResponse } from '../../global/helpers'
 import { useUserDispatch } from '../../hooks/useUser'
 import { actionTypes } from '../../reducers/userReducer'
@@ -32,9 +33,9 @@ const Logout = () => {
   }
 
   return (
-    <a onClick={handleClick} href='#' data-testid='nav-logout'>
+    <Link href='/logout' onClick={handleClick} data-testid='nav-logout'>
       Logout
-    </a>
+    </Link>
   )
 }
 

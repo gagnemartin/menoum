@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import Container from '@material-ui/core/Container'
+import Box from '@material-ui/core/Box'
 import SearchBar from '../../components/SearchBar'
 import RecipesList from '../../components/RecipesList'
 import { useRecipesService } from '../../services'
@@ -24,10 +26,14 @@ const Home = () => {
   }
 
   return (
-    <>
-      <SearchBar useUrl onChangeIngredients={onChangeIngredients} />
+    <Container maxWidth='lg'>
+      {/* <Box justifyContent='center'> */}
+      <Container maxWidth='sm'>
+        <SearchBar useUrl onChangeIngredients={onChangeIngredients} />
+      </Container>
+      {/* </Box> */}
       <RecipesList items={suggestedRecipes} />
-    </>
+    </Container>
   )
 }
 
