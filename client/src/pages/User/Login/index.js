@@ -27,7 +27,6 @@ const Login = () => {
   const login = async (data) => {
     dispatch({ type: actionTypes.request, loading: true })
     try {
-      console.log(data)
       const payload = await UsersService.login(data)
 
       if (isSuccessResponse(payload)) {

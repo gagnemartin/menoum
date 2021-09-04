@@ -87,9 +87,6 @@ const Autocomplete = (props) => {
         inputValue={inputValue}
         value={selectedOptions}
       />
-
-      {/* <TextField value={value} onChange={onChange} variant='outlined' data-testid='ingredient-search-input' multiline fullWidth />
-      <Dropdown canAddNew={canAddNew} items={items} onClickAddNew={onClickAddNew} onSelect={onSelect} value={value} /> */}
     </>
   )
 }

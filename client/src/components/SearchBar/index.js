@@ -153,10 +153,6 @@ const SearchBar = ({ onChangeIngredients, useUrl, size }) => {
 
       fetchIngredients()
     }
-    // else if (action === 'PUSH' && ingredientsInUrl.length === 0) {
-    //   console.log('HEREEEEE')
-    //   setSelectedIngredients([])
-    // }
   }, [location])
 
   useEffect(() => {

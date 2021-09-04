@@ -19,7 +19,7 @@ const NavLink = styled(Link)(({ theme }) => ({
 
 const Navigation = () => {
   const userState = useUserState()
-  const { loading, user, status } = userState
+  const { loading, user } = userState
 
   const [open, setOpen] = useState(false)
   const anchorRef = useRef(null)
