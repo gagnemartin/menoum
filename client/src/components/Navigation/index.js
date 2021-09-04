@@ -52,14 +52,12 @@ const Navigation = () => {
     prevOpen.current = open
   }, [open])
 
-  console.log(userState)
-
   return (
     <nav>
       <Box display='flex' alignItems='center' px={2}>
         <Box display='flex' flexGrow={1}>
           <NavLink component={RouterLink} to='/' data-testid='nav-home'>
-            Home
+            Menoum
           </NavLink>
         </Box>
         <Box display='flex'>
@@ -103,7 +101,7 @@ const Navigation = () => {
             ) : (
               <>
                 <NavLink component={RouterLink} to='/login' data-testid='nav-login'>
-                  Login
+                  Sign in
                 </NavLink>
                 <NavLink component={RouterLink} to='/register' data-testid='nav-register'>
                   Register

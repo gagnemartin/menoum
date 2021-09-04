@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
 import { useUserDispatch } from '../../../hooks/useUser'
 import { isSuccessResponse } from '../../../global/helpers'
 import useFormInput from '../../../hooks/useFormInput'
 import { actionTypes } from '../../../reducers/userReducer'
 import { UsersService } from '../../../services'
+import { PageContainer, PageHeader, PageTitle } from '../../../components/Layout'
 
 const Register = () => {
   const history = useHistory()
@@ -56,41 +60,104 @@ const Register = () => {
   const showErrors = (errors) => {
     if (errors) {
       return Object.keys(errors).map((error) => (
-        <p key={error} data-testid='register-error-item'>
+        <Grid item key={error} data-testid='register-error-item'>
           {errors[error].message}
-        </p>
+        </Grid>
       ))
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} action='#'>
-      <div>
-        <input {...email} name='email' type='email' data-testid='register-input-email' />
-        {showErrors(errors.email)}
-      </div>
+    <>
+      <PageHeader>
+        <PageTitle>Create a new account</PageTitle>
+      </PageHeader>
 
-      <div>
-        <input {...password} name='password' type='password' data-testid='register-input-password' />
-        {showErrors(errors.password)}
-      </div>
+      <PageContainer maxWidth='xs'>
+        <form onSubmit={handleSubmit} action='#'>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    {...email}
+                    name='email'
+                    type='email'
+                    inputProps={{
+                      'data-testid': 'register-input-email'
+                    }}
+                    label='Email Address'
+                    InputLabelProps={{ required: false }}
+                    error={errors.email ? true : false}
+                    FormHelperTextProps={{
+                      error: true
+                    }}
+                    helperText={showErrors(errors.email)}
+                    required
+                    fullWidth
+                    autoFocus
+                  />
+                </Grid>
 
-      <div>
-        <input
-          {...confirmPassword}
-          name='confirm_password'
-          type='password'
-          data-testid='register-input-password-confirm'
-        />
-        {showErrors(errors.confirm_password)}
-      </div>
+                <Grid item xs={12}>
+                  <TextField
+                    {...password}
+                    name='password'
+                    type='password'
+                    inputProps={{
+                      'data-testid': 'register-input-password'
+                    }}
+                    label='Password'
+                    InputLabelProps={{ required: false }}
+                    error={errors.password ? true : false}
+                    FormHelperTextProps={{
+                      error: true
+                    }}
+                    helperText={showErrors(errors.password)}
+                    required
+                    fullWidth
+                  />
+                </Grid>
 
-      <div>
-        <button type='submit' disabled={isLoading} data-testid='register-button-submit'>
-          Register
-        </button>
-      </div>
-    </form>
+                <Grid item xs={12}>
+                  <TextField
+                    {...confirmPassword}
+                    name='confirm_password'
+                    type='password'
+                    inputProps={{
+                      'data-testid': 'register-input-password-confirm'
+                    }}
+                    label='Confirm your password'
+                    InputLabelProps={{ required: false }}
+                    error={errors.confirm_password ? true : false}
+                    FormHelperTextProps={{
+                      error: true
+                    }}
+                    helperText={showErrors(errors.confirm_password)}
+                    required
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Button
+                type='submit'
+                disabled={isLoading}
+                data-testid='register-button-submit'
+                variant='contained'
+                size='large'
+                disableElevation
+                fullWidth
+              >
+                Register
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </PageContainer>
+    </>
   )
 }
 

@@ -32,41 +32,21 @@ describe('<RecipeForm />', () => {
     //expect(asFragment()).toMatchSnapshot()
   })
 
-  it("should not add an ingredient when user click on ingredient list if it's not valid", async () => {
-    const { queryByTestId, queryAllByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
-    const searchInput = queryByTestId('ingredient-search-input')
-
-    userEvent.type(searchInput, mockIngredients[0].name)
-
-    await waitFor(() => {
-      const dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
-      dropdownItem.dataset.uuid = 'changedUuid'
-
-      userEvent.click(dropdownItem)
-    })
-
-    const ingredientName = queryAllByTestId('recipe-form-ingredient-name')
-    const ingredientUnits = queryAllByTestId('recipe-form-input-ingredient-unit')
-
-    expect(ingredientName.length).toBe(0)
-    expect(ingredientUnits.length).toBe(0)
-  })
-
   it('should not crash if search ingredient returns an error', async () => {
     ingredientsService.mockReturnValue({
       search: jest.fn(() => {
         return mockIngredientsServiceResponse.search.error
       })
     })
-    const { queryByTestId, queryAllByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
+    const { queryByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
     const searchInput = queryByTestId('ingredient-search-input')
 
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      const dropdownItems = queryAllByTestId('ingredient-dropdown-item')
+      const dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
 
-      expect(dropdownItems.length).toBe(0)
+      expect(dropdownItem).not.toBeInTheDocument()
     })
   })
 
@@ -79,7 +59,7 @@ describe('<RecipeForm />', () => {
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      const dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      const dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
 
       userEvent.click(dropdownItem)
     })
@@ -103,7 +83,7 @@ describe('<RecipeForm />', () => {
     userEvent.type(searchInput, fakeIngredient.name)
 
     await waitFor(() => {
-      const buttonAddNewIngredient = queryByTestId('ingredient-dropdown-add-new')
+      const buttonAddNewIngredient = queryByTestId(`ingredient-dropdown-item-${fakeIngredient.name}`)
 
       userEvent.click(buttonAddNewIngredient)
     })
@@ -137,7 +117,7 @@ describe('<RecipeForm />', () => {
     userEvent.type(searchInput, fakeIngredient.name)
 
     await waitFor(() => {
-      const buttonAddNewIngredient = queryByTestId('ingredient-dropdown-add-new')
+      const buttonAddNewIngredient = queryByTestId(`ingredient-dropdown-item-${fakeIngredient.name}`)
 
       userEvent.click(buttonAddNewIngredient)
     })
@@ -151,7 +131,7 @@ describe('<RecipeForm />', () => {
     })
   })
 
-  it('should not create and add a new ingredient when user click on "Add New" if its length is 0', async () => {
+  it('should not show "Add New" if input value its length is 0', async () => {
     const { queryByTestId, queryAllByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
     const searchInput = queryByTestId('ingredient-search-input')
     const fakeIngredient = {
@@ -162,23 +142,13 @@ describe('<RecipeForm />', () => {
 
     userEvent.type(searchInput, fakeIngredient.name)
 
-    await waitFor(() => {
-      const buttonAddNewIngredient = queryByTestId('ingredient-dropdown-add-new')
+    const buttonAddNewIngredient = queryByTestId(`ingredient-dropdown-item-${fakeIngredient.name}`)
 
-      userEvent.click(buttonAddNewIngredient)
-    })
-
-    await waitFor(() => {
-      const ingredientName = queryAllByTestId('recipe-form-ingredient-name')
-      const ingredientUnits = queryAllByTestId('recipe-form-input-ingredient-unit')
-
-      expect(ingredientName.length).toBe(0)
-      expect(ingredientUnits.length).toBe(0)
-    })
+    expect(buttonAddNewIngredient).not.toBeInTheDocument()
   })
 
   it('should update the ingredient amount, unit and section', async () => {
-    const { queryByTestId, queryAllByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
+    const { queryByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
     const searchInput = queryByTestId('ingredient-search-input')
 
     expect(searchInput).toBeInTheDocument()
@@ -186,7 +156,7 @@ describe('<RecipeForm />', () => {
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      const dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      const dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
 
       userEvent.click(dropdownItem)
     })
@@ -252,14 +222,14 @@ describe('<RecipeForm />', () => {
 
   it('should successfully create the recipe', async () => {
     submitRecipe.mockReturnValueOnce(mockRecipesServiceResponse.update.success)
-    const { getByTestId, queryByTestId, queryAllByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
+    const { getByTestId, queryByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
 
     const searchInput = queryByTestId('ingredient-search-input')
 
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      const dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      const dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
 
       userEvent.click(dropdownItem)
     })

@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import Box from '@material-ui/core/Box'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import Grid from '@material-ui/core/Grid'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import CardMedia from '@material-ui/core/CardMedia'
+import Typography from '@material-ui/core/Typography'
 import { useIngredientsService } from '../../services'
 import { generateId, getDataFromResponse, isSuccessResponse, replaceNullWith, setDefaultValue } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
@@ -18,6 +26,7 @@ const RecipeForm = (props) => {
   const cook_time = useFormInput(setDefaultValue('cook_time', 0, recipe))
   const yields = useFormInput(setDefaultValue('yields', 0, recipe))
   const servings = useFormInput(setDefaultValue('servings', 0, recipe))
+  const selectedIngredientsAutocomplete = Object.keys(selectedIngredients).map((key) => selectedIngredients[key])
 
   const handleChangeIngredientData = (e) => {
     const {
@@ -147,31 +156,37 @@ const RecipeForm = (props) => {
    * @param {object} e
    */
   const onSelectIngredient = (e) => {
-    const uuid = e.target.dataset.uuid
-    const ingredient = suggestedIngredients.find((d) => d.uuid === uuid)
+    console.log(e)
+    // const uuid = e.target.dataset.uuid
+    const { value } = e
 
-    if (ingredient) {
-      const ingredientData = {
-        uuid: ingredient.uuid,
-        name: ingredient.name,
-        unit: '',
-        amount: 0,
-        section: '',
-        weight: 1
+    const ingredient = suggestedIngredients.find((d) => d.uuid === value)
+
+    if (value === ingredientValue && !ingredient) {
+      onClickAddNewIngredient()
+    } else {
+      if (ingredient) {
+        const ingredientData = {
+          uuid: ingredient.uuid,
+          name: ingredient.name,
+          unit: '',
+          amount: 0,
+          section: '',
+          weight: 1
+        }
+
+        setSelectedIngredients((prevIngredients) => ({
+          ...prevIngredients,
+          [generateId(5)]: ingredientData
+        }))
+
+        setSuggestedIngredients([])
+        setIngredientValue('')
       }
-      
-      setSelectedIngredients((prevIngredients) => ({
-        ...prevIngredients,
-        [generateId(5)]: ingredientData
-      }))
-      setSuggestedIngredients([])
-      setIngredientValue('')
     }
   }
 
-  const onClickAddNewIngredient = async (e) => {
-    e.preventDefault()
-
+  const onClickAddNewIngredient = async () => {
     if (ingredientValue.trim().length > 0) {
       const response = await ingredientsService.add({ name: ingredientValue })
 
@@ -247,182 +262,253 @@ const RecipeForm = (props) => {
 
   return (
     <form action='#' onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor='name'>
-          Name
-          <input
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <TextField
             {...name}
+            label='Name'
             id='name'
             type='text'
             name='name'
-            placeholder='Recipe name'
-            style={{ display: 'block' }}
-            data-testid='recipe-form-input-name'
+            inputProps={{
+              'data-testid': 'recipe-form-input-name'
+            }}
+            fullWidth
           />
-        </label>
-      </div>
+        </Grid>
 
-      <fieldset>
-        <legend>Ingredients</legend>
-        <Autocomplete
-          canAddNew
-          items={suggestedIngredients}
-          value={ingredientValue}
-          onChange={onChange}
-          onClickAddNew={onClickAddNewIngredient}
-          onSelect={onSelectIngredient}
-        />
-        {Object.keys(selectedIngredients).map((key) => (
-          <fieldset key={key}>
-            <legend data-testid={'recipe-form-ingredient-name'}>{selectedIngredients[key].name}</legend>
-            <input
-              onChange={handleChangeIngredientData}
-              data-key={key}
-              placeholder='Amount'
-              type='number'
-              name='amount'
-              value={selectedIngredients[key].amount}
-              data-testid='recipe-form-input-ingredient-amount'
-            />
-            <input
-              onChange={handleChangeIngredientData}
-              data-key={key}
-              placeholder='Unit'
-              type='text'
-              name='unit'
-              value={selectedIngredients[key].unit}
-              data-testid='recipe-form-input-ingredient-unit'
-            />
-            <input
-              onChange={handleChangeIngredientData}
-              data-key={key}
-              placeholder='Section'
-              type='text'
-              name='section'
-              value={selectedIngredients[key].section}
-              data-testid='recipe-form-input-ingredient-section'
-            />
-            <input
-              onChange={handleChangeIngredientData}
-              data-key={key}
-              placeholder='Weight'
-              type='number'
-              step='0.1'
-              name='weight'
-              value={selectedIngredients[key].weight}
-              data-testid='recipe-form-input-ingredient-weight'
-            />
-          </fieldset>
-        ))}
-      </fieldset>
-
-      <div>
-        <label htmlFor='thumbnail'>
-          Thumbnail URL
-          <input
+        <Grid item xs={12}>
+          <TextField
             {...thumbnail}
             id='thumbnail'
             type='text'
             name='thumbnail'
-            placeholder='Thumbnail URL'
+            label='Thumbnail URL'
             style={{ display: 'block' }}
-            data-testid='recipe-form-input-thumbnail'
+            variant='standard'
+            inputProps={{
+              'data-testid': 'recipe-form-input-thumbnail'
+            }}
+            fullWidth
           />
-        </label>
-      </div>
+        </Grid>
 
-      <div>
-        <label htmlFor='prep_time'>
-          Preparation Time (minutes)
-          <input
-            {...prep_time}
-            id='prep_time'
-            type='number'
-            name='prep_time'
-            placeholder='Preparation time (minutes)'
-            style={{ display: 'block' }}
-            data-testid='recipe-form-input-prep-time'
+        <Grid item xs={12} sm={6}>
+          <Grid container xs={12}>
+            <Grid item xs={6}>
+              <TextField
+                {...prep_time}
+                id='prep_time'
+                type='number'
+                name='prep_time'
+                label='Preparation time (minutes)'
+                style={{ display: 'block' }}
+                inputProps={{
+                  'data-testid': 'recipe-form-input-prep-time'
+                }}
+                variant='standard'
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                {...cook_time}
+                id='cook_time'
+                type='number'
+                name='cook_time'
+                label='Cooking time (minutes)'
+                style={{ display: 'block' }}
+                inputProps={{
+                  'data-testid': 'recipe-form-input-cook-time'
+                }}
+                variant='standard'
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Grid container xs={12}>
+            <Grid item xs={6}>
+              <TextField
+                {...yields}
+                id='yields'
+                type='number'
+                name='yields'
+                label='Yields'
+                style={{ display: 'block' }}
+                inputProps={{
+                  'data-testid': 'recipe-form-input-yields'
+                }}
+                variant='standard'
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                {...servings}
+                id='servings'
+                type='number'
+                name='servings'
+                label='Servings'
+                style={{ display: 'block' }}
+                inputProps={{
+                  'data-testid': 'recipe-form-input-servings'
+                }}
+                variant='standard'
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <p>Ingredients</p>
+          <Autocomplete
+            canAddNew
+            items={suggestedIngredients}
+            inputValue={ingredientValue}
+            handleChangeInput={onChange}
+            onSelect={onSelectIngredient}
+            selectedIngredients={selectedIngredientsAutocomplete}
           />
-        </label>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid container xs={12} md={6} spacing={{ xs: 3 }}>
+            {Object.keys(selectedIngredients).map((key) => (
+              <Grid item xs={12} md={6}>
+                <Card key={key}>
+                  <CardContent>
+                    <Typography variant='h5' data-testid='recipe-form-ingredient-name'>
+                      {selectedIngredients[key].name}
+                    </Typography>
 
-        <label htmlFor='cook_time'>
-          Cooking Time (minutes)
-          <input
-            {...cook_time}
-            id='cook_time'
-            type='number'
-            name='cook_time'
-            placeholder='Cooking time (minutes)'
-            style={{ display: 'block' }}
-            data-testid='recipe-form-input-cook-time'
-          />
-        </label>
-      </div>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <TextField
+                          onChange={handleChangeIngredientData}
+                          label='Amount'
+                          type='number'
+                          name='amount'
+                          value={selectedIngredients[key].amount}
+                          variant='standard'
+                          inputProps={{
+                            'data-key': key,
+                            'data-testid': 'recipe-form-input-ingredient-amount'
+                          }}
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          onChange={handleChangeIngredientData}
+                          label='Unit'
+                          type='text'
+                          name='unit'
+                          value={selectedIngredients[key].unit}
+                          variant='standard'
+                          inputProps={{
+                            'data-key': key,
+                            'data-testid': 'recipe-form-input-ingredient-unit'
+                          }}
+                          fullWidth
+                        />
+                      </Grid>
 
-      <div>
-        <label htmlFor='yields'>
-          Yields
-          <input
-            {...yields}
-            id='yields'
-            type='number'
-            name='yields'
-            placeholder='Yields'
-            style={{ display: 'block' }}
-            data-testid='recipe-form-input-yields'
-          />
-        </label>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          onChange={handleChangeIngredientData}
+                          label='Section'
+                          type='text'
+                          name='section'
+                          value={selectedIngredients[key].section}
+                          variant='standard'
+                          inputProps={{
+                            'data-key': key,
+                            'data-testid': 'recipe-form-input-ingredient-section'
+                          }}
+                          fullWidth
+                        />
+                      </Grid>
 
-        <label htmlFor='servings'>
-          Servings
-          <input
-            {...servings}
-            id='servings'
-            type='number'
-            name='servings'
-            placeholder='Servings'
-            style={{ display: 'block' }}
-            data-testid='recipe-form-input-servings'
-          />
-        </label>
-      </div>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          onChange={handleChangeIngredientData}
+                          label='Weight'
+                          type='number'
+                          name='weight'
+                          value={selectedIngredients[key].weight}
+                          variant='standard'
+                          inputProps={{
+                            'data-key': key,
+                            'data-testid': 'recipe-form-input-ingredient-weight',
+                            step: 0.1
+                          }}
+                          fullWidth
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
 
-      <fieldset>
-        <legend>Steps</legend>
-        {Object.keys(steps).map((key) => (
-          <div key={key}>
-            <input
-              data-key={key}
-              onChange={handleStep}
-              value={steps[key].value}
-              type='text'
-              name='steps[]'
-              placeholder='Step'
-              data-testid='recipe-form-input-step'
-            />
-            <input
-              data-key={key}
-              onChange={handleStep}
-              value={steps[key].section}
-              type='text'
-              name='sections[]'
-              placeholder='Section'
-              data-testid='recipe-form-input-step-section'
-            />
-          </div>
-        ))}
-        <div>
-          <button onClick={onClickAddStep} data-testid='recipe-form-button-add-step'>
-            Add a step
-          </button>
-        </div>
-      </fieldset>
+          <Grid container xs={12} md={6}>
+            <Grid item xs={12}>
+              <p>Steps</p>
+            </Grid>
+            {Object.keys(steps).map((key) => (
+              <Grid container key={key}>
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    onChange={handleStep}
+                    value={steps[key].value}
+                    type='text'
+                    name='steps[]'
+                    label='Step'
+                    inputProps={{
+                      'data-key': key,
+                      'data-testid': 'recipe-form-input-step'
+                    }}
+                    variant='standard'
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    onChange={handleStep}
+                    value={steps[key].section}
+                    type='text'
+                    name='sections[]'
+                    label='Section'
+                    inputProps={{
+                      'data-key': key,
+                      'data-testid': 'recipe-form-input-step-section'
+                    }}
+                    variant='standard'
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+            ))}
+            <Grid item xs={12}>
+              <Button onClick={onClickAddStep} data-testid='recipe-form-button-add-step'>
+                Add a step
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
 
-      <div>
-        <button type='submit' data-testid='recipe-form-button-submit'>
-          Send
-        </button>
-      </div>
+        <Grid item xs={12}>
+          <Button type='submit' data-testid='recipe-form-button-submit' variant='contained' size='large'>
+            Send
+          </Button>
+        </Grid>
+      </Grid>
     </form>
   )
 }

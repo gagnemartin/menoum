@@ -1,21 +1,16 @@
 import PropTypes from 'prop-types'
+import Grid from '@material-ui/core/Grid'
 import RecipeItem from './RecipeItem'
 
-const RecipesList = (props) => {
-  const { items } = props
-
+const RecipesList = ({ items }) => {
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        columnGap: '20px'
-      }}
-    >
+    <Grid container spacing={{ xs: 3, md: 5 }}>
       {items.map((item) => (
-        <RecipeItem item={item} key={item.uuid} />
+        <Grid item xs={12} md={6} lg={4}>
+          <RecipeItem item={item} key={item.uuid} />
+        </Grid>
       ))}
-    </div>
+    </Grid>
   )
 }
 

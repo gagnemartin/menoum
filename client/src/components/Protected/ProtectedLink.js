@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
+import Link from '@material-ui/core/Link'
 import { useUserState } from '../../hooks/useUser'
 import useAccessControl from '../../hooks/useAccessControl'
 import { actionTypes } from '../../reducers/userReducer'
@@ -22,7 +23,11 @@ const ProtectedLink = (props) => {
   if (isLoading) return null
 
   if (isAuthenticated() && isAuthorized(role)) {
-    return <Link {...props}>{children}</Link>
+    return (
+      <Link component={RouterLink} {...props}>
+        {children}
+      </Link>
+    )
   }
 
   return null

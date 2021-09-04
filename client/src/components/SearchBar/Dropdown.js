@@ -1,31 +1,39 @@
 import PropTypes from 'prop-types'
+import { styled } from '@material-ui/system'
+import Paper from '@material-ui/core/Paper'
+import Link from '@material-ui/core/Link'
+
+const DropdownWrapper = styled(Paper)((props) => ({
+  position: 'absolute',
+  top: '0',
+  left: '0',
+  padding: '10px',
+  display: props.display
+}))
 
 const Dropdown = (props) => {
   const { canAddNew, items, onClickAddNew, onSelect, value } = props
 
   return (
     <div style={{ position: 'relative' }}>
-      <div
-        style={{
-          position: 'absolute',
-          top: '0',
-          left: '0',
-          padding: '10px',
-          background: '#FFF',
-          display: value.trim().length > 0 ? 'block' : 'none'
-        }}
-      >
+      <DropdownWrapper display={value.trim().length > 0 ? 'block' : 'none'}>
         {canAddNew && (
-          <a href='#' onClick={onClickAddNew} data-testid='ingredient-dropdown-add-new'>
+          <Link component='button' onClick={onClickAddNew} data-testid='ingredient-dropdown-add-new'>
             Add <b>{value}</b>
-          </a>
+          </Link>
         )}
         {items.map((ingredient) => (
-          <a href='#' key={ingredient.uuid} data-uuid={ingredient.uuid} onClick={onSelect} data-testid='ingredient-dropdown-item'>
+          <Link
+            component='button'
+            key={ingredient.uuid}
+            data-uuid={ingredient.uuid}
+            onClick={onSelect}
+            data-testid='ingredient-dropdown-item'
+          >
             {ingredient.name}
-          </a>
+          </Link>
         ))}
-      </div>
+      </DropdownWrapper>
     </div>
   )
 }

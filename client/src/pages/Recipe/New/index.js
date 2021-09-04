@@ -1,5 +1,6 @@
 import { useRecipesService } from '../../../services'
 import RecipeForm from '../../../components/RecipeForm'
+import { PageContainer, PageHeader, PageTitle } from '../../../components/Layout'
 
 const NewRecipe = () => {
   const recipesService = useRecipesService()
@@ -10,11 +11,17 @@ const NewRecipe = () => {
   }
 
   return (
-    <div data-testid='page-recipe-new'>
-      <h1>New Recipe</h1>
+    <>
+      <PageHeader>
+        <PageContainer maxWidth='xl'>
+          <PageTitle textAlign='left'>New Recipe</PageTitle>
+        </PageContainer>
+      </PageHeader>
 
-      <RecipeForm submitRecipe={submitRecipe} />
-    </div>
+      <PageContainer maxWidth='xl' data-testid='page-recipe-new'>
+        <RecipeForm submitRecipe={submitRecipe} />
+      </PageContainer>
+    </>
   )
 }
 

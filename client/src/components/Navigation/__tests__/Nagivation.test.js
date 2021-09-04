@@ -1,5 +1,6 @@
 import { render, waitFor } from '@testing-library/react'
 import { MemoryRouter as Router } from 'react-router-dom'
+import userEvent from '@testing-library/user-event'
 import Navigation from '../'
 import { UserProvider } from '../../../context/userContext'
 import UsersService from '../../../services/usersService'
@@ -70,22 +71,37 @@ describe('<Navigation />', () => {
   it('should not see admin section for normal user', async () => {
     UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.success)
     const { queryByTestId } = customRender(<Navigation />)
+    let elementEmail
+    let element
 
     await waitFor(() => {
-      const element = queryByTestId('nav-new-recipe')
-      expect(element).not.toBeInTheDocument()
-
-      const elementEmail = queryByTestId('nav-email')
+      elementEmail = queryByTestId('nav-email')
       expect(elementEmail).toBeInTheDocument()
+    })
+
+    userEvent.click(elementEmail)
+
+    await waitFor(() => {
+      element = queryByTestId('nav-new-recipe')
+      expect(element).not.toBeInTheDocument()
     })
   })
 
   it('should see admin section for admin user', async () => {
     UsersService.refresh.mockReturnValue(mockUsersServiceResponse.refresh.successAdmin)
-      const { queryByTestId } = customRender(<Navigation />)
+    const { queryByTestId } = customRender(<Navigation />)
+    let elementEmail
+    let element
 
     await waitFor(() => {
-      const element = queryByTestId('nav-new-recipe')
+      elementEmail = queryByTestId('nav-email')
+      expect(elementEmail).toBeInTheDocument()
+    })
+
+    userEvent.click(elementEmail)
+
+    await waitFor(() => {
+      element = queryByTestId('nav-new-recipe')
       expect(element).toBeInTheDocument()
     })
   })

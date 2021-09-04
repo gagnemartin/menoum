@@ -1,5 +1,10 @@
 import { useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
+import Alert from '@material-ui/core/Alert'
+import TextField from '@material-ui/core/TextField'
+import Grid from '@material-ui/core/Grid'
+import Button from '@material-ui/core/Button'
+import { PageHeader, PageTitle, PageContainer } from '../../../components/Layout'
 import { isSuccessResponse } from '../../../global/helpers'
 import useFormInput from '../../../hooks/useFormInput'
 import { useUserDispatch } from '../../../hooks/useUser'
@@ -54,14 +59,74 @@ const Login = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} action='#'>
-      {hasError && <p data-testid='login-error-message'>{errorMessage}</p>}
-      <input {...email} name='email' type='email' data-testid='login-input-email' />
-      <input {...password} name='password' type='password' data-testid='login-input-password' />
-      <button type='submit' disabled={isLoading} data-testid='login-button-submit'>
-        Login
-      </button>
-    </form>
+    <>
+      <PageHeader>
+        <PageTitle>Sign in to your account</PageTitle>
+      </PageHeader>
+
+      <PageContainer maxWidth='xs'>
+        <form onSubmit={handleSubmit} action='#'>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  {hasError && (
+                    <Alert severity='error' data-testid='login-error-message'>
+                      {errorMessage}
+                    </Alert>
+                  )}
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    {...email}
+                    name='email'
+                    type='email'
+                    inputProps={{
+                      'data-testid': 'login-input-email'
+                    }}
+                    label='Email Address'
+                    InputLabelProps={{ required: false }}
+                    required
+                    fullWidth
+                    autoFocus
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    {...password}
+                    name='password'
+                    type='password'
+                    inputProps={{
+                      'data-testid': 'login-input-password'
+                    }}
+                    label='Password'
+                    InputLabelProps={{ required: false }}
+                    required
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Button
+                type='submit'
+                disabled={isLoading}
+                data-testid='login-button-submit'
+                variant='contained'
+                size='large'
+                disableElevation
+                fullWidth
+              >
+                Sign in
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </PageContainer>
+    </>
   )
 }
 

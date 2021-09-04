@@ -4,14 +4,12 @@ import { useLocation, useHistory } from 'react-router-dom'
 import { isEqual } from 'lodash'
 import { useIngredientsService } from '../../services'
 import Autocomplete from './Autocomplete'
-import IngredientsList from './IngredientsList'
+// import IngredientsList from './IngredientsList'
 import { isSuccessResponse, getDataFromResponse, formatArrayQuery } from '../../global/helpers'
 
 const URL_KEY = 'ingredients[]'
 
-const SearchBar = (props) => {
-  const { onChangeIngredients, useUrl } = props
-
+const SearchBar = ({ onChangeIngredients, useUrl, size }) => {
   const history = useHistory()
   const location = useLocation()
   const ingredientsService = useIngredientsService()
@@ -29,7 +27,8 @@ const SearchBar = (props) => {
    *
    * @param {object} e
    */
-  const handleChange = (e) => {
+  const handleChangeInput = (e) => {
+    // console.log({e, v})
     const value = e.target.value
     setSearchInputValue(value)
   }
@@ -40,10 +39,11 @@ const SearchBar = (props) => {
    * @param {object} e
    */
   const handleClickIngredient = (e) => {
-    e.preventDefault()
+    // e.preventDefault()
 
-    const uuid = e.target.dataset.uuid
-    const ingredient = suggestedIngredients.find((d) => d.uuid === uuid)
+    // const uuid = e.target.dataset.uuid
+    const { value } = e
+    const ingredient = suggestedIngredients.find((d) => d.uuid === value)
 
     if (ingredient) {
       setSelectedIngredients([...selectedIngredients, ingredient])
@@ -57,14 +57,14 @@ const SearchBar = (props) => {
    *
    * @param {object} e
    */
-  const handleRemove = (e) => {
-    const uuid = e.target.dataset.uuid
-    const ingredient = selectedIngredients.find((d) => d.uuid === uuid)
+  const handleClickRemoveIngredient = (e) => {
+    // const uuid = e.target.dataset.uuid
+    const { value } = e
+    const ingredient = selectedIngredients.find((d) => d.uuid === value)
+    console.log({ ingredient, e })
 
     if (ingredient) {
-      setSelectedIngredients(
-        selectedIngredients.filter((d) => d.uuid !== ingredient.uuid)
-      )
+      setSelectedIngredients(selectedIngredients.filter((d) => d.uuid !== ingredient.uuid))
     }
   }
 
@@ -102,14 +102,13 @@ const SearchBar = (props) => {
       if (searchInputValue.trim().length > 0) {
         const response = await ingredientsService.search(searchInputValue)
 
-
         if (isSuccessResponse(response)) {
           const data = getDataFromResponse(response)
-          
+
           const filtered = data.filter((ingredient) => {
             return !selectedIngredients.some((d) => d.uuid === ingredient.uuid)
           })
-  
+
           setSuggestedIngredients(filtered)
         }
       } else {
@@ -125,21 +124,20 @@ const SearchBar = (props) => {
   useEffect(() => {
     const { action } = history
     const ingredientsInUrl = getSearchParams(URL_KEY)
-    
+
     // Browser previous or forward
     if (action === 'POP') {
       const fetchIngredients = async () => {
         if (ingredientsInUrl.length > 0) {
           const response = await ingredientsService.getByUuids(ingredientsInUrl)
 
-
           if (isSuccessResponse(response)) {
             const data = getDataFromResponse(response)
             const ingredients = []
 
             // Keep the same order as the URL
-            ingredientsInUrl.forEach(uuid => {
-              const ingredient = data.find(d => d.uuid === uuid)
+            ingredientsInUrl.forEach((uuid) => {
+              const ingredient = data.find((d) => d.uuid === uuid)
 
               if (ingredient) {
                 ingredients.push(ingredient)
@@ -168,14 +166,13 @@ const SearchBar = (props) => {
       if (ingredientsInUrl.length > 0) {
         const response = await ingredientsService.getByUuids(ingredientsInUrl)
 
-
         if (isSuccessResponse(response)) {
           const data = getDataFromResponse(response)
           const ingredients = []
 
           // Keep the same order as the URL
-          ingredientsInUrl.forEach(uuid => {
-            const ingredient = data.find(d => d.uuid === uuid)
+          ingredientsInUrl.forEach((uuid) => {
+            const ingredient = data.find((d) => d.uuid === uuid)
 
             if (ingredient) {
               ingredients.push(ingredient)
@@ -186,7 +183,7 @@ const SearchBar = (props) => {
         }
       }
     }
-    
+
     fetchIngredients()
   }, [])
 
@@ -194,13 +191,12 @@ const SearchBar = (props) => {
     <div>
       <Autocomplete
         items={suggestedIngredients}
-        onChange={handleChange}
+        selectedIngredients={selectedIngredients}
+        handleChangeInput={handleChangeInput}
         onSelect={handleClickIngredient}
-        value={searchInputValue}
-      />
-      <IngredientsList
-        handleRemove={handleRemove}
-        items={selectedIngredients}
+        onRemove={handleClickRemoveIngredient}
+        inputValue={searchInputValue}
+        size={size}
       />
     </div>
   )
@@ -208,11 +204,13 @@ const SearchBar = (props) => {
 
 SearchBar.propTypes = {
   onChangeIngredients: PropTypes.func.isRequired,
-  useUrl: PropTypes.bool
+  useUrl: PropTypes.bool,
+  size: PropTypes.string
 }
 
 SearchBar.defaultProps = {
-  useUrl: false
+  useUrl: false,
+  size: 'medium'
 }
 
 export default SearchBar

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { PageContainer, PageHeader, PageTitle } from '../../../components/Layout'
 import { useRecipesService } from '../../../services'
 import RecipeForm from '../../../components/RecipeForm'
 
@@ -31,11 +32,17 @@ const UpdateRecipe = () => {
   }
 
   return (
-    <div data-testid='page-recipe-update'>
-      <h1>Update Recipe</h1>
+    <>
+      <PageHeader>
+        <PageContainer maxWidth='xl'>
+          <PageTitle textAlign='left'>Update recipe</PageTitle>
+        </PageContainer>
+      </PageHeader>
 
-      <RecipeForm submitRecipe={submitRecipe} recipe={recipe} />
-    </div>
+      <PageContainer maxWidth='xl' data-testid='page-recipe-update'>
+        <RecipeForm submitRecipe={submitRecipe} recipe={recipe} />
+      </PageContainer>
+    </>
   )
 }
 

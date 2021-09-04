@@ -28,19 +28,19 @@ describe('<SearchBar />', () => {
   })
 
   it('should remove a selected ingredient', async () => {
-    const { queryByTestId, queryAllByTestId } = renderWithRouter(<SearchBar onChangeIngredients={onChangeIngredients} />)
+    const { queryByTestId } = renderWithRouter(<SearchBar onChangeIngredients={onChangeIngredients} />)
     const searchInput = queryByTestId('ingredient-search-input')
     let dropdownItem
 
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
       userEvent.click(dropdownItem)
     })
 
-    const selectedIngredient = queryByTestId(`selected-ingredient-${dropdownItem.dataset.uuid}`)
-    const selectedIngredientRemove = queryByTestId(`selected-ingredient-remove-${dropdownItem.dataset.uuid}`)
+    const selectedIngredient = queryByTestId(`selected-ingredient-${mockIngredients[0].uuid}`)
+    const selectedIngredientRemove = queryByTestId(`selected-ingredient-remove-${mockIngredients[0].uuid}`)
 
     expect(selectedIngredient).toBeInTheDocument()
 
@@ -50,14 +50,14 @@ describe('<SearchBar />', () => {
   })
 
   it('should update the URL when selecting an ingredient', async () => {
-    const { queryByTestId, queryAllByTestId } = renderWithRouter(<SearchBar onChangeIngredients={onChangeIngredients} useUrl />)
+    const { queryByTestId } = renderWithRouter(<SearchBar onChangeIngredients={onChangeIngredients} useUrl />)
     const searchInput = queryByTestId('ingredient-search-input')
     let dropdownItem
 
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
       userEvent.click(dropdownItem)
     })
 
@@ -71,7 +71,7 @@ describe('<SearchBar />', () => {
     window.history.pushState({}, 'Test page', '/')
     let testHistory, testLocation
 
-    const { queryByTestId, queryAllByTestId } = render(
+    const { queryByTestId } = render(
       <Router>
         <SearchBar onChangeIngredients={onChangeIngredients} useUrl />
         <Route
@@ -91,7 +91,7 @@ describe('<SearchBar />', () => {
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
       userEvent.click(dropdownItem)
     })
 
@@ -167,7 +167,7 @@ describe('<SearchBar />', () => {
     window.history.pushState({}, 'Test page', '/')
     let testHistory, testLocation
 
-    const { queryByTestId, queryAllByTestId } = render(
+    const { queryByTestId } = render(
       <Router>
         <SearchBar onChangeIngredients={onChangeIngredients} useUrl />
         <Route
@@ -187,7 +187,7 @@ describe('<SearchBar />', () => {
     userEvent.type(searchInput, mockIngredients[0].name)
 
     await waitFor(() => {
-      dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
+      dropdownItem = queryByTestId(`ingredient-dropdown-item-${mockIngredients[0].uuid}`)
       userEvent.click(dropdownItem)
     })
 
@@ -223,45 +223,6 @@ describe('<SearchBar />', () => {
 
       expect(selectedIngredient).toBeInTheDocument()
     })
-  })
-
-  it("should not break the app if the ingredient selected  doesn't exist in the list", async () => {
-    const { queryByTestId, queryAllByTestId } = renderWithRouter(<SearchBar onChangeIngredients={onChangeIngredients} />)
-    const searchInput = queryByTestId('ingredient-search-input')
-    let dropdownItem
-
-    userEvent.type(searchInput, mockIngredients[0].name)
-
-    await waitFor(() => {
-      dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
-      dropdownItem.dataset.uuid = 'ChangedUUID'
-      userEvent.click(dropdownItem)
-    })
-
-    const selectedIngredient = queryByTestId(`selected-ingredient-${dropdownItem.dataset.uuid}`)
-
-    expect(selectedIngredient).not.toBeInTheDocument()
-  })
-
-  it("should not break the app if removed ingredient doesn't exist in the list", async () => {
-    const { queryByTestId, queryAllByTestId } = renderWithRouter(<SearchBar onChangeIngredients={onChangeIngredients} />)
-    const searchInput = queryByTestId('ingredient-search-input')
-    let dropdownItem
-
-    userEvent.type(searchInput, mockIngredients[0].name)
-
-    await waitFor(() => {
-      dropdownItem = queryAllByTestId('ingredient-dropdown-item')[0]
-      userEvent.click(dropdownItem)
-    })
-
-    const selectedIngredient = queryByTestId(`selected-ingredient-${dropdownItem.dataset.uuid}`)
-    const selectedIngredientRemove = queryByTestId(`selected-ingredient-remove-${dropdownItem.dataset.uuid}`)
-    selectedIngredientRemove.dataset.uuid = 'ChangedUUID'
-
-    userEvent.click(selectedIngredientRemove)
-
-    expect(selectedIngredient).toBeInTheDocument()
   })
 
   it('should not set suggested ingredients in dropdown if there is an API error', async () => {

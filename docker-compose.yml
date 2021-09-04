@@ -3,7 +3,6 @@ version: '3.7'
 services:
   api:
     container_name: api
-    restart: on-failure
     tty: true
     build:
       context: ./api
@@ -25,7 +24,6 @@ services:
 
   client:
     container_name: client
-    restart: on-failure
     stdin_open: true
     build:
       context: ./client
@@ -47,7 +45,6 @@ services:
     build:
       context: ./docker
       dockerfile: Dockerfile.postgres.dev
-    restart: on-failure
     env_file:
       - ./.env
     volumes:
@@ -60,7 +57,6 @@ services:
   adminer:
     image: adminer
     container_name: adminer
-    restart: on-failure
     ports:
       - 8080:8080
     networks:
