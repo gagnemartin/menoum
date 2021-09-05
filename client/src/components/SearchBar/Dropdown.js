@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
-import { styled } from '@material-ui/system'
-import Paper from '@material-ui/core/Paper'
-import Link from '@material-ui/core/Link'
+import { styled } from '@mui/material/styles'
+import Paper from '@mui/material/Paper'
+import Link from '@mui/material/Link'
 
 const DropdownWrapper = styled(Paper)((props) => ({
   position: 'absolute',

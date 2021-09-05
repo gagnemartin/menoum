@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router-dom'
-import Link from '@material-ui/core/Link'
+import Link from '@mui/material/Link'
 import { isSuccessResponse } from '../../global/helpers'
 import { useUserDispatch } from '../../hooks/useUser'
 import { actionTypes } from '../../reducers/userReducer'

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Link as RouterLink } from 'react-router-dom'
-import Link from '@material-ui/core/Link'
+import Link from '@mui/material/Link'
 import { useUserState } from '../../hooks/useUser'
 import useAccessControl from '../../hooks/useAccessControl'
 import { actionTypes } from '../../reducers/userReducer'

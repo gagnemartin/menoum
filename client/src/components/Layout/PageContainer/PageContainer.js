@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import Container from '@material-ui/core/Container'
+import Container from '@mui/material/Container'
 
 const PageContainer = ({ maxWidth, children, ...props }) => {
   return (

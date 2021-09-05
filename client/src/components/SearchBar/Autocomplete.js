@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { difference } from 'lodash'
-import MuiAutocomplete from '@material-ui/core/Autocomplete'
-import Chip from '@material-ui/core/Chip'
-import CancelIcon from '@material-ui/icons/Cancel'
+import MuiAutocomplete from '@mui/material/Autocomplete'
+import Chip from '@mui/material/Chip'
+import CancelIcon from '@mui/icons-material/Cancel'
 
 const Autocomplete = (props) => {
   const { canAddNew, items, handleChangeInput, onSelect, inputValue, selectedIngredients, onRemove } = props

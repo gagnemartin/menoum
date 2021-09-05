@@ -20,16 +20,16 @@ describe('<RecipeForm />', () => {
     })
   })
 
-  it('should render and match snapshot', () => {
+  it.skip('should render and match snapshot', () => {
     const { asFragment } = render(<RecipeForm submitRecipe={submitRecipe} />)
 
-    //expect(asFragment()).toMatchSnapshot()
+    expect(asFragment()).toMatchSnapshot()
   })
 
-  it('should render with recipe and match snapshot', () => {
+  it.skip('should render with recipe and match snapshot', () => {
     const { asFragment } = render(<RecipeForm submitRecipe={submitRecipe} recipe={mockRecipes[0]} />)
 
-    //expect(asFragment()).toMatchSnapshot()
+    expect(asFragment()).toMatchSnapshot()
   })
 
   it('should not crash if search ingredient returns an error', async () => {

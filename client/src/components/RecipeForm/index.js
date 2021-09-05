@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Grid from '@material-ui/core/Grid'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import Typography from '@material-ui/core/Typography'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Grid from '@mui/material/Grid'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
 import { useIngredientsService } from '../../services'
 import { generateId, getDataFromResponse, isSuccessResponse, replaceNullWith, setDefaultValue } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
 import useFormInput from '../../hooks/useFormInput'
+import Ingredients from './Ingredients'
+import Steps from './Steps'
 
 const RecipeForm = (props) => {
   const { submitRecipe, recipe } = props
   const ingredientsService = useIngredientsService()
   const [ingredientValue, setIngredientValue] = useState('')
   const [suggestedIngredients, setSuggestedIngredients] = useState([])
-  const [selectedIngredients, setSelectedIngredients] = useState([])
+  const [selectedIngredients, setSelectedIngredients] = useState({})
   const [steps, setSteps] = useState({ [generateId(5)]: { value: '', section: '' } })
   const name = useFormInput(setDefaultValue('name', '', recipe))
   const thumbnail = useFormInput(setDefaultValue('thumbnail', 0, recipe))
@@ -170,7 +171,8 @@ const RecipeForm = (props) => {
           unit: '',
           amount: 0,
           section: '',
-          weight: 1
+          weight: 1,
+          open: false
         }
 
         setSelectedIngredients((prevIngredients) => ({
@@ -226,15 +228,17 @@ const RecipeForm = (props) => {
     if (recipe.uuid) {
       const { steps: stepsDB, ingredients } = recipe
 
-      const ingredientsPrefill = ingredients.map((ingredient) => {
-        return {
+      const ingredientsPrefill = {}
+      ingredients.forEach((ingredient) => {
+        ingredientsPrefill[generateId(5)] = {
           ingredient_recipe_id: ingredient.ingredients_recipes.id,
           uuid: ingredient.uuid,
           name: ingredient.name,
           amount: replaceNullWith(ingredient.ingredients_recipes.amount, 0),
           unit: replaceNullWith(ingredient.ingredients_recipes.unit, ''),
           section: replaceNullWith(ingredient.ingredients_recipes.section, ''),
-          weight: replaceNullWith(ingredient.ingredients_recipes.weight, 1)
+          weight: replaceNullWith(ingredient.ingredients_recipes.weight, 1),
+          open: false
         }
       })
 
@@ -258,9 +262,25 @@ const RecipeForm = (props) => {
     }
   }, [])
 
+  const handleClickCollapse = (e) => {
+    const {
+      currentTarget: {
+        dataset: { key }
+      }
+    } = e
+
+    setSelectedIngredients((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        open: !prev[key].open
+      }
+    }))
+  }
+
   return (
     <form action='#' onSubmit={handleSubmit}>
-      <Grid container spacing={3}>
+      <Grid container spacing={6}>
         <Grid item xs={12}>
           <TextField
             {...name}
@@ -283,7 +303,6 @@ const RecipeForm = (props) => {
             name='thumbnail'
             label='Thumbnail URL'
             style={{ display: 'block' }}
-            variant='standard'
             inputProps={{
               'data-testid': 'recipe-form-input-thumbnail'
             }}
@@ -292,7 +311,7 @@ const RecipeForm = (props) => {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <Grid container xs={12}>
+          <Grid container spacing={6}>
             <Grid item xs={6}>
               <TextField
                 {...prep_time}
@@ -304,7 +323,6 @@ const RecipeForm = (props) => {
                 inputProps={{
                   'data-testid': 'recipe-form-input-prep-time'
                 }}
-                variant='standard'
                 fullWidth
               />
             </Grid>
@@ -320,7 +338,6 @@ const RecipeForm = (props) => {
                 inputProps={{
                   'data-testid': 'recipe-form-input-cook-time'
                 }}
-                variant='standard'
                 fullWidth
               />
             </Grid>
@@ -328,7 +345,7 @@ const RecipeForm = (props) => {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <Grid container xs={12}>
+          <Grid container spacing={6}>
             <Grid item xs={6}>
               <TextField
                 {...yields}
@@ -340,7 +357,6 @@ const RecipeForm = (props) => {
                 inputProps={{
                   'data-testid': 'recipe-form-input-yields'
                 }}
-                variant='standard'
                 fullWidth
               />
             </Grid>
@@ -356,7 +372,6 @@ const RecipeForm = (props) => {
                 inputProps={{
                   'data-testid': 'recipe-form-input-servings'
                 }}
-                variant='standard'
                 fullWidth
               />
             </Grid>
@@ -364,139 +379,37 @@ const RecipeForm = (props) => {
         </Grid>
 
         <Grid item xs={12}>
-          <p>Ingredients</p>
-          <Autocomplete
-            canAddNew
-            items={suggestedIngredients}
-            inputValue={ingredientValue}
-            handleChangeInput={onChange}
-            onSelect={onSelectIngredient}
-            selectedIngredients={selectedIngredientsAutocomplete}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container xs={12} md={6} spacing={{ xs: 3 }}>
-            {Object.keys(selectedIngredients).map((key) => (
-              <Grid item xs={12} md={6}>
-                <Card key={key}>
-                  <CardContent>
-                    <Typography variant='h5' data-testid='recipe-form-ingredient-name'>
-                      {selectedIngredients[key].name}
-                    </Typography>
+          <Grid container spacing={6}>
+            <Grid item xs={12} md={6}>
+              <p>Ingredients</p>
+              <Autocomplete
+                canAddNew
+                items={suggestedIngredients}
+                inputValue={ingredientValue}
+                handleChangeInput={onChange}
+                onSelect={onSelectIngredient}
+                selectedIngredients={selectedIngredientsAutocomplete}
+              />
 
-                    <Grid container spacing={2}>
-                      <Grid item xs={6}>
-                        <TextField
-                          onChange={handleChangeIngredientData}
-                          label='Amount'
-                          type='number'
-                          name='amount'
-                          value={selectedIngredients[key].amount}
-                          variant='standard'
-                          inputProps={{
-                            'data-key': key,
-                            'data-testid': 'recipe-form-input-ingredient-amount'
-                          }}
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <TextField
-                          onChange={handleChangeIngredientData}
-                          label='Unit'
-                          type='text'
-                          name='unit'
-                          value={selectedIngredients[key].unit}
-                          variant='standard'
-                          inputProps={{
-                            'data-key': key,
-                            'data-testid': 'recipe-form-input-ingredient-unit'
-                          }}
-                          fullWidth
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          onChange={handleChangeIngredientData}
-                          label='Section'
-                          type='text'
-                          name='section'
-                          value={selectedIngredients[key].section}
-                          variant='standard'
-                          inputProps={{
-                            'data-key': key,
-                            'data-testid': 'recipe-form-input-ingredient-section'
-                          }}
-                          fullWidth
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          onChange={handleChangeIngredientData}
-                          label='Weight'
-                          type='number'
-                          name='weight'
-                          value={selectedIngredients[key].weight}
-                          variant='standard'
-                          inputProps={{
-                            'data-key': key,
-                            'data-testid': 'recipe-form-input-ingredient-weight',
-                            step: 0.1
-                          }}
-                          fullWidth
-                        />
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-
-          <Grid container xs={12} md={6}>
-            <Grid item xs={12}>
-              <p>Steps</p>
+              <Ingredients
+                handleClickCollapse={handleClickCollapse}
+                handleChangeIngredientData={handleChangeIngredientData}
+                selectedIngredients={selectedIngredients}
+              />
             </Grid>
-            {Object.keys(steps).map((key) => (
-              <Grid container key={key}>
-                <Grid item xs={12} sm={8}>
-                  <TextField
-                    onChange={handleStep}
-                    value={steps[key].value}
-                    type='text'
-                    name='steps[]'
-                    label='Step'
-                    inputProps={{
-                      'data-key': key,
-                      'data-testid': 'recipe-form-input-step'
-                    }}
-                    variant='standard'
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    onChange={handleStep}
-                    value={steps[key].section}
-                    type='text'
-                    name='sections[]'
-                    label='Section'
-                    inputProps={{
-                      'data-key': key,
-                      'data-testid': 'recipe-form-input-step-section'
-                    }}
-                    variant='standard'
-                    fullWidth
-                  />
-                </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
+                <p>Steps</p>
               </Grid>
-            ))}
-            <Grid item xs={12}>
-              <Button onClick={onClickAddStep} data-testid='recipe-form-button-add-step'>
-                Add a step
-              </Button>
+
+              <Steps steps={steps} handleStep={handleStep} />
+
+              <Grid item xs={12}>
+                <Button onClick={onClickAddStep} data-testid='recipe-form-button-add-step'>
+                  Add a step
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
