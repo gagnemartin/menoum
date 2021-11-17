@@ -7,8 +7,8 @@ const Steps = ({ steps, handleStep }) => {
   return (
     <List>
       {Object.keys(steps).map((key) => (
-        <ListItem disableGutters>
-          <Grid container spacing={1} key={key}>
+        <ListItem disableGutters key={key}>
+          <Grid container spacing={1}>
             <Grid item xs={12} sm={8}>
               <TextField
                 onChange={handleStep}

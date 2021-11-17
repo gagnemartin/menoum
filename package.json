@@ -10,13 +10,15 @@
     "test": "docker-compose up -d --no-recreate && docker-compose exec client npm run test",
     "test:headless": "docker-compose up -d --no-recreate && docker-compose exec -T client npm run test:headless",
     "start": "docker-compose up",
+    "start:crawler": "docker-compose --profile crawler up",
     "init": "docker-compose down -v && docker-compose up --build",
     "migrations": "docker-compose exec api npm run migrate:latest",
     "rollback": "docker-compose exec api npm run migrate:rollback",
     "seeds": "docker-compose exec api npm run seed:run",
     "audit": "docker-compose exec client npm audit",
     "audit:fix": "docker-compose exec client npm audit fix",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "crawler": "cd crawler && node app.js"
   },
   "repository": {
     "type": "git",

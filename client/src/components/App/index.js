@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import { Home, NewRecipe, UpdateRecipe, Login, Register } from '../../pages'
+import { Home, NewRecipe, UpdateRecipe, Login, Register, Crawl } from '../../pages'
 import { UserProvider } from '../../context/userContext'
 import { ProtectedRoute } from '../Protected'
 import Navigation from '../Navigation'
@@ -18,6 +18,10 @@ const App = () => {
 
             <ProtectedRoute role='admin' exact={true} path='/recipe/edit/:uuid'>
               <UpdateRecipe />
+            </ProtectedRoute>
+
+            <ProtectedRoute role='admin' exact={true} path='/crawl'>
+              <Crawl />
             </ProtectedRoute>
 
             <Route path='/login'>

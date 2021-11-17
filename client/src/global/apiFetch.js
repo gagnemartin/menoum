@@ -3,15 +3,21 @@ const defaultHeaders = {
 }
 
 const apiFetch = {
-  get: async (url) => {
-    const data = await fetch(url)
+  get: async (url, serviceOptions) => {
+    const options = {
+      ...serviceOptions,
+      method: 'GET'
+    }
+    options.headers = { ...defaultHeaders, ...options.headers }
+
+    const data = await fetch(url, options)
     return data.json()
   },
 
   post: async (url, serviceOptions) => {
     const options = {
-      method: 'POST',
-      ...serviceOptions
+      ...serviceOptions,
+      method: 'POST'
     }
     options.headers = { ...defaultHeaders, ...options.headers }
 
@@ -21,8 +27,8 @@ const apiFetch = {
 
   put: async (url, serviceOptions) => {
     const options = {
-      method: 'PUT',
-      ...serviceOptions
+      ...serviceOptions,
+      method: 'PUT'
     }
     options.headers = { ...defaultHeaders, ...options.headers }
 
@@ -32,8 +38,8 @@ const apiFetch = {
 
   delete: async (url, serviceOptions) => {
     const options = {
-      method: 'DELETE',
-      ...serviceOptions
+      ...serviceOptions,
+      method: 'DELETE'
     }
     options.headers = { ...defaultHeaders, ...options.headers }
 

@@ -3,8 +3,6 @@ import PropTypes from 'prop-types'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
 import { useIngredientsService } from '../../services'
 import { generateId, getDataFromResponse, isSuccessResponse, replaceNullWith, setDefaultValue } from '../../global/helpers'
 import Autocomplete from '../SearchBar/Autocomplete'
@@ -225,42 +223,40 @@ const RecipeForm = (props) => {
   }, [ingredientValue])
 
   useEffect(() => {
-    if (recipe.uuid) {
-      const { steps: stepsDB, ingredients } = recipe
+    const { steps: stepsDB, ingredients } = recipe
 
-      const ingredientsPrefill = {}
-      ingredients.forEach((ingredient) => {
-        ingredientsPrefill[generateId(5)] = {
-          ingredient_recipe_id: ingredient.ingredients_recipes.id,
-          uuid: ingredient.uuid,
-          name: ingredient.name,
-          amount: replaceNullWith(ingredient.ingredients_recipes.amount, 0),
-          unit: replaceNullWith(ingredient.ingredients_recipes.unit, ''),
-          section: replaceNullWith(ingredient.ingredients_recipes.section, ''),
-          weight: replaceNullWith(ingredient.ingredients_recipes.weight, 1),
-          open: false
-        }
-      })
+    const ingredientsPrefill = {}
+    ingredients?.forEach((ingredient) => {
+      ingredientsPrefill[generateId(5)] = {
+        ingredient_recipe_id: ingredient.ingredients_recipes.id,
+        uuid: ingredient.uuid,
+        name: ingredient.name,
+        amount: replaceNullWith(ingredient.ingredients_recipes.amount, 0),
+        unit: replaceNullWith(ingredient.ingredients_recipes.unit, ''),
+        section: replaceNullWith(ingredient.ingredients_recipes.section, ''),
+        weight: replaceNullWith(ingredient.ingredients_recipes.weight, 1),
+        open: false
+      }
+    })
 
-      setSelectedIngredients(ingredientsPrefill)
+    setSelectedIngredients(ingredientsPrefill)
 
-      const stepsPrefill = {}
-      stepsDB.forEach((step) => {
-        if (step.type === 'section') {
-          step.steps.forEach((d) => {
-            stepsPrefill[generateId()] = {
-              value: d.value,
-              section: step.value
-            }
-          })
-        } else {
-          stepsPrefill[generateId()] = { value: step.value, section: '' }
-        }
-      })
+    const stepsPrefill = {}
+    stepsDB?.forEach((step) => {
+      if (step.type === 'section') {
+        step.steps.forEach((d) => {
+          stepsPrefill[generateId()] = {
+            value: d.value,
+            section: step.value
+          }
+        })
+      } else {
+        stepsPrefill[generateId()] = { value: step.value, section: '' }
+      }
+    })
 
-      setSteps(stepsPrefill)
-    }
-  }, [])
+    setSteps(stepsPrefill)
+  }, [recipe])
 
   const handleClickCollapse = (e) => {
     const {
@@ -390,6 +386,14 @@ const RecipeForm = (props) => {
                 onSelect={onSelectIngredient}
                 selectedIngredients={selectedIngredientsAutocomplete}
               />
+
+              {recipe.structuredDataIngredients && (
+                <Grid item sx={12}>
+                  <pre>
+                    <code>{JSON.stringify(recipe.structuredDataIngredients, null, 4)}</code>
+                  </pre>
+                </Grid>
+              )}
 
               <Ingredients
                 handleClickCollapse={handleClickCollapse}

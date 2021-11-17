@@ -190,13 +190,17 @@ describe('<RecipeForm />', () => {
     await waitFor(() => {
       const steps = queryAllByTestId('recipe-form-input-step')
 
-      expect(steps.length).toBe(2)
+      expect(steps.length).toBe(1)
     })
   })
 
   it('should update the step value', async () => {
     const { getByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
     const text = 'Step name'
+
+    const buttonAddStep = getByTestId('recipe-form-button-add-step')
+
+    userEvent.click(buttonAddStep)
 
     const input = getByTestId('recipe-form-input-step')
 
@@ -210,6 +214,10 @@ describe('<RecipeForm />', () => {
   it('should update the step section', async () => {
     const { getByTestId } = render(<RecipeForm submitRecipe={submitRecipe} />)
     const text = 'Step section'
+
+    const buttonAddStep = getByTestId('recipe-form-button-add-step')
+
+    userEvent.click(buttonAddStep)
 
     const input = getByTestId('recipe-form-input-step-section')
 
@@ -233,6 +241,10 @@ describe('<RecipeForm />', () => {
 
       userEvent.click(dropdownItem)
     })
+
+    const buttonAddStep = getByTestId('recipe-form-button-add-step')
+
+    userEvent.click(buttonAddStep)
 
     const inputRecipeName = queryByTestId('recipe-form-input-name')
     const ingredientUnit = queryByTestId('recipe-form-input-ingredient-unit')

@@ -24,6 +24,8 @@ Clone the file `.env.skeleton` to `.env` and fill the database information that 
 
 The command `npm start` will start the React, Node and Postgres servers with Adminer to manage your database data. Elasticsearch will also launch with Kibana to visualize your data. The migrations will automatically run.
 
+To also run the crawler, use the command `npm start:crawler`
+
 In another terminal, run the seeders: `npm run seeds`
 
 The data from the database will persist even the container is not running.

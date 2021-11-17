@@ -1,6 +1,29 @@
 version: '3.7'
 
 services:
+  crawler:
+    container_name: crawler
+    profiles:
+      - crawler
+    build:
+      context: ./crawler
+      dockerfile: ./docker/Dockerfile.dev
+    env_file:
+      - ./.env
+    volumes:
+      - ./crawler:/usr/src/app/
+      - /usr/src/app/node_modules
+    ports:
+      - ${CRAWLER_PORT}:${CRAWLER_PORT}
+    expose:
+      - ${CRAWLER_PORT}
+    depends_on:
+      - api
+      - database
+      - elastic
+    networks:
+      - app
+
   api:
     container_name: api
     tty: true
