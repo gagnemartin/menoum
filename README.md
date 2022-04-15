@@ -39,6 +39,18 @@ To view and manage the Postgres database, navigate to [http://localhost:8080/](h
 #### Elasticsearch
 To view and manage the Elasticsearch database, navigate to [http://localhost:5601/](http://localhost:5601/)
 
+**Windows users**
+
+Windows users using wsl subsystem might get this error when running the app with docker
+
+`Max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]`
+
+Open powershell and run the following commands
+
+1. `wsl -d docker-desktop`
+2. `sysctl -w vm.max_map_count=262144`
+3. `exit`
+
 #### .cjs files
 
 This application uses `"type": "module"` inside its package.json file to enable ES6 with Node.js and use import/export statements. However, some modules are importing files using the `require` statement and Node.js does not like that unless the imported Javascript file has a **.cjs** extension.
