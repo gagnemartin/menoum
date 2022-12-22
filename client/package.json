@@ -9,7 +9,7 @@
     "@mui/icons-material": "^5.0.0-rc.0",
     "@mui/lab": "^5.0.0-alpha.45",
     "@mui/material": "^5.0.0-rc.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-router-dom": "^5.2.0",
